@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plano Técnico · LeCode Performance Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --accent:#00b473;
+  --accent-soft:oklch(from var(--accent) 0.3 0.06 h);
+  --accent-ink:oklch(from var(--accent) 0.82 0.13 h);
+  --bg:oklch(0.16 0.012 168);
+  --surface:oklch(0.198 0.014 168);
+  --surface-2:oklch(0.178 0.013 168);
+  --surface-3:oklch(0.24 0.016 168);
+  --border:oklch(0.27 0.015 168);
+  --border-strong:oklch(0.35 0.017 168);
+  --ink:oklch(0.96 0.006 168);
+  --ink-2:oklch(0.78 0.012 168);
+  --ink-3:oklch(0.6 0.014 168);
+  --sans:"Space Grotesk",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --maxw:880px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+.layout{display:grid;grid-template-columns:248px 1fr;max-width:1240px;margin:0 auto;}
+/* ---- TOC ---- */
+.toc{position:sticky;top:0;height:100vh;overflow:auto;border-right:1px solid var(--border);padding:30px 18px;background:var(--surface-2);}
+.toc .brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.toc .mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:#04130d;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:16px;}
+.toc .bn{font-weight:600;font-size:15px;letter-spacing:-.2px;}
+.toc .bn small{display:block;font-family:var(--mono);font-size:9.5px;color:var(--ink-3);letter-spacing:.04em;}
+.toc nav{margin-top:22px;display:flex;flex-direction:column;gap:1px;}
+.toc a{color:var(--ink-3);text-decoration:none;font-size:12.8px;padding:6px 10px;border-radius:7px;border-left:2px solid transparent;}
+.toc a:hover{color:var(--ink);background:var(--surface-3);}
+.toc a .n{font-family:var(--mono);color:var(--ink-3);margin-right:8px;font-size:11px;}
+.toc .grp{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);padding:16px 10px 5px;}
+/* ---- content ---- */
+main{padding:56px 60px 120px;max-width:var(--maxw);}
+.eyebrow{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--accent-ink);}
+h1{font-size:38px;letter-spacing:-1px;margin:8px 0 10px;line-height:1.05;}
+.lead{font-size:17px;color:var(--ink-2);max-width:62ch;}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 8px;}
+.tag{font-family:var(--mono);font-size:11px;background:var(--surface-3);color:var(--ink-2);border:1px solid var(--border);padding:4px 10px;border-radius:20px;}
+section{margin-top:52px;scroll-margin-top:24px;}
+h2{font-size:25px;letter-spacing:-.5px;margin:0 0 6px;padding-top:14px;border-top:1px solid var(--border);}
+h2 .h2n{font-family:var(--mono);font-size:14px;color:var(--accent-ink);margin-right:12px;}
+h3{font-size:16.5px;letter-spacing:-.2px;margin:30px 0 8px;color:var(--ink);}
+p{margin:0 0 14px;color:var(--ink-2);}
+strong{color:var(--ink);font-weight:600;}
+a.ilink{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid color-mix(in oklab,var(--accent) 40%,transparent);}
+ul,ol{margin:0 0 16px;padding-left:22px;color:var(--ink-2);}
+li{margin:5px 0;}
+code{font-family:var(--mono);font-size:.86em;background:var(--surface-3);padding:2px 6px;border-radius:5px;color:var(--accent-ink);}
+pre{margin:14px 0 18px;background:#0c1411;border:1px solid var(--border);border-radius:12px;overflow:auto;}
+pre .bar{display:flex;align-items:center;gap:7px;padding:8px 13px;border-bottom:1px solid oklch(0.22 0.012 168);background:oklch(0.14 0.012 168);}
+pre .bar .d{width:10px;height:10px;border-radius:50%;}
+pre .bar .fn{margin-left:8px;font-family:var(--mono);font-size:11px;color:var(--ink-3);}
+pre code{display:block;background:none;padding:16px 18px;color:oklch(0.86 0.02 168);font-size:12.5px;line-height:1.7;border-radius:0;}
+.tok-k{color:#4fd1a1;}/* keyword */
+.tok-c{color:oklch(0.5 0.02 168);font-style:italic;}/* comment */
+.tok-s{color:#9ece9a;}/* string */
+.tok-f{color:#7fd1e0;}/* function/type */
+.callout{display:flex;gap:12px;padding:14px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid color-mix(in oklab,var(--accent) 22%,transparent);color:var(--accent-ink);font-size:13.5px;line-height:1.55;margin:16px 0;}
+.callout.warn{background:oklch(0.32 0.06 70);border-color:oklch(0.5 0.1 70);color:oklch(0.9 0.08 80);}
+.callout .ico{flex:none;font-family:var(--mono);font-weight:700;}
+table{width:100%;border-collapse:collapse;margin:16px 0 20px;font-size:13.5px;}
+th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--border);vertical-align:top;}
+th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:500;background:var(--surface-2);}
+td{color:var(--ink-2);}
+td code{font-size:12px;}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:20px;background:var(--surface-3);color:var(--ink-2);white-space:nowrap;}
+.pill.db{background:oklch(0.3 0.07 168);color:var(--accent-ink);}
+.pill.rls{background:oklch(0.32 0.08 264);color:oklch(0.84 0.1 264);}
+.pill.app{background:oklch(0.34 0.07 70);color:oklch(0.86 0.1 80);}
+.erd{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:18px 0;}
+.ent{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.ent h4{margin:0;font-family:var(--mono);font-size:12.5px;padding:9px 12px;background:var(--surface-3);color:var(--accent-ink);border-bottom:1px solid var(--border);}
+.ent ul{list-style:none;margin:0;padding:8px 12px;font-size:12px;font-family:var(--mono);color:var(--ink-3);}
+.ent li{margin:3px 0;}
+.ent li .pk{color:var(--accent-ink);}
+.ent li .fk{color:#7fd1e0;}
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--border);font-family:var(--mono);font-size:11.5px;color:var(--ink-3);}
+@media print{
+  .toc{display:none;}.layout{grid-template-columns:1fr;}main{padding:0;max-width:none;}
+  body{background:#fff;color:#111;}pre{background:#f4f6f5;}pre code{color:#1a1a1a;}
+}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}.toc{display:none;}main{padding:32px 22px 80px;}}
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" fill="#0d1411"/>
+<rect x="30" y="30" width="40" height="40" rx="9" fill="#00b473"/>
+<text x="50" y="64" font-family="monospace" font-size="30" font-weight="700" fill="#04130d" text-anchor="middle">L</text>
+</svg>
+</template>
+<div class="layout">
+<aside class="toc">
+  <div class="brand">
+    <div class="mark">L</div>
+    <div class="bn">LeCode<small>plano_tecnico.md</small></div>
+  </div>
+  <nav>
+    <span class="grp">Contexto</span>
+    <a href="#visao"><span class="n">00</span>Visão & stack</a>
+    <a href="#identidade"><span class="n">01</span>Identidade & autorização</a>
+    <span class="grp">Dados</span>
+    <a href="#modelo"><span class="n">02</span>Modelo de dados</a>
+    <a href="#schema"><span class="n">03</span>Schema SQL</a>
+    <a href="#score"><span class="n">04</span>Cálculo do score</a>
+    <span class="grp">Segurança</span>
+    <a href="#rls"><span class="n">05</span>Políticas RLS</a>
+    <a href="#regras"><span class="n">06</span>Regras → camada</a>
+    <a href="#rpc"><span class="n">07</span>Ações via RPC</a>
+    <span class="grp">Aplicação</span>
+    <a href="#rotas"><span class="n">08</span>Rotas Next.js</a>
+    <a href="#zustand"><span class="n">09</span>Stores Zustand</a>
+    <a href="#abertas"><span class="n">10</span>Questões em aberto</a>
+  </nav>
+</aside>
+
+<main>
+  <div class="eyebrow">Plano técnico · v1</div>
+  <h1>Plataforma LeCode<br/>Performance Review</h1>
+  <p class="lead">Especificação de arquitetura para a plataforma de avaliações de desempenho dos terceirizados da LeCode — modelo de dados, autorização por perfil e regras anti-viés impostas no servidor.</p>
+  <div class="meta">
+    <span class="tag">TypeScript</span><span class="tag">Next.js · App Router</span><span class="tag">React</span>
+    <span class="tag">TailwindCSS</span><span class="tag">Zustand</span><span class="tag">Supabase · Postgres + RLS</span>
+  </div>
+
+  <!-- 00 -->
+  <section id="visao">
+    <h2><span class="h2n">00</span>Visão & stack</h2>
+    <p>O sistema avalia contratados da LeCode em <strong>ciclos periódicos</strong>. Cada ciclo coleta duas avaliações por contratado — uma <strong>autoavaliação</strong> (peso 30%) e uma <strong>avaliação do cliente</strong> (peso 70%) — sobre 5 dimensões, escala 1–5. O score final orienta decisões de promoção, PDI e recuperação.</p>
+    <p>A premissa central de segurança: avaliador e avaliado <strong>não podem ver a avaliação um do outro antes do encerramento do ciclo</strong> (anti-viés). Isso não é uma regra de UI — é imposto no banco via <strong>Row Level Security (RLS)</strong>.</p>
+    <table>
+      <tr><th>Camada</th><th>Tecnologia</th><th>Responsabilidade</th></tr>
+      <tr><td>Cliente</td><td>Next.js (App Router), React, Tailwind, Zustand</td><td>UI, estado efêmero de formulário, roteamento por perfil</td></tr>
+      <tr><td>Borda</td><td>Next middleware + Server Components</td><td>Sessão, gating grosseiro de rota, data-fetching com JWT do usuário</td></tr>
+      <tr><td>Dados</td><td>Supabase (Postgres, Auth, RLS, RPC)</td><td><strong>Fonte de verdade e autoridade</strong> de autorização e regras de negócio</td></tr>
+    </table>
+    <div class="callout"><span class="ico">i</span><div>Princípio: o front é conveniência; toda decisão de acesso é reavaliada no Postgres. Um request direto à API REST/RPC do Supabase, sem passar pela UI, obedece exatamente às mesmas regras.</div></div>
+  </section>
+
+  <!-- 01 -->
+  <section id="identidade">
+    <h2><span class="h2n">01</span>Identidade & autorização</h2>
+    <p>O perfil (<code>lecode_admin</code>, <code>client_rep</code>, <code>contractor</code>) é um <strong>atributo da conta</strong>, atribuído por um administrador — nunca escolhido pelo usuário no login ou no cadastro. Auto-seleção de perfil seria escalonamento de privilégio.</p>
+    <h3>Fonte de verdade</h3>
+    <p>A role vive em <code>profiles.role</code> (tabela 1:1 com <code>auth.users</code>). Novos cadastros entram como <code>contractor</code>; elevação para <code>client_rep</code>/<code>lecode_admin</code> é uma ação administrativa.</p>
+    <h3>JWT como atalho de UI, não como autoridade</h3>
+    <p>Espelhamos a role num <em>custom claim</em> (<code>app_metadata.role</code>) para o front rotear sem um round-trip. Mas o gate real é a RLS, que lê a role direto da tabela via <code>auth.uid()</code> — o claim nunca libera dados por si só.</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">supabase/functions · set_role_claim (Auth Hook)</span></span><code><span class="tok-c">-- Custom Access Token Hook: injeta a role no JWT a cada emissão.</span>
+<span class="tok-c">-- O valor vem SEMPRE do banco; o cliente não influencia.</span>
+<span class="tok-k">create or replace function</span> <span class="tok-f">add_role_to_jwt</span>(event jsonb)
+<span class="tok-k">returns</span> jsonb <span class="tok-k">language</span> plpgsql <span class="tok-k">as</span> $$
+<span class="tok-k">declare</span> r text;
+<span class="tok-k">begin</span>
+  <span class="tok-k">select</span> role::text <span class="tok-k">into</span> r <span class="tok-k">from</span> profiles
+   <span class="tok-k">where</span> id = (event-&gt;&gt;'user_id')::uuid;
+  <span class="tok-k">return</span> jsonb_set(event, '{claims,app_metadata,role}', to_jsonb(r));
+<span class="tok-k">end</span>; $$;</code></pre>
+    <h3>Auth0 vs Supabase Auth</h3>
+    <p>Para esta stack, <strong>Supabase Auth</strong> é a escolha natural: Auth + Postgres + RLS integrados, e <code>auth.uid()</code> alimenta as políticas diretamente. Auth0 funciona, mas adiciona sincronização de usuário/role para o Postgres e configuração para o Supabase aceitar o JWT de terceiros (JWKS). Recomendado apenas se já houver Auth0 corporativo/SSO como requisito.</p>
+  </section>
+
+  <!-- 02 -->
+  <section id="modelo">
+    <h2><span class="h2n">02</span>Modelo de dados</h2>
+    <p>Vínculos contratado↔cliente são <strong>temporais</strong> (mudam por ciclo), então ficam numa tabela própria (<code>allocations</code>) com período de vigência — não num campo no contratado. O formulário é <strong>versionado</strong>, para que editar perguntas/pesos não altere ciclos passados.</p>
+    <div class="erd">
+      <div class="ent"><h4>profiles</h4><ul><li><span class="pk">id</span> ↔ auth.users</li><li>full_name, email</li><li>role · enum</li><li><span class="fk">client_id</span> (p/ rep)</li></ul></div>
+      <div class="ent"><h4>clients</h4><ul><li><span class="pk">id</span></li><li>name, industry</li></ul></div>
+      <div class="ent"><h4>contractors</h4><ul><li><span class="pk">id</span></li><li><span class="fk">profile_id</span></li><li>role_title, track, seniority</li></ul></div>
+      <div class="ent"><h4>allocations</h4><ul><li><span class="pk">id</span></li><li><span class="fk">contractor_id</span></li><li><span class="fk">client_id</span></li><li>started_on, ended_on</li></ul></div>
+      <div class="ent"><h4>cycles</h4><ul><li><span class="pk">id</span></li><li>label, starts_on</li><li>submit_ends_on · dia 15</li><li>ends_on · fim do mês</li><li>status · open|closed</li></ul></div>
+      <div class="ent"><h4>form_versions</h4><ul><li><span class="pk">id</span></li><li>self_weight, client_weight</li><li>is_active</li></ul></div>
+      <div class="ent"><h4>form_questions</h4><ul><li><span class="pk">id</span></li><li><span class="fk">form_version_id</span></li><li>dimension, position, text</li></ul></div>
+      <div class="ent"><h4>reviews</h4><ul><li><span class="pk">id</span></li><li><span class="fk">cycle_id, contractor_id</span></li><li>type · self|client</li><li><span class="fk">author_id</span>, status</li></ul></div>
+      <div class="ent"><h4>review_answers</h4><ul><li><span class="pk">review_id, question_id</span></li><li>score · 1–5</li></ul></div>
+      <div class="ent"><h4>contractor_history</h4><ul><li><span class="pk">id</span></li><li><span class="fk">contractor_id</span></li><li>field · role|seniority|track|allocation</li><li>old_value, new_value</li><li>changed_by, changed_at</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section id="schema">
+    <h2><span class="h2n">03</span>Schema SQL</h2>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">supabase/migrations · 0001_schema.sql</span></span><code><span class="tok-k">create type</span> <span class="tok-f">user_role</span> <span class="tok-k">as enum</span> (<span class="tok-s">'lecode_admin'</span>,<span class="tok-s">'client_rep'</span>,<span class="tok-s">'contractor'</span>);
+<span class="tok-k">create type</span> <span class="tok-f">cycle_status</span> <span class="tok-k">as enum</span> (<span class="tok-s">'open'</span>,<span class="tok-s">'closed'</span>);
+<span class="tok-k">create type</span> <span class="tok-f">review_type</span> <span class="tok-k">as enum</span> (<span class="tok-s">'self'</span>,<span class="tok-s">'client'</span>);
+<span class="tok-k">create type</span> <span class="tok-f">dimension_key</span> <span class="tok-k">as enum</span>
+  (<span class="tok-s">'tech'</span>,<span class="tok-s">'delivery'</span>,<span class="tok-s">'comm'</span>,<span class="tok-s">'collab'</span>,<span class="tok-s">'autonomy'</span>);
+
+<span class="tok-k">create table</span> <span class="tok-f">clients</span> (
+  id uuid <span class="tok-k">primary key default</span> gen_random_uuid(),
+  name text <span class="tok-k">not null</span>, industry text,
+  created_at timestamptz <span class="tok-k">default</span> now()
+);
+
+<span class="tok-k">create table</span> <span class="tok-f">profiles</span> (              <span class="tok-c">-- 1:1 com auth.users</span>
+  id uuid <span class="tok-k">primary key references</span> auth.users(id) <span class="tok-k">on delete cascade</span>,
+  full_name text <span class="tok-k">not null</span>, email text <span class="tok-k">not null unique</span>,
+  role user_role <span class="tok-k">not null default</span> <span class="tok-s">'contractor'</span>,
+  client_id uuid <span class="tok-k">references</span> clients(id),   <span class="tok-c">-- só p/ client_rep</span>
+  created_at timestamptz <span class="tok-k">default</span> now()
+);
+
+<span class="tok-k">create table</span> <span class="tok-f">contractors</span> (
+  id uuid <span class="tok-k">primary key default</span> gen_random_uuid(),
+  profile_id uuid <span class="tok-k">not null unique references</span> profiles(id) <span class="tok-k">on delete cascade</span>,
+  role_title text <span class="tok-k">not null</span>, track text <span class="tok-k">not null</span>, seniority text <span class="tok-k">not null</span>
+);
+
+<span class="tok-k">create table</span> <span class="tok-f">allocations</span> (          <span class="tok-c">-- vínculo temporal contratado↔cliente</span>
+  id uuid <span class="tok-k">primary key default</span> gen_random_uuid(),
+  contractor_id uuid <span class="tok-k">not null references</span> contractors(id) <span class="tok-k">on delete cascade</span>,
+  client_id uuid <span class="tok-k">not null references</span> clients(id) <span class="tok-k">on delete cascade</span>,
+  started_on date <span class="tok-k">not null default</span> current_date,
+  ended_on date                          <span class="tok-c">-- null = vínculo ativo</span>
+);
+<span class="tok-k">create unique index</span> one_active_alloc <span class="tok-k">on</span> allocations(contractor_id)
+  <span class="tok-k">where</span> ended_on <span class="tok-k">is null</span>;       <span class="tok-c">-- um cliente ativo por vez</span>
+
+<span class="tok-k">create table</span> <span class="tok-f">cycles</span> (
+  id uuid <span class="tok-k">primary key default</span> gen_random_uuid(),
+  label text <span class="tok-k">not null</span>, starts_on date <span class="tok-k">not null</span>,
+  submit_ends_on date <span class="tok-k">not null</span>, <span class="tok-c">-- dia 15: fim do envio</span>
+  ends_on date <span class="tok-k">not null</span>,                 <span class="tok-c">-- fim do mês: apuração</span>
+  status cycle_status <span class="tok-k">not null default</span> <span class="tok-s">'open'</span>,
+  closed_at timestamptz, created_by uuid <span class="tok-k">references</span> profiles(id)
+);
+
+<span class="tok-k">create table</span> <span class="tok-f">form_versions</span> (
+  id uuid <span class="tok-k">primary key default</span> gen_random_uuid(), version int <span class="tok-k">not null</span>,
+  self_weight numeric <span class="tok-k">not null default</span> 0.30,
+  client_weight numeric <span class="tok-k">not null default</span> 0.70,
+  is_active boolean <span class="tok-k">not null default</span> false,
+  <span class="tok-k">check</span> (self_weight + client_weight = 1)
+);
+<span class="tok-k">create table</span> <span class="tok-f">form_questions</span> (
+  id uuid <span class="tok-k">primary key default</span> gen_random_uuid(),
+  form_version_id uuid <span class="tok-k">not null references</span> form_versions(id) <span class="tok-k">on delete cascade</span>,
+  dimension dimension_key <span class="tok-k">not null</span>, position int <span class="tok-k">not null</span>, text text <span class="tok-k">not null</span>
+);
+
+<span class="tok-k">create table</span> <span class="tok-f">reviews</span> (
+  id uuid <span class="tok-k">primary key default</span> gen_random_uuid(),
+  cycle_id uuid <span class="tok-k">not null references</span> cycles(id) <span class="tok-k">on delete cascade</span>,
+  contractor_id uuid <span class="tok-k">not null references</span> contractors(id) <span class="tok-k">on delete cascade</span>,
+  type review_type <span class="tok-k">not null</span>,
+  author_id uuid <span class="tok-k">not null references</span> profiles(id),
+  status review_status <span class="tok-k">not null default</span> <span class="tok-s">'draft'</span>,
+  comments jsonb <span class="tok-k">not null default</span> <span class="tok-s">'{}'</span>,   <span class="tok-c">-- {strengths,growth,extra}</span>
+  submitted_at timestamptz, updated_at timestamptz <span class="tok-k">default</span> now(),
+  <span class="tok-k">unique</span>(cycle_id, contractor_id, type)
+);
+<span class="tok-k">create table</span> <span class="tok-f">review_answers</span> (
+  review_id uuid <span class="tok-k">references</span> reviews(id) <span class="tok-k">on delete cascade</span>,
+  question_id uuid <span class="tok-k">references</span> form_questions(id),
+  score smallint <span class="tok-k">not null check</span> (score <span class="tok-k">between</span> 1 <span class="tok-k">and</span> 5),
+  <span class="tok-k">primary key</span> (review_id, question_id)
+);</code></pre>
+    <div class="callout"><span class="ico">i</span><div>O <code>unique(cycle_id, contractor_id, type)</code> garante exatamente uma self e uma client review por contratado/ciclo — o <em>upsert</em> de "editar enquanto aberto" recai sobre essa chave.</div></div>
+  </section>
+
+  <!-- 04 -->
+  <section id="score">
+    <h2><span class="h2n">04</span>Cálculo do score</h2>
+    <p>As notas por dimensão e o score final são <strong>derivados</strong> (nunca gravados duplicados), expostos por views que respeitam a RLS (<code>security_invoker</code>). O peso vem da versão de formulário ativa.</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">supabase/migrations · 0002_scores.sql</span></span><code><span class="tok-k">create view</span> <span class="tok-f">review_dimension_scores</span> <span class="tok-k">with</span> (security_invoker = on) <span class="tok-k">as</span>
+<span class="tok-k">select</span> r.cycle_id, r.contractor_id, r.type, q.dimension,
+       avg(a.score)::numeric(4,2) <span class="tok-k">as</span> dim_score
+<span class="tok-k">from</span> reviews r
+<span class="tok-k">join</span> review_answers a <span class="tok-k">on</span> a.review_id = r.id
+<span class="tok-k">join</span> form_questions q <span class="tok-k">on</span> q.id = a.question_id
+<span class="tok-k">where</span> r.status = <span class="tok-s">'submitted'</span>
+<span class="tok-k">group by</span> r.cycle_id, r.contractor_id, r.type, q.dimension;
+
+<span class="tok-c">-- Score final = self·0.30 + cliente·0.70 (pesos da versão ativa)</span>
+<span class="tok-k">create view</span> <span class="tok-f">final_scores</span> <span class="tok-k">with</span> (security_invoker = on) <span class="tok-k">as</span>
+<span class="tok-k">with</span> overall <span class="tok-k">as</span> (
+  <span class="tok-k">select</span> cycle_id, contractor_id, type, avg(dim_score) <span class="tok-k">as</span> s
+  <span class="tok-k">from</span> review_dimension_scores <span class="tok-k">group by</span> 1,2,3
+)
+<span class="tok-k">select</span> o.cycle_id, o.contractor_id,
+  max(o.s) <span class="tok-k">filter</span> (<span class="tok-k">where</span> type=<span class="tok-s">'self'</span>)   <span class="tok-k">as</span> self_score,
+  max(o.s) <span class="tok-k">filter</span> (<span class="tok-k">where</span> type=<span class="tok-s">'client'</span>) <span class="tok-k">as</span> client_score,
+  round(
+    coalesce(max(o.s) <span class="tok-k">filter</span>(<span class="tok-k">where</span> type=<span class="tok-s">'self'</span>),0)*fv.self_weight +
+    coalesce(max(o.s) <span class="tok-k">filter</span>(<span class="tok-k">where</span> type=<span class="tok-s">'client'</span>),0)*fv.client_weight, 2
+  ) <span class="tok-k">as</span> final_score
+<span class="tok-k">from</span> overall o
+<span class="tok-k">cross join</span> (<span class="tok-k">select</span> self_weight, client_weight <span class="tok-k">from</span> form_versions <span class="tok-k">where</span> is_active) fv
+<span class="tok-k">group by</span> o.cycle_id, o.contractor_id, fv.self_weight, fv.client_weight;</code></pre>
+    <div class="callout warn"><span class="ico">!</span><div>Como a view usa <code>security_invoker</code>, antes do ciclo fechar o avaliador não enxerga a linha da contraparte e o <code>final_score</code> sairia incompleto. Por isso o score final consolidado é exposto a não-admins por <strong>RPC com checagem explícita de ciclo encerrado</strong> (ver §07), e não direto pela view.</div></div>
+  </section>
+
+  <!-- 05 -->
+  <section id="rls">
+    <h2><span class="h2n">05</span>Políticas RLS</h2>
+    <p>Helpers <code>stable</code> centralizam a leitura do perfil; as policies traduzem cada regra de negócio. Toda tabela tem <code>enable row level security</code> e <strong>nenhuma policy permissiva por padrão</strong>.</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">0003_rls.sql · helpers</span></span><code><span class="tok-k">create function</span> <span class="tok-f">auth_role</span>() <span class="tok-k">returns</span> user_role <span class="tok-k">language</span> sql <span class="tok-k">stable as</span>
+$$ <span class="tok-k">select</span> role <span class="tok-k">from</span> profiles <span class="tok-k">where</span> id = auth.uid() $$;
+
+<span class="tok-k">create function</span> <span class="tok-f">is_admin</span>() <span class="tok-k">returns</span> boolean <span class="tok-k">language</span> sql <span class="tok-k">stable as</span>
+$$ <span class="tok-k">select</span> auth_role() = <span class="tok-s">'lecode_admin'</span> $$;
+
+<span class="tok-k">create function</span> <span class="tok-f">my_client_id</span>() <span class="tok-k">returns</span> uuid <span class="tok-k">language</span> sql <span class="tok-k">stable as</span>
+$$ <span class="tok-k">select</span> client_id <span class="tok-k">from</span> profiles <span class="tok-k">where</span> id = auth.uid() $$;
+
+<span class="tok-k">create function</span> <span class="tok-f">my_contractor_id</span>() <span class="tok-k">returns</span> uuid <span class="tok-k">language</span> sql <span class="tok-k">stable as</span>
+$$ <span class="tok-k">select</span> id <span class="tok-k">from</span> contractors <span class="tok-k">where</span> profile_id = auth.uid() $$;</code></pre>
+
+    <h3>Reviews — leitura (anti-viés)</h3>
+    <p>O coração das regras: o contratado vê a review do cliente <strong>só após o encerramento</strong>; o representante vê a autoavaliação <strong>só após o encerramento</strong>. Admin vê tudo.</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">0003_rls.sql · reviews (select)</span></span><code><span class="tok-k">alter table</span> reviews <span class="tok-k">enable row level security</span>;
+
+<span class="tok-c">-- Admin LeCode: acesso total</span>
+<span class="tok-k">create policy</span> reviews_admin_all <span class="tok-k">on</span> reviews
+  <span class="tok-k">for all using</span> (is_admin()) <span class="tok-k">with check</span> (is_admin());
+
+<span class="tok-c">-- Contratado: sua self sempre; a do cliente só com ciclo fechado</span>
+<span class="tok-k">create policy</span> reviews_contractor_read <span class="tok-k">on</span> reviews <span class="tok-k">for select using</span> (
+  contractor_id = my_contractor_id() <span class="tok-k">and</span> (
+    type = <span class="tok-s">'self'</span>
+    <span class="tok-k">or</span> (type = <span class="tok-s">'client'</span> <span class="tok-k">and exists</span> (
+         <span class="tok-k">select</span> 1 <span class="tok-k">from</span> cycles c
+         <span class="tok-k">where</span> c.id = reviews.cycle_id <span class="tok-k">and</span> c.status = <span class="tok-s">'closed'</span>))
+  )
+);
+
+<span class="tok-c">-- Representante do cliente: contratados alocados no SEU cliente,</span>
+<span class="tok-c">-- vínculo vigente no período do ciclo; a self só com ciclo fechado</span>
+<span class="tok-k">create policy</span> reviews_client_read <span class="tok-k">on</span> reviews <span class="tok-k">for select using</span> (
+  auth_role() = <span class="tok-s">'client_rep'</span>
+  <span class="tok-k">and exists</span> (
+    <span class="tok-k">select</span> 1 <span class="tok-k">from</span> allocations al
+    <span class="tok-k">join</span> cycles c <span class="tok-k">on</span> c.id = reviews.cycle_id
+    <span class="tok-k">where</span> al.contractor_id = reviews.contractor_id
+      <span class="tok-k">and</span> al.client_id = my_client_id()
+      <span class="tok-k">and</span> al.started_on &lt;= c.ends_on
+      <span class="tok-k">and</span> coalesce(al.ended_on, <span class="tok-s">'infinity'</span>) &gt;= c.starts_on
+  )
+  <span class="tok-k">and</span> (
+    type = <span class="tok-s">'client'</span>
+    <span class="tok-k">or</span> (type = <span class="tok-s">'self'</span> <span class="tok-k">and exists</span> (
+         <span class="tok-k">select</span> 1 <span class="tok-k">from</span> cycles c
+         <span class="tok-k">where</span> c.id = reviews.cycle_id <span class="tok-k">and</span> c.status = <span class="tok-s">'closed'</span>))
+  )
+);</code></pre>
+
+    <h3>Reviews — escrita (editar enquanto aberto)</h3>
+    <p>Cada lado só escreve a própria review, e <strong>somente enquanto o ciclo estiver aberto</strong> — o que habilita naturalmente o "repensar a resposta" antes do encerramento e trava tudo depois.</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">0003_rls.sql · reviews (insert/update)</span></span><code><span class="tok-c">-- Contratado cria/edita a própria self enquanto aberto</span>
+<span class="tok-k">create policy</span> reviews_self_write <span class="tok-k">on</span> reviews <span class="tok-k">for insert with check</span> (
+  type = <span class="tok-s">'self'</span> <span class="tok-k">and</span> contractor_id = my_contractor_id()
+  <span class="tok-k">and</span> author_id = auth.uid()
+  <span class="tok-k">and exists</span>(<span class="tok-k">select</span> 1 <span class="tok-k">from</span> cycles c <span class="tok-k">where</span> c.id = cycle_id <span class="tok-k">and</span> c.status=<span class="tok-s">'open'</span>)
+);
+<span class="tok-k">create policy</span> reviews_self_update <span class="tok-k">on</span> reviews <span class="tok-k">for update</span>
+  <span class="tok-k">using</span> (type=<span class="tok-s">'self'</span> <span class="tok-k">and</span> contractor_id = my_contractor_id()
+     <span class="tok-k">and exists</span>(<span class="tok-k">select</span> 1 <span class="tok-k">from</span> cycles c <span class="tok-k">where</span> c.id=cycle_id <span class="tok-k">and</span> c.status=<span class="tok-s">'open'</span>))
+  <span class="tok-k">with check</span> (type=<span class="tok-s">'self'</span> <span class="tok-k">and</span> contractor_id = my_contractor_id());
+
+<span class="tok-c">-- Representante cria/edita a review do cliente enquanto aberto,</span>
+<span class="tok-c">-- exigindo vínculo ATIVO do contratado no seu cliente</span>
+<span class="tok-k">create policy</span> reviews_client_write <span class="tok-k">on</span> reviews <span class="tok-k">for insert with check</span> (
+  type=<span class="tok-s">'client'</span> <span class="tok-k">and</span> auth_role()=<span class="tok-s">'client_rep'</span> <span class="tok-k">and</span> author_id = auth.uid()
+  <span class="tok-k">and exists</span>(<span class="tok-k">select</span> 1 <span class="tok-k">from</span> cycles c <span class="tok-k">where</span> c.id=cycle_id <span class="tok-k">and</span> c.status=<span class="tok-s">'open'</span>)
+  <span class="tok-k">and exists</span>(<span class="tok-k">select</span> 1 <span class="tok-k">from</span> allocations al
+        <span class="tok-k">where</span> al.contractor_id = reviews.contractor_id
+          <span class="tok-k">and</span> al.client_id = my_client_id() <span class="tok-k">and</span> al.ended_on <span class="tok-k">is null</span>)
+);</code></pre>
+    <p><code>review_answers</code> herda a visibilidade da review-pai: a policy faz <code>exists (select 1 from reviews r where r.id = review_id and &lt;mesma lógica&gt;)</code>, evitando duplicar regras.</p>
+  </section>
+
+  <!-- 06 -->
+  <section id="regras">
+    <h2><span class="h2n">06</span>Regras de negócio → camada de imposição</h2>
+    <table>
+      <tr><th>Regra</th><th>Onde é imposta</th></tr>
+      <tr><td>Perfil não é auto-selecionável</td><td><span class="pill db">DB</span> <code>profiles.role</code> + Auth Hook; cadastro força <code>contractor</code></td></tr>
+      <tr><td>Score final = self·0.30 + cliente·0.70</td><td><span class="pill db">DB</span> view <code>final_scores</code> + pesos da versão ativa</td></tr>
+      <tr><td>Cliente não vê a self antes de fechar</td><td><span class="pill rls">RLS</span> <code>reviews_client_read</code></td></tr>
+      <tr><td>Contratado não vê a do cliente antes de fechar</td><td><span class="pill rls">RLS</span> <code>reviews_contractor_read</code></td></tr>
+      <tr><td>Editar avaliação enquanto o ciclo está aberto</td><td><span class="pill rls">RLS</span> policies <code>*_update</code> com <code>status='open'</code></td></tr>
+      <tr><td>Cliente só avalia quem está alocado nele</td><td><span class="pill rls">RLS</span> <code>reviews_client_write</code> via <code>allocations</code></td></tr>
+      <tr><td>Encerrar ciclo só com todas as avaliações enviadas</td><td><span class="pill db">RPC</span> <code>close_cycle()</code> security definer</td></tr>
+      <tr><td>Score final consolidado só após encerrar (não-admin)</td><td><span class="pill db">RPC</span> <code>get_final_score()</code> com checagem</td></tr>
+      <tr><td>Roteamento/telas por perfil</td><td><span class="pill app">APP</span> middleware + layouts (conveniência, não autoridade)</td></tr>
+    </table>
+  </section>
+
+  <!-- 07 -->
+  <section id="rpc">
+    <h2><span class="h2n">07</span>Ações sensíveis via RPC</h2>
+    <p>Operações que exigem invariantes que uma policy de linha não expressa bem ficam em funções <code>security definer</code>, com checagens explícitas e <code>search_path</code> fixo.</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">0004_rpc.sql · close_cycle</span></span><code><span class="tok-k">create or replace function</span> <span class="tok-f">close_cycle</span>(p_cycle uuid)
+<span class="tok-k">returns</span> void <span class="tok-k">language</span> plpgsql <span class="tok-k">security definer</span> <span class="tok-k">set</span> search_path = public <span class="tok-k">as</span> $$
+<span class="tok-k">begin</span>
+  <span class="tok-k">if not</span> is_admin() <span class="tok-k">then raise exception</span> <span class="tok-s">'forbidden'</span>; <span class="tok-k">end if</span>;
+
+  <span class="tok-c">-- toda dupla (self, client) dos contratados alocados precisa estar submitted</span>
+  <span class="tok-k">if exists</span> (
+    <span class="tok-k">select</span> 1 <span class="tok-k">from</span> allocations al
+    <span class="tok-k">join</span> cycles c <span class="tok-k">on</span> c.id = p_cycle
+    <span class="tok-k">cross join</span> (<span class="tok-k">values</span> (<span class="tok-s">'self'</span>),(<span class="tok-s">'client'</span>)) <span class="tok-k">as</span> t(type)
+    <span class="tok-k">where</span> al.client_id <span class="tok-k">is not null</span>
+      <span class="tok-k">and</span> al.started_on &lt;= c.ends_on
+      <span class="tok-k">and</span> coalesce(al.ended_on,<span class="tok-s">'infinity'</span>) &gt;= c.starts_on
+      <span class="tok-k">and not exists</span> (
+        <span class="tok-k">select</span> 1 <span class="tok-k">from</span> reviews r
+        <span class="tok-k">where</span> r.cycle_id=p_cycle <span class="tok-k">and</span> r.contractor_id=al.contractor_id
+          <span class="tok-k">and</span> r.type=t.type::review_type <span class="tok-k">and</span> r.status=<span class="tok-s">'submitted'</span>)
+  ) <span class="tok-k">then raise exception</span> <span class="tok-s">'avaliacoes_pendentes'</span>; <span class="tok-k">end if</span>;
+
+  <span class="tok-k">update</span> cycles <span class="tok-k">set</span> status=<span class="tok-s">'closed'</span>, closed_at=now() <span class="tok-k">where</span> id=p_cycle;
+<span class="tok-k">end</span>; $$;</code></pre>
+    <p><code>get_final_score(p_cycle, p_contractor)</code> segue o mesmo padrão: admin sempre; demais perfis só recebem o número se <code>cycles.status = 'closed'</code>, evitando o vazamento indireto descrito na §04.</p>
+  </section>
+
+  <!-- 08 -->
+  <section id="rotas">
+    <h2><span class="h2n">08</span>Rotas Next.js (App Router)</h2>
+    <p>O <code>middleware</code> renova a sessão e faz o gating <em>grosseiro</em> (autenticado? prefixo de role permitido?). O <code>layout</code> de cada área valida a role no servidor e os Server Components buscam dados <strong>com o JWT do usuário</strong>, de modo que a RLS é a barreira real.</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">app/ · estrutura de rotas</span></span><code>app/
+├─ (auth)/                 <span class="tok-c">// público</span>
+│  ├─ login/ · signup/ · recover/
+├─ (app)/
+│  ├─ layout.tsx           <span class="tok-c">// getSession → profile.role; sem sessão → /login</span>
+│  ├─ admin/               <span class="tok-c">// guard: role === 'lecode_admin'</span>
+│  │  ├─ page.tsx                 <span class="tok-c">// visão geral</span>
+│  │  ├─ cycles/ · contractors/ · contractors/[id]/
+│  │  ├─ clients/ · form/
+│  ├─ client/              <span class="tok-c">// guard: role === 'client_rep'</span>
+│  │  ├─ team/ · team/[contractorId]/evaluate/ · history/
+│  └─ contractor/          <span class="tok-c">// guard: role === 'contractor'</span>
+│     ├─ page.tsx · self-review/ · history/
+└─ middleware.ts           <span class="tok-c">// refresh de sessão + gate por prefixo de role</span></code></pre>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">app/(app)/layout.tsx</span></span><code><span class="tok-k">export default async function</span> <span class="tok-f">AppLayout</span>({ children }) {
+  <span class="tok-k">const</span> supabase = createServerClient();
+  <span class="tok-k">const</span> { data: { user } } = <span class="tok-k">await</span> supabase.auth.getUser();
+  <span class="tok-k">if</span> (!user) redirect(<span class="tok-s">'/login'</span>);
+
+  <span class="tok-c">// role lida do banco no servidor — não confiamos no claim do cliente</span>
+  <span class="tok-k">const</span> { data: profile } = <span class="tok-k">await</span> supabase
+    .from(<span class="tok-s">'profiles'</span>).select(<span class="tok-s">'role, full_name'</span>).single();
+
+  <span class="tok-k">return</span> &lt;RoleProvider value={profile.role}&gt;{children}&lt;/RoleProvider&gt;;
+}</code></pre>
+    <div class="callout"><span class="ico">i</span><div>Mesmo que alguém force a URL <code>/admin</code>, os Server Components só retornam linhas que a RLS permitir para aquele JWT — o gating de rota é só UX, não a fronteira de segurança.</div></div>
+  </section>
+
+  <!-- 09 -->
+  <section id="zustand">
+    <h2><span class="h2n">09</span>Stores Zustand</h2>
+    <p>Zustand guarda <strong>estado de UI efêmero</strong>, não dados sensíveis nem a role como autoridade. O caso mais útil é o rascunho do formulário com autosave (que vira <code>upsert</code> de review <code>draft</code> enquanto o ciclo está aberto).</p>
+    <pre><span class="bar"><span class="d" style="background:#ff5f57"></span><span class="d" style="background:#febc2e"></span><span class="d" style="background:#28c840"></span><span class="fn">stores/reviewDraft.ts</span></span><code><span class="tok-k">type</span> DraftState = {
+  answers: Record&lt;string, number&gt;;       <span class="tok-c">// question_id → 1..5</span>
+  comments: { strengths: string; growth: string; extra: string };
+  setAnswer: (q: string, v: number) =&gt; void;
+  hydrate: (r: ReviewDraft) =&gt; void;       <span class="tok-c">// preenche ao reabrir (editar)</span>
+  reset: () =&gt; void;
+};
+
+<span class="tok-k">export const</span> useReviewDraft = create&lt;DraftState&gt;((set) =&gt; ({
+  answers: {}, comments: { strengths:<span class="tok-s">''</span>, growth:<span class="tok-s">''</span>, extra:<span class="tok-s">''</span> },
+  setAnswer: (q, v) =&gt; set((s) =&gt; ({ answers: { ...s.answers, [q]: v } })),
+  hydrate: (r) =&gt; set({ answers: r.answers, comments: r.comments }),
+  reset: () =&gt; set({ answers: {}, comments:{ strengths:<span class="tok-s">''</span>,growth:<span class="tok-s">''</span>,extra:<span class="tok-s">''</span> } }),
+}));</code></pre>
+    <table>
+      <tr><th>Store</th><th>Conteúdo</th><th>Persistência</th></tr>
+      <tr><td><code>useSession</code></td><td>user, profile.role, full_name (hidratado do servidor)</td><td>memória; re-hidrata por request</td></tr>
+      <tr><td><code>useReviewDraft</code></td><td>respostas + comentários em edição, flag de "salvo"</td><td>autosave → review <code>draft</code> (Supabase)</td></tr>
+      <tr><td><code>useUiPrefs</code></td><td>idioma, tema, densidade</td><td><code>localStorage</code></td></tr>
+    </table>
+  </section>
+
+  <!-- 10 -->
+  <section id="abertas">
+    <h2><span class="h2n">10</span>Questões em aberto</h2>
+    <ul>
+      <li><strong>Representante multi-cliente:</strong> <code>profiles.client_id</code> assume 1 cliente por rep. Se um rep cobre várias contas, virar tabela <code>client_rep_assignments</code> (N:N) e ajustar <code>my_client_id()</code> → <code>my_client_ids()</code>.</li>
+      <li><strong>Troca de cliente no meio do ciclo:</strong> as policies usam vigência por período; decidir se a avaliação "segue" o contratado ou fica congelada no cliente do início do ciclo.</li>
+      <li><strong>Reabertura de ciclo:</strong> hoje encerrar é definitivo. Se precisar reabrir, exigir RPC admin + trilha de auditoria.</li>
+      <li><strong>Auditoria & notificações:</strong> tabela <code>audit_log</code> (quem submeteu/editou/encerrou) e e-mails de abertura/lembrete/encerramento (Supabase + Edge Functions/Resend).</li>
+      <li><strong>Histórico de pesos:</strong> ciclos antigos devem usar a versão de formulário vigente à época — vincular <code>cycles.form_version_id</code> em vez de sempre a versão ativa.</li>
+      <li><strong>Rascunho vs enviado:</strong> confirmar se a "média parcial" some rascunhos ou só enviados nas views de score.</li>
+    </ul>
+    <div class="callout"><span class="ico">→</span><div>Próximo passo sugerido: transformar este plano em migrations versionadas (<code>supabase/migrations/*.sql</code>) + um seed de demonstração espelhando os dados do protótipo, e fechar as decisões da §10 com o time.</div></div>
+  </section>
+
+  <footer>
+    LeCode · Performance Review — Plano Técnico v1 · gerado em 04/06/2026 · sujeito a revisão com o time de engenharia.
+  </footer>
+</main>
+</div>
+</body>
+</html>

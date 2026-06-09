@@ -1,0 +1,626 @@
+// i18n.jsx — trilingual layer (PT-BR default / EN / ES) + theme context + UI controls
+
+const EN = {
+  // ---- chrome / roles ----
+  "Gestor LeCode": "LeCode Manager",
+  "Administra a plataforma": "Administers the platform",
+  "Representante Cliente": "Client Representative",
+  "Avalia o time alocado": "Evaluates the allocated team",
+  "Contratado LeCode": "LeCode Contractor",
+  "Faz a auto-avaliação": "Completes the self-review",
+  "Operação": "Operations", "Cadastros": "Records", "Configuração": "Settings",
+  "Avaliação": "Evaluation", "Avaliações": "Reviews", "Minha avaliação": "My review",
+  "Visão geral": "Overview", "Ciclos de avaliação": "Review cycles",
+  "Contratados": "Contractors", "Clientes": "Clients", "Formulário": "Form",
+  "Minha equipe": "My team", "Histórico": "History", "Início": "Home",
+  "Auto-avaliação": "Self-review", "Detalhe do contratado": "Contractor detail",
+  "Formulário de avaliação": "Evaluation form", "Avaliar colaborador": "Evaluate member",
+  "Meu histórico": "My history",
+  "Visualizar como": "View as",
+  "Protótipo — alterne entre perfis para explorar cada jornada.": "Prototype — switch profiles to explore each journey.",
+  "Sair": "Sign out",
+
+  // ---- tweaks ----
+  "Marca": "Brand", "Cor de destaque": "Accent color", "Aparência": "Appearance",
+  "Tema": "Theme", "Densidade": "Density",
+
+  // ---- generic ----
+  "Cancelar": "Cancel", "Salvar": "Save", "Pessoas": "People", "Contas": "Accounts",
+  "Concluída": "Completed", "Concluídas": "Completed", "Pendente": "Pending", "pendente": "pending",
+  "Em andamento": "In progress", "Encerrado": "Closed", "Agendado": "Scheduled",
+  "enviada": "submitted", "aguardando": "awaiting", "sem alocação": "unassigned",
+  "Sem alocação": "Unassigned", "após encerrar": "after closing", "Revisar": "Review", "Avaliar": "Evaluate",
+
+  // ---- dimensions ----
+  "Competência Técnica": "Technical Competence", "Técnica": "Technical",
+  "Qualidade do código, conhecimento técnico, resolução de problemas.": "Code quality, technical knowledge, problem solving.",
+  "Entrega e Resultados": "Delivery & Results", "Entrega": "Delivery",
+  "Cumprimento de prazos, qualidade das entregas, produtividade.": "Meeting deadlines, delivery quality, productivity.",
+  "Comunicação": "Communication",
+  "Clareza, proatividade, feedback, documentação.": "Clarity, proactivity, feedback, documentation.",
+  "Colaboração": "Collaboration",
+  "Trabalho em equipe, apoio a colegas, atitude positiva.": "Teamwork, supporting peers, positive attitude.",
+  "Autonomia e Iniciativa": "Autonomy & Initiative", "Autonomia": "Autonomy",
+  "Proatividade, resolução independente, sugestões de melhoria.": "Proactivity, independent resolution, improvement suggestions.",
+
+  // ---- questions ----
+  "Escreve código legível, bem estruturado e seguindo boas práticas (SOLID, Clean Code, convenções do projeto).": "Writes readable, well-structured code following best practices (SOLID, Clean Code, project conventions).",
+  "Demonstra domínio da stack, entende impactos técnicos das decisões e propõe melhorias quando apropriado.": "Demonstrates command of the stack, understands the technical impact of decisions, and proposes improvements when appropriate.",
+  "Resolve problemas técnicos de forma eficiente, considerando performance e escalabilidade.": "Solves technical problems efficiently, considering performance and scalability.",
+  "Busca aprender novas tecnologias, acompanha tendências e aplica conhecimentos no dia a dia.": "Seeks to learn new technologies, follows trends, and applies knowledge day to day.",
+  "Contribui para a qualidade via code reviews construtivos, testes automatizados e refatorações.": "Contributes to quality through constructive code reviews, automated tests, and refactoring.",
+  "Cumpre prazos acordados de forma consistente, comunicando proativamente riscos e impedimentos.": "Consistently meets agreed deadlines, proactively communicating risks and blockers.",
+  "Entrega funcionalidades completas, testadas e com baixo índice de bugs, atendendo aos critérios de aceitação.": "Delivers complete, tested features with a low bug rate, meeting acceptance criteria.",
+  "Mantém produtividade adequada ao nível, evoluindo em velocidade e qualidade ao longo do tempo.": "Maintains productivity appropriate to their level, improving in speed and quality over time.",
+  "Demonstra comprometimento com os objetivos do projeto, priorizando entregas de valor.": "Shows commitment to project goals, prioritizing high-value deliveries.",
+  "Mantém desempenho consistente, sem oscilações significativas de qualidade ou produtividade.": "Maintains consistent performance, without significant swings in quality or productivity.",
+  "Comunica-se de forma clara e objetiva, adaptando a linguagem ao público e contexto.": "Communicates clearly and objectively, adapting language to the audience and context.",
+  "Reporta proativamente o status, antecipa riscos e comunica impedimentos antes que virem problemas críticos.": "Proactively reports status, anticipates risks, and flags blockers before they become critical.",
+  "Recebe feedback de forma construtiva, com abertura para críticas, e implementa melhorias sugeridas.": "Receives feedback constructively, is open to criticism, and implements suggested improvements.",
+  "Produz documentação técnica clara e útil (READMEs, comentários, wikis), facilitando manutenção e onboarding.": "Produces clear, useful technical documentation (READMEs, comments, wikis), easing maintenance and onboarding.",
+  "Participa ativamente de reuniões, contribui com ideias relevantes e respeita o tempo dos demais.": "Actively participates in meetings, contributes relevant ideas, and respects others' time.",
+  "Trabalha bem em equipe, compartilha conhecimento e contribui para o sucesso coletivo.": "Works well in a team, shares knowledge, and contributes to collective success.",
+  "Demonstra disposição genuína para ajudar colegas, oferecendo suporte técnico e mentoria.": "Shows genuine willingness to help colleagues, offering technical support and mentoring.",
+  "Mantém atitude positiva mesmo em situações desafiadoras, preservando o clima da equipe.": "Keeps a positive attitude even in challenging situations, preserving team morale.",
+  "Respeita decisões técnicas do time mesmo quando discorda, de forma profissional.": "Respects the team's technical decisions even when disagreeing, in a professional manner.",
+  "Contribui para um ambiente de trabalho saudável, inclusivo e psicologicamente seguro.": "Contributes to a healthy, inclusive, and psychologically safe work environment.",
+  "Trabalha de forma independente no nível esperado para o cargo, buscando ajuda apenas quando necessário.": "Works independently at the level expected for the role, seeking help only when needed.",
+  "Identifica e resolve problemas proativamente, sem esperar que sejam reportados.": "Identifies and solves problems proactively, without waiting for them to be reported.",
+  "Propõe melhorias técnicas, de processo ou de produto de forma embasada.": "Proposes well-founded technical, process, or product improvements.",
+  "Voluntaria-se para assumir responsabilidades além do escopo básico, demonstrando interesse em crescer.": "Volunteers to take on responsibilities beyond the basic scope, showing interest in growing.",
+  "Gerencia bem seu tempo e tarefas, sem necessidade de microgerenciamento.": "Manages time and tasks well, without the need for micromanagement.",
+
+  // ---- open questions ----
+  "Quais foram os principais pontos fortes?": "What were the main strengths?",
+  "Descreva as principais qualidades e contribuições observadas no período.": "Describe the main qualities and contributions observed in the period.",
+  "Quais áreas precisam de desenvolvimento?": "Which areas need development?",
+  "Identifique oportunidades de melhoria e crescimento.": "Identify opportunities for improvement and growth.",
+  "Feedback adicional ou sugestões?": "Additional feedback or suggestions?",
+  "Compartilhe observações adicionais ou recomendações.": "Share additional observations or recommendations.",
+  "Perguntas abertas": "Open questions", "opcionais": "optional", "opcional": "optional",
+  "Sem comentários abertos neste ciclo.": "No open comments this cycle.",
+
+  // ---- scale ----
+  "Insatisfatório": "Unsatisfactory", "Abaixo do Esperado": "Below Expectations",
+  "Atende Expectativas": "Meets Expectations", "Acima do Esperado": "Above Expectations",
+  "Excepcional": "Exceptional",
+
+  // ---- decisions ----
+  "Elegível para promoção vertical": "Eligible for vertical promotion",
+  "Promoção vertical": "Vertical promotion",
+  "Desempenho excepcional. Avaliar mudança de cargo/nível.": "Exceptional performance. Consider a role/level change.",
+  "Elegível para promoção horizontal": "Eligible for horizontal promotion",
+  "Promoção horizontal": "Horizontal promotion",
+  "Acima da média. Avaliar ajuste salarial / senioridade.": "Above average. Consider a salary / seniority adjustment.",
+  "Plano de desenvolvimento": "Development plan",
+  "Atende às expectativas. Definir PDI com metas de evolução.": "Meets expectations. Define a development plan with growth goals.",
+  "Plano de recuperação de 30 dias": "30-day recovery plan",
+  "Recuperação 30 dias": "30-day recovery",
+  "Abaixo do esperado. Acompanhamento próximo por 30 dias.": "Below expectations. Close follow-up for 30 days.",
+  "Continuidade no projeto precisa ser avaliada": "Continuity on the project must be reviewed",
+  "Avaliar continuidade": "Review continuity",
+  "Insatisfatório. Revisar alocação e contrato.": "Unsatisfactory. Review allocation and contract.",
+
+  // ---- dashboard / admin ----
+  "Olá, Marcos": "Hi, Marcos", "Olá": "Hi",
+  "Acompanhe o andamento do ciclo de avaliação e as decisões recomendadas para os contratados da LeCode.": "Track the review cycle progress and the recommended decisions for LeCode contractors.",
+  "Contratados ativos": "Active contractors", "Ciclo atual": "Current cycle",
+  "Avaliações concluídas": "Reviews completed", "Gerenciar ciclo": "Manage cycle",
+  "Ver contratados": "View contractors", "Decisões": "Decisions",
+  "Ciclo": "Cycle", "Encerrar": "Close",
+  "Todas as avaliações precisam estar concluídas": "All reviews must be completed",
+  "Score = self × 0.30 + cliente × 0.70": "Score = self × 0.30 + client × 0.70",
+  "Desenvolvedores e gestores de projeto alocados pela LeCode.": "Developers and project managers allocated by LeCode.",
+  "Novo contratado": "New contractor", "Buscar contratado...": "Search contractor...",
+  "Senioridade": "Seniority", "Cliente": "Client", "Recomendação": "Recommendation",
+  "Último score": "Latest score", "Contratado": "Contractor",
+  "Cadastrar contratado": "Register contractor", "Cadastrar": "Register",
+  "Editar dados": "Edit details", "Editar contratado": "Edit contractor", "Salvar alterações": "Save changes",
+  "Nome completo": "Full name", "Cargo": "Role", "Trilha": "Track",
+  "Vincular a cliente": "Assign to client", "desde": "since",
+  "Realocar": "Reassign", "Vincular": "Assign", "Vincular ": "Assign ",
+  "Desvincular (sem alocação)": "Unassign (no allocation)",
+  "O contratado só pode ser avaliado por um cliente enquanto estiver vinculado durante um ciclo em andamento.": "A contractor can only be evaluated by a client while assigned during an active cycle.",
+  "Salvar vínculo": "Save assignment",
+  "Empresas onde os contratados da LeCode estão alocados.": "Companies where LeCode contractors are allocated.",
+  "Novo cliente": "New client", "Representante": "Representative",
+  "Cadastrar cliente": "Register client", "Nome da empresa": "Company name",
+  "Segmento": "Segment", "E-mail do representante": "Representative e-mail",
+  "Abra janelas de avaliação e encerre-as quando todas as avaliações estiverem concluídas.": "Open review windows and close them once all reviews are completed.",
+  "Abrir ciclo": "Open cycle",
+  "Já existe um ciclo em andamento": "There is already an active cycle",
+  "Encerre-o antes de abrir um novo.": "Close it before opening a new one.",
+  "Encerrar ciclo": "Close cycle", "Progresso das avaliações": "Review progress",
+  "pendentes": "pending", "Pronto para encerrar": "Ready to close",
+  "Abrir ciclo de avaliação": "Open review cycle", "Identificação do ciclo": "Cycle label",
+  "Data de início": "Start date", "Data de término": "End date",
+  "Mês do ciclo": "Cycle month", "Janela de envio": "Submission window", "Apuração e discussão": "Review & discussion",
+  "Envio": "Submission", "Apuração": "Review",
+  "Envio das respostas (2 semanas) · apuração e discussão com clientes (2 semanas).": "Response submission (2 weeks) · review & discussion with clients (2 weeks).",
+  "Envios abertos até dia 15; apuração e discussão do dia 15 ao fim do mês.": "Submissions open until the 15th; review & discussion from the 15th to month-end.",
+  "envios até": "submit by", "apuração até": "review by",
+  "Histórico de alterações": "Change history",
+  "Sem alterações registradas.": "No changes recorded.",
+  "semanas": "weeks",
+  "Senioridade alterada": "Seniority changed", "Trilha alterada": "Track changed",
+  "alterou": "changed", "de": "from", "para": "to", "por": "by",
+  "Alocação": "Allocation",
+  "Durante a janela, contratados poderão se auto-avaliar e representantes dos clientes poderão avaliar seus times.": "During the window, contractors can self-review and client representatives can evaluate their teams.",
+  "Ao encerrar o ciclo, os scores finais serão consolidados e as avaliações cruzadas (self ↔ cliente) ficarão visíveis para todas as partes. Esta ação não pode ser desfeita.": "Closing the cycle consolidates final scores and makes cross reviews (self ↔ client) visible to all parties. This action cannot be undone.",
+  "O mesmo formulário é usado na auto-avaliação e na avaliação do cliente. Escala de 1 a 5 em cinco dimensões.": "The same form is used for the self-review and the client review. A 1–5 scale across five dimensions.",
+  "Salvar formulário": "Save form", "Pesos do score final": "Final score weights",
+  "Self review": "Self review", "Review cliente": "Client review",
+  "Escala de notas": "Rating scale", "perguntas": "questions",
+  "Adicionar pergunta": "Add question", "Remover": "Remove",
+
+  // ---- client screens ----
+  "Contratados da LeCode alocados na": "LeCode contractors allocated at",
+  "Avalie cada colaborador durante o ciclo em andamento.": "Evaluate each member during the active cycle.",
+  "Histórico de avaliações": "Review history",
+  "Nenhum ciclo em andamento no momento.": "No active cycle at the moment.",
+  "Encerra em": "Ends on", "avaliações concluídas": "reviews completed",
+  "Colaborador": "Member", "Minha avaliação": "My review",
+  "Para evitar viés, você só verá o conteúdo da auto-avaliação do colaborador após o encerramento do ciclo.": "To avoid bias, you'll only see the member's self-review content after the cycle is closed.",
+  "Avaliações realizadas pela": "Reviews performed by",
+  "e auto-avaliações dos colaboradores vinculados, filtradas por ciclo.": "and self-reviews of assigned members, filtered by cycle.",
+  "Score final": "Final score",
+  "As auto-avaliações e o score final deste ciclo só ficam visíveis após o encerramento pelo gestor da LeCode.": "Self-reviews and the final score for this cycle only become visible after the LeCode manager closes it.",
+
+  // ---- contractor screens ----
+  "Acompanhe seus ciclos de avaliação e seu desenvolvimento ao longo do tempo na LeCode.": "Track your review cycles and your development over time at LeCode.",
+  "Você concluiu sua auto-avaliação. Pode revisá-la até o fim do ciclo.": "You've completed your self-review. You can revise it until the cycle ends.",
+  "Janela aberta até": "Window open until",
+  "Sua nota tem peso de 30% no score final.": "Your score weighs 30% of the final score.",
+  "Fazer auto-avaliação": "Start self-review",
+  "Nenhum ciclo de avaliação em andamento no momento.": "No review cycle in progress at the moment.",
+  "Minha evolução": "My evolution", "score final por ciclo": "final score per cycle",
+  "Sem histórico ainda": "No history yet",
+  "Seus scores aparecerão aqui após o primeiro ciclo encerrado.": "Your scores will appear here after the first closed cycle.",
+  "Alocação atual": "Current allocation",
+  "Veja sua auto-avaliação e a avaliação do cliente em cada ciclo. A avaliação do cliente fica disponível após o encerramento do ciclo.": "See your self-review and the client review for each cycle. The client review becomes available after the cycle closes.",
+
+  // ---- review detail ----
+  "Notas por dimensão": "Scores by dimension",
+  "Oculta até o encerramento": "Hidden until closing",
+  "A auto-avaliação do contratado só fica visível após o encerramento do ciclo.": "The contractor's self-review only becomes visible after the cycle is closed.",
+  "A avaliação do cliente só fica visível após o encerramento do ciclo, evitando viés na sua auto-avaliação.": "The client review only becomes visible after the cycle is closed, avoiding bias in your self-review.",
+  "Cliente (70%)": "Client (70%)", "Self (30%)": "Self (30%)",
+
+  // ---- evaluation form ----
+  "Como você avalia seu desempenho?": "How do you rate your performance?",
+  "Reflita honestamente sobre o ciclo. Cada item usa a escala de 1 a 5. Sua nota tem peso de 30% no score final.": "Reflect honestly on the cycle. Each item uses a 1–5 scale. Your score weighs 30% of the final score.",
+  "alocado em": "allocated at",
+  "A avaliação do cliente tem peso de 70% no score final.": "The client review weighs 70% of the final score.",
+  "Respondidas": "Answered", "Média parcial": "Partial average",
+  "Enviar avaliação": "Submit review", "restantes": "remaining",
+  "Salvar alterações": "Save changes",
+  "Avaliação do cliente": "Client review",
+  "Responda as 25 perguntas para concluir": "Answer all 25 questions to finish",
+  "Sem dados.": "No data.",
+  "self·0.30 + cliente·0.70": "self·0.30 + client·0.70",
+
+  // ---- auth ----
+  "Entrar": "Sign in", "Criar conta": "Create account",
+  "Bem-vindo de volta": "Welcome back",
+  "Acesse a plataforma de performance review da LeCode.": "Access the LeCode performance review platform.",
+  "Crie sua conta": "Create your account",
+  "Cadastre-se para participar dos ciclos de avaliação.": "Sign up to take part in the review cycles.",
+  "E-mail corporativo": "Work e-mail", "Senha": "Password", "Confirmar senha": "Confirm password",
+  "Lembrar de mim": "Remember me", "Esqueceu a senha?": "Forgot password?",
+  "Não tem conta?": "Don't have an account?", "Já tem conta?": "Already have an account?",
+  "Cadastre-se": "Sign up", "Faça login": "Sign in",
+  "Perfil de acesso": "Access profile", "Nome": "Name",
+  "Ao continuar, você concorda com os termos de uso e a política de privacidade.": "By continuing, you agree to the terms of use and privacy policy.",
+  "ou": "or", "Continuar com SSO": "Continue with SSO",
+  "Desenvolvimento Ágil, Gestão Simplificada.": "Agile Development, Simplified Management.",
+  "Selecione seu perfil para entrar no protótipo.": "Select your profile to enter the prototype.",
+  "Outsourcing de engenharia · desde 2019": "Engineering outsourcing · since 2019",
+
+  // ---- password recovery + validation ----
+  "Recupere seu acesso": "Recover your access",
+  "Informe o e-mail da sua conta e enviaremos um link para redefinir a senha.": "Enter your account e-mail and we'll send a link to reset your password.",
+  "Enviar link de recuperação": "Send recovery link",
+  "Voltar ao login": "Back to sign in",
+  "Link enviado": "Link sent",
+  "Enviamos um link de redefinição de senha para": "We've sent a password reset link to",
+  "Verifique sua caixa de entrada e a pasta de spam. O link expira em 30 minutos.": "Check your inbox and spam folder. The link expires in 30 minutes.",
+  "Reenviar e-mail": "Resend e-mail",
+  "E-mail é obrigatório": "E-mail is required",
+  "E-mail inválido": "Invalid e-mail",
+  "Senha é obrigatória": "Password is required",
+  "A senha deve ter ao menos 8 caracteres": "Password must be at least 8 characters",
+  "Nome é obrigatório": "Name is required",
+  "Informe nome e sobrenome": "Enter your first and last name",
+  "Confirme a senha": "Confirm the password",
+  "As senhas não coincidem": "Passwords don't match",
+  "Força da senha": "Password strength",
+  "Fraca": "Weak", "Média": "Medium", "Forte": "Strong",
+  "Mostrar senha": "Show password", "Ocultar senha": "Hide password",
+  "Idioma": "Language", "Tema claro": "Light theme", "Tema escuro": "Dark theme",
+
+  // ---- demo accounts / role-from-identity ----
+  "Entrar como conta de demonstração": "Sign in as a demo account",
+  "O perfil é definido pela conta, não escolhido no login.": "The profile is defined by the account, not chosen at login.",
+  "No ambiente real, o perfil vem da role da conta no provedor de identidade (Auth0 / Supabase) e é imposto no servidor.": "In production, the profile comes from the account's role in the identity provider (Auth0 / Supabase) and is enforced on the server.",
+  "Perfil atribuído": "Assigned profile",
+  "Perfil inicial": "Initial profile",
+  "Novos cadastros entram como Contratado. Perfis de Gestor e Representante são atribuídos por um administrador.": "New sign-ups start as Contractor. Manager and Client Representative profiles are assigned by an administrator.",
+  "Administra a plataforma": "Administers the platform",
+
+  // ---- confirmations (double-check) ----
+  "Confirmar": "Confirm", "Continuar editando": "Keep editing",
+  "Enviar autoavaliação?": "Submit self-review?",
+  "Enviar avaliação?": "Submit review?",
+  "Suas respostas serão registradas no ciclo": "Your answers will be recorded for the",
+  "Você poderá ajustá-las a qualquer momento enquanto o ciclo estiver aberto. Após o encerramento, a avaliação não poderá mais ser alterada.": "You can adjust them anytime while the cycle is open. Once it closes, the review can no longer be changed.",
+  "Salvar alterações?": "Save changes?",
+  "Atualizaremos sua autoavaliação no ciclo": "We'll update your self-review for the",
+  "Atualizaremos sua avaliação no ciclo": "We'll update your review for the",
+  "Você ainda poderá editá-la enquanto o ciclo estiver aberto.": "You can still edit it while the cycle is open.",
+  "Você está avaliando": "You are evaluating",
+  "Enquanto o ciclo estiver aberto, é possível revisar as respostas a qualquer momento.": "While the cycle is open, you can revise your answers at any time.",
+  "Encerrar ciclo": "Close cycle",
+  "Esta ação é definitiva e não pode ser desfeita.": "This action is final and cannot be undone.",
+  "Os scores finais serão consolidados e as avaliações cruzadas (autoavaliação ↔ cliente) ficarão visíveis para todas as partes. Nenhuma avaliação poderá ser alterada após o encerramento.": "Final scores will be consolidated and cross reviews (self-review ↔ client) will become visible to all parties. No review can be changed after closing.",
+  "Desvincular": "Unassign", "Alterar vínculo": "Change assignment",
+  "deixará de ser avaliado por": "will no longer be evaluated by",
+  "no ciclo em andamento. As avaliações já registradas permanecem no histórico.": "in the active cycle. Reviews already recorded remain in the history.",
+  "passará a ser avaliado por": "will start being evaluated by",
+  "Remover pergunta?": "Remove question?",
+  "A pergunta será removida do formulário de avaliação. Você pode adicioná-la novamente depois.": "The question will be removed from the evaluation form. You can add it back later.",
+  "Remover pergunta": "Remove question",
+  "Sair da plataforma?": "Sign out?",
+  "Você precisará entrar novamente para acessar seus ciclos de avaliação.": "You'll need to sign in again to access your review cycles.",
+  "Alterações não salvas serão perdidas.": "Unsaved changes will be lost.",
+};
+const ES = {
+  // ---- chrome / roles ----
+  "Gestor LeCode": "Gestor LeCode",
+  "Administra a plataforma": "Administra la plataforma",
+  "Representante Cliente": "Representante Cliente",
+  "Avalia o time alocado": "Evalúa al equipo asignado",
+  "Contratado LeCode": "Contratado LeCode",
+  "Faz a auto-avaliação": "Realiza la autoevaluación",
+  "Operação": "Operación", "Cadastros": "Registros", "Configuração": "Configuración",
+  "Avaliação": "Evaluación", "Avaliações": "Evaluaciones", "Minha avaliação": "Mi evaluación",
+  "Visão geral": "Resumen", "Ciclos de avaliação": "Ciclos de evaluación",
+  "Contratados": "Contratados", "Clientes": "Clientes", "Formulário": "Formulario",
+  "Minha equipe": "Mi equipo", "Histórico": "Historial", "Início": "Inicio",
+  "Auto-avaliação": "Autoevaluación", "Detalhe do contratado": "Detalle del contratado",
+  "Formulário de avaliação": "Formulario de evaluación", "Avaliar colaborador": "Evaluar colaborador",
+  "Meu histórico": "Mi historial",
+  "Visualizar como": "Ver como",
+  "Protótipo — alterne entre perfis para explorar cada jornada.": "Prototipo — cambia entre perfiles para explorar cada recorrido.",
+  "Sair": "Salir",
+
+  // ---- tweaks ----
+  "Marca": "Marca", "Cor de destaque": "Color de acento", "Aparência": "Apariencia",
+  "Tema": "Tema", "Densidade": "Densidad",
+
+  // ---- generic ----
+  "Cancelar": "Cancelar", "Salvar": "Guardar", "Pessoas": "Personas", "Contas": "Cuentas",
+  "Concluída": "Completada", "Concluídas": "Completadas", "Pendente": "Pendiente", "pendente": "pendiente",
+  "Em andamento": "En curso", "Encerrado": "Cerrado", "Agendado": "Programado",
+  "enviada": "enviada", "aguardando": "en espera", "sem alocação": "sin asignación",
+  "Sem alocação": "Sin asignación", "após encerrar": "tras cerrar", "Revisar": "Revisar", "Avaliar": "Evaluar",
+
+  // ---- dimensions ----
+  "Competência Técnica": "Competencia Técnica", "Técnica": "Técnica",
+  "Qualidade do código, conhecimento técnico, resolução de problemas.": "Calidad del código, conocimiento técnico, resolución de problemas.",
+  "Entrega e Resultados": "Entrega y Resultados", "Entrega": "Entrega",
+  "Cumprimento de prazos, qualidade das entregas, produtividade.": "Cumplimiento de plazos, calidad de las entregas, productividad.",
+  "Comunicação": "Comunicación",
+  "Clareza, proatividade, feedback, documentação.": "Claridad, proactividad, feedback, documentación.",
+  "Colaboração": "Colaboración",
+  "Trabalho em equipe, apoio a colegas, atitude positiva.": "Trabajo en equipo, apoyo a colegas, actitud positiva.",
+  "Autonomia e Iniciativa": "Autonomía e Iniciativa", "Autonomia": "Autonomía",
+  "Proatividade, resolução independente, sugestões de melhoria.": "Proactividad, resolución independiente, sugerencias de mejora.",
+
+  // ---- questions ----
+  "Escreve código legível, bem estruturado e seguindo boas práticas (SOLID, Clean Code, convenções do projeto).": "Escribe código legible, bien estructurado y siguiendo buenas prácticas (SOLID, Clean Code, convenciones del proyecto).",
+  "Demonstra domínio da stack, entende impactos técnicos das decisões e propõe melhorias quando apropriado.": "Demuestra dominio del stack, entiende el impacto técnico de las decisiones y propone mejoras cuando corresponde.",
+  "Resolve problemas técnicos de forma eficiente, considerando performance e escalabilidade.": "Resuelve problemas técnicos de forma eficiente, considerando rendimiento y escalabilidad.",
+  "Busca aprender novas tecnologias, acompanha tendências e aplica conhecimentos no dia a dia.": "Busca aprender nuevas tecnologías, sigue tendencias y aplica conocimientos en el día a día.",
+  "Contribui para a qualidade via code reviews construtivos, testes automatizados e refatorações.": "Contribuye a la calidad mediante code reviews constructivos, pruebas automatizadas y refactorizaciones.",
+  "Cumpre prazos acordados de forma consistente, comunicando proativamente riscos e impedimentos.": "Cumple los plazos acordados de forma consistente, comunicando proactivamente riesgos e impedimentos.",
+  "Entrega funcionalidades completas, testadas e com baixo índice de bugs, atendendo aos critérios de aceitação.": "Entrega funcionalidades completas, probadas y con baja tasa de errores, cumpliendo los criterios de aceptación.",
+  "Mantém produtividade adequada ao nível, evoluindo em velocidade e qualidade ao longo do tempo.": "Mantiene una productividad acorde a su nivel, mejorando en velocidad y calidad con el tiempo.",
+  "Demonstra comprometimento com os objetivos do projeto, priorizando entregas de valor.": "Demuestra compromiso con los objetivos del proyecto, priorizando entregas de valor.",
+  "Mantém desempenho consistente, sem oscilações significativas de qualidade ou produtividade.": "Mantiene un desempeño consistente, sin variaciones significativas de calidad o productividad.",
+  "Comunica-se de forma clara e objetiva, adaptando a linguagem ao público e contexto.": "Se comunica de forma clara y objetiva, adaptando el lenguaje al público y al contexto.",
+  "Reporta proativamente o status, antecipa riscos e comunica impedimentos antes que virem problemas críticos.": "Reporta proactivamente el estado, anticipa riesgos y comunica impedimentos antes de que se vuelvan críticos.",
+  "Recebe feedback de forma construtiva, com abertura para críticas, e implementa melhorias sugeridas.": "Recibe el feedback de forma constructiva, con apertura a la crítica, e implementa las mejoras sugeridas.",
+  "Produz documentação técnica clara e útil (READMEs, comentários, wikis), facilitando manutenção e onboarding.": "Produce documentación técnica clara y útil (READMEs, comentarios, wikis), facilitando el mantenimiento y el onboarding.",
+  "Participa ativamente de reuniões, contribui com ideias relevantes e respeita o tempo dos demais.": "Participa activamente en reuniones, aporta ideas relevantes y respeta el tiempo de los demás.",
+  "Trabalha bem em equipe, compartilha conhecimento e contribui para o sucesso coletivo.": "Trabaja bien en equipo, comparte conocimiento y contribuye al éxito colectivo.",
+  "Demonstra disposição genuína para ajudar colegas, oferecendo suporte técnico e mentoria.": "Demuestra disposición genuina para ayudar a colegas, ofreciendo soporte técnico y mentoría.",
+  "Mantém atitude positiva mesmo em situações desafiadoras, preservando o clima da equipe.": "Mantiene una actitud positiva incluso en situaciones difíciles, preservando el clima del equipo.",
+  "Respeita decisões técnicas do time mesmo quando discorda, de forma profissional.": "Respeta las decisiones técnicas del equipo aun cuando no está de acuerdo, de forma profesional.",
+  "Contribui para um ambiente de trabalho saudável, inclusivo e psicologicamente seguro.": "Contribuye a un entorno de trabajo sano, inclusivo y psicológicamente seguro.",
+  "Trabalha de forma independente no nível esperado para o cargo, buscando ajuda apenas quando necessário.": "Trabaja de forma independiente al nivel esperado para el puesto, buscando ayuda solo cuando es necesario.",
+  "Identifica e resolve problemas proativamente, sem esperar que sejam reportados.": "Identifica y resuelve problemas proactivamente, sin esperar a que sean reportados.",
+  "Propõe melhorias técnicas, de processo ou de produto de forma embasada.": "Propone mejoras técnicas, de proceso o de producto de forma fundamentada.",
+  "Voluntaria-se para assumir responsabilidades além do escopo básico, demonstrando interesse em crescer.": "Se ofrece para asumir responsabilidades más allá del alcance básico, mostrando interés en crecer.",
+  "Gerencia bem seu tempo e tarefas, sem necessidade de microgerenciamento.": "Gestiona bien su tiempo y tareas, sin necesidad de microgestión.",
+
+  // ---- open questions ----
+  "Quais foram os principais pontos fortes?": "¿Cuáles fueron los principales puntos fuertes?",
+  "Descreva as principais qualidades e contribuições observadas no período.": "Describe las principales cualidades y contribuciones observadas en el período.",
+  "Quais áreas precisam de desenvolvimento?": "¿Qué áreas necesitan desarrollo?",
+  "Identifique oportunidades de melhoria e crescimento.": "Identifica oportunidades de mejora y crecimiento.",
+  "Feedback adicional ou sugestões?": "¿Feedback adicional o sugerencias?",
+  "Compartilhe observações adicionais ou recomendações.": "Comparte observaciones adicionales o recomendaciones.",
+  "Perguntas abertas": "Preguntas abiertas", "opcionais": "opcionales", "opcional": "opcional",
+  "Sem comentários abertos neste ciclo.": "Sin comentarios abiertos en este ciclo.",
+
+  // ---- scale ----
+  "Insatisfatório": "Insatisfactorio", "Abaixo do Esperado": "Por Debajo de lo Esperado",
+  "Atende Expectativas": "Cumple Expectativas", "Acima do Esperado": "Por Encima de lo Esperado",
+  "Excepcional": "Excepcional",
+
+  // ---- decisions ----
+  "Elegível para promoção vertical": "Elegible para promoción vertical",
+  "Promoção vertical": "Promoción vertical",
+  "Desempenho excepcional. Avaliar mudança de cargo/nível.": "Desempeño excepcional. Evaluar cambio de puesto/nivel.",
+  "Elegível para promoção horizontal": "Elegible para promoción horizontal",
+  "Promoção horizontal": "Promoción horizontal",
+  "Acima da média. Avaliar ajuste salarial / senioridade.": "Por encima del promedio. Evaluar ajuste salarial / seniority.",
+  "Plano de desenvolvimento": "Plan de desarrollo",
+  "Atende às expectativas. Definir PDI com metas de evolução.": "Cumple las expectativas. Definir un plan de desarrollo con metas de evolución.",
+  "Plano de recuperação de 30 dias": "Plan de recuperación de 30 días",
+  "Recuperação 30 dias": "Recuperación 30 días",
+  "Abaixo do esperado. Acompanhamento próximo por 30 dias.": "Por debajo de lo esperado. Seguimiento cercano durante 30 días.",
+  "Continuidade no projeto precisa ser avaliada": "La continuidad en el proyecto debe evaluarse",
+  "Avaliar continuidade": "Evaluar continuidad",
+  "Insatisfatório. Revisar alocação e contrato.": "Insatisfactorio. Revisar asignación y contrato.",
+
+  // ---- dashboard / admin ----
+  "Olá, Marcos": "Hola, Marcos", "Olá": "Hola",
+  "Acompanhe o andamento do ciclo de avaliação e as decisões recomendadas para os contratados da LeCode.": "Sigue el avance del ciclo de evaluación y las decisiones recomendadas para los contratados de LeCode.",
+  "Contratados ativos": "Contratados activos", "Ciclo atual": "Ciclo actual",
+  "Avaliações concluídas": "Evaluaciones completadas", "Gerenciar ciclo": "Gestionar ciclo",
+  "Ver contratados": "Ver contratados", "Decisões": "Decisiones",
+  "Ciclo": "Ciclo", "Encerrar": "Cerrar",
+  "Todas as avaliações precisam estar concluídas": "Todas las evaluaciones deben estar completadas",
+  "Score = self × 0.30 + cliente × 0.70": "Score = self × 0.30 + cliente × 0.70",
+  "Desenvolvedores e gestores de projeto alocados pela LeCode.": "Desarrolladores y gestores de proyecto asignados por LeCode.",
+  "Novo contratado": "Nuevo contratado", "Buscar contratado...": "Buscar contratado...",
+  "Senioridade": "Seniority", "Cliente": "Cliente", "Recomendação": "Recomendación",
+  "Último score": "Último score", "Contratado": "Contratado",
+  "Cadastrar contratado": "Registrar contratado", "Cadastrar": "Registrar",
+  "Editar dados": "Editar datos", "Editar contratado": "Editar contratado", "Salvar alterações": "Guardar cambios",
+  "Nome completo": "Nombre completo", "Cargo": "Puesto", "Trilha": "Trayectoria",
+  "Vincular a cliente": "Asignar a cliente", "desde": "desde",
+  "Realocar": "Reasignar", "Vincular": "Asignar", "Vincular ": "Asignar ",
+  "Desvincular (sem alocação)": "Desasignar (sin asignación)",
+  "O contratado só pode ser avaliado por um cliente enquanto estiver vinculado durante um ciclo em andamento.": "El contratado solo puede ser evaluado por un cliente mientras esté asignado durante un ciclo en curso.",
+  "Salvar vínculo": "Guardar asignación",
+  "Empresas onde os contratados da LeCode estão alocados.": "Empresas donde están asignados los contratados de LeCode.",
+  "Novo cliente": "Nuevo cliente", "Representante": "Representante",
+  "Cadastrar cliente": "Registrar cliente", "Nome da empresa": "Nombre de la empresa",
+  "Segmento": "Segmento", "E-mail do representante": "E-mail del representante",
+  "Abra janelas de avaliação e encerre-as quando todas as avaliações estiverem concluídas.": "Abre ventanas de evaluación y ciérralas cuando todas las evaluaciones estén completadas.",
+  "Abrir ciclo": "Abrir ciclo",
+  "Já existe um ciclo em andamento": "Ya existe un ciclo en curso",
+  "Encerre-o antes de abrir um novo.": "Ciérralo antes de abrir uno nuevo.",
+  "Encerrar ciclo": "Cerrar ciclo", "Progresso das avaliações": "Progreso de las evaluaciones",
+  "pendentes": "pendientes", "Pronto para encerrar": "Listo para cerrar",
+  "Abrir ciclo de avaliação": "Abrir ciclo de evaluación", "Identificação do ciclo": "Identificación del ciclo",
+  "Data de início": "Fecha de inicio", "Data de término": "Fecha de término",
+  "Mês do ciclo": "Mes del ciclo", "Janela de envio": "Ventana de envío", "Apuração e discussão": "Análisis y discusión",
+  "Envio": "Envío", "Apuração": "Análisis",
+  "Envio das respostas (2 semanas) · apuração e discussão com clientes (2 semanas).": "Envío de respuestas (2 semanas) · análisis y discusión con clientes (2 semanas).",
+  "Envios abertos até dia 15; apuração e discussão do dia 15 ao fim do mês.": "Envíos abiertos hasta el día 15; análisis y discusión del 15 al fin de mes.",
+  "envios até": "envíos hasta", "apuração até": "análisis hasta",
+  "Histórico de alterações": "Historial de cambios",
+  "Sem alterações registradas.": "Sin cambios registrados.",
+  "semanas": "semanas",
+  "Senioridade alterada": "Seniority cambiado", "Trilha alterada": "Trayectoria cambiada",
+  "alterou": "cambió", "de": "de", "para": "a", "por": "por",
+  "Alocação": "Asignación",
+  "Durante a janela, contratados poderão se auto-avaliar e representantes dos clientes poderão avaliar seus times.": "Durante la ventana, los contratados podrán autoevaluarse y los representantes de los clientes podrán evaluar a sus equipos.",
+  "Ao encerrar o ciclo, os scores finais serão consolidados e as avaliações cruzadas (self ↔ cliente) ficarão visíveis para todas as partes. Esta ação não pode ser desfeita.": "Al cerrar el ciclo, los scores finales se consolidarán y las evaluaciones cruzadas (self ↔ cliente) quedarán visibles para todas las partes. Esta acción no se puede deshacer.",
+  "O mesmo formulário é usado na auto-avaliação e na avaliação do cliente. Escala de 1 a 5 em cinco dimensões.": "El mismo formulario se usa en la autoevaluación y en la evaluación del cliente. Escala de 1 a 5 en cinco dimensiones.",
+  "Salvar formulário": "Guardar formulario", "Pesos do score final": "Pesos del score final",
+  "Self review": "Self review", "Review cliente": "Review cliente",
+  "Escala de notas": "Escala de notas", "perguntas": "preguntas",
+  "Adicionar pergunta": "Añadir pregunta", "Remover": "Eliminar",
+
+  // ---- client screens ----
+  "Contratados da LeCode alocados na": "Contratados de LeCode asignados en",
+  "Avalie cada colaborador durante o ciclo em andamento.": "Evalúa a cada colaborador durante el ciclo en curso.",
+  "Histórico de avaliações": "Historial de evaluaciones",
+  "Nenhum ciclo em andamento no momento.": "Ningún ciclo en curso por el momento.",
+  "Encerra em": "Cierra el", "avaliações concluídas": "evaluaciones completadas",
+  "Colaborador": "Colaborador", "Minha avaliação": "Mi evaluación",
+  "Para evitar viés, você só verá o conteúdo da auto-avaliação do colaborador após o encerramento do ciclo.": "Para evitar sesgos, solo verás el contenido de la autoevaluación del colaborador tras el cierre del ciclo.",
+  "Avaliações realizadas pela": "Evaluaciones realizadas por",
+  "e auto-avaliações dos colaboradores vinculados, filtradas por ciclo.": "y autoevaluaciones de los colaboradores asignados, filtradas por ciclo.",
+  "Score final": "Score final",
+  "As auto-avaliações e o score final deste ciclo só ficam visíveis após o encerramento pelo gestor da LeCode.": "Las autoevaluaciones y el score final de este ciclo solo se ven tras el cierre por el gestor de LeCode.",
+
+  // ---- contractor screens ----
+  "Acompanhe seus ciclos de avaliação e seu desenvolvimento ao longo do tempo na LeCode.": "Sigue tus ciclos de evaluación y tu desarrollo a lo largo del tiempo en LeCode.",
+  "Você concluiu sua auto-avaliação. Pode revisá-la até o fim do ciclo.": "Completaste tu autoevaluación. Puedes revisarla hasta el fin del ciclo.",
+  "Janela aberta até": "Ventana abierta hasta el",
+  "Sua nota tem peso de 30% no score final.": "Tu nota pesa un 30% en el score final.",
+  "Fazer auto-avaliação": "Hacer autoevaluación",
+  "Nenhum ciclo de avaliação em andamento no momento.": "Ningún ciclo de evaluación en curso por el momento.",
+  "Minha evolução": "Mi evolución", "score final por ciclo": "score final por ciclo",
+  "Sem histórico ainda": "Sin historial todavía",
+  "Seus scores aparecerão aqui após o primeiro ciclo encerrado.": "Tus scores aparecerán aquí tras el primer ciclo cerrado.",
+  "Alocação atual": "Asignación actual",
+  "Veja sua auto-avaliação e a avaliação do cliente em cada ciclo. A avaliação do cliente fica disponível após o encerramento do ciclo.": "Mira tu autoevaluación y la evaluación del cliente en cada ciclo. La evaluación del cliente está disponible tras el cierre del ciclo.",
+
+  // ---- review detail ----
+  "Notas por dimensão": "Notas por dimensión",
+  "Oculta até o encerramento": "Oculta hasta el cierre",
+  "A auto-avaliação do contratado só fica visível após o encerramento do ciclo.": "La autoevaluación del contratado solo se ve tras el cierre del ciclo.",
+  "A avaliação do cliente só fica visível após o encerramento do ciclo, evitando viés na sua auto-avaliação.": "La evaluación del cliente solo se ve tras el cierre del ciclo, evitando sesgos en tu autoevaluación.",
+  "Cliente (70%)": "Cliente (70%)", "Self (30%)": "Self (30%)",
+
+  // ---- evaluation form ----
+  "Como você avalia seu desempenho?": "¿Cómo evalúas tu desempeño?",
+  "Reflita honestamente sobre o ciclo. Cada item usa a escala de 1 a 5. Sua nota tem peso de 30% no score final.": "Reflexiona honestamente sobre el ciclo. Cada ítem usa la escala de 1 a 5. Tu nota pesa un 30% en el score final.",
+  "alocado em": "asignado en",
+  "A avaliação do cliente tem peso de 70% no score final.": "La evaluación del cliente pesa un 70% en el score final.",
+  "Respondidas": "Respondidas", "Média parcial": "Promedio parcial",
+  "Enviar avaliação": "Enviar evaluación", "restantes": "restantes",
+  "Salvar alterações": "Guardar cambios",
+  "Avaliação do cliente": "Evaluación del cliente",
+  "Responda as 25 perguntas para concluir": "Responde las 25 preguntas para finalizar",
+  "Sem dados.": "Sin datos.",
+  "self·0.30 + cliente·0.70": "self·0.30 + cliente·0.70",
+
+  // ---- auth ----
+  "Entrar": "Entrar", "Criar conta": "Crear cuenta",
+  "Bem-vindo de volta": "Bienvenido de nuevo",
+  "Acesse a plataforma de performance review da LeCode.": "Accede a la plataforma de performance review de LeCode.",
+  "Crie sua conta": "Crea tu cuenta",
+  "Cadastre-se para participar dos ciclos de avaliação.": "Regístrate para participar en los ciclos de evaluación.",
+  "E-mail corporativo": "E-mail corporativo", "Senha": "Contraseña", "Confirmar senha": "Confirmar contraseña",
+  "Lembrar de mim": "Recordarme", "Esqueceu a senha?": "¿Olvidaste la contraseña?",
+  "Não tem conta?": "¿No tienes cuenta?", "Já tem conta?": "¿Ya tienes cuenta?",
+  "Cadastre-se": "Regístrate", "Faça login": "Inicia sesión",
+  "Perfil de acesso": "Perfil de acceso", "Nome": "Nombre",
+  "Ao continuar, você concorda com os termos de uso e a política de privacidade.": "Al continuar, aceptas los términos de uso y la política de privacidad.",
+  "ou": "o", "Continuar com SSO": "Continuar con SSO",
+  "Desenvolvimento Ágil, Gestão Simplificada.": "Desarrollo Ágil, Gestión Simplificada.",
+  "Selecione seu perfil para entrar no protótipo.": "Selecciona tu perfil para entrar al prototipo.",
+  "Outsourcing de engenharia · desde 2019": "Outsourcing de ingeniería · desde 2019",
+
+  // ---- password recovery + validation ----
+  "Recupere seu acesso": "Recupera tu acceso",
+  "Informe o e-mail da sua conta e enviaremos um link para redefinir a senha.": "Indica el e-mail de tu cuenta y te enviaremos un enlace para restablecer la contraseña.",
+  "Enviar link de recuperação": "Enviar enlace de recuperación",
+  "Voltar ao login": "Volver al login",
+  "Link enviado": "Enlace enviado",
+  "Enviamos um link de redefinição de senha para": "Enviamos un enlace para restablecer la contraseña a",
+  "Verifique sua caixa de entrada e a pasta de spam. O link expira em 30 minutos.": "Revisa tu bandeja de entrada y la carpeta de spam. El enlace caduca en 30 minutos.",
+  "Reenviar e-mail": "Reenviar e-mail",
+  "E-mail é obrigatório": "El e-mail es obligatorio",
+  "E-mail inválido": "E-mail inválido",
+  "Senha é obrigatória": "La contraseña es obligatoria",
+  "A senha deve ter ao menos 8 caracteres": "La contraseña debe tener al menos 8 caracteres",
+  "Nome é obrigatório": "El nombre es obligatorio",
+  "Informe nome e sobrenome": "Indica nombre y apellido",
+  "Confirme a senha": "Confirma la contraseña",
+  "As senhas não coincidem": "Las contraseñas no coinciden",
+  "Força da senha": "Seguridad de la contraseña",
+  "Fraca": "Débil", "Média": "Media", "Forte": "Fuerte",
+  "Mostrar senha": "Mostrar contraseña", "Ocultar senha": "Ocultar contraseña",
+  "Idioma": "Idioma", "Tema claro": "Tema claro", "Tema escuro": "Tema oscuro",
+
+  // ---- demo accounts / role-from-identity ----
+  "Entrar como conta de demonstração": "Entrar como cuenta de demostración",
+  "O perfil é definido pela conta, não escolhido no login.": "El perfil lo define la cuenta, no se elige en el inicio de sesión.",
+  "No ambiente real, o perfil vem da role da conta no provedor de identidade (Auth0 / Supabase) e é imposto no servidor.": "En producción, el perfil proviene del rol de la cuenta en el proveedor de identidad (Auth0 / Supabase) y se aplica en el servidor.",
+  "Perfil atribuído": "Perfil asignado",
+  "Perfil inicial": "Perfil inicial",
+  "Novos cadastros entram como Contratado. Perfis de Gestor e Representante são atribuídos por um administrador.": "Los nuevos registros entran como Contratado. Los perfiles de Gestor y Representante los asigna un administrador.",
+
+  // ---- confirmations (double-check) ----
+  "Confirmar": "Confirmar", "Continuar editando": "Seguir editando",
+  "Enviar autoavaliação?": "¿Enviar autoevaluación?",
+  "Enviar avaliação?": "¿Enviar evaluación?",
+  "Suas respostas serão registradas no ciclo": "Tus respuestas se registrarán en el ciclo",
+  "Você poderá ajustá-las a qualquer momento enquanto o ciclo estiver aberto. Após o encerramento, a avaliação não poderá mais ser alterada.": "Podrás ajustarlas en cualquier momento mientras el ciclo esté abierto. Tras el cierre, la evaluación ya no podrá modificarse.",
+  "Salvar alterações?": "¿Guardar cambios?",
+  "Atualizaremos sua autoavaliação no ciclo": "Actualizaremos tu autoevaluación en el ciclo",
+  "Atualizaremos sua avaliação no ciclo": "Actualizaremos tu evaluación en el ciclo",
+  "Você ainda poderá editá-la enquanto o ciclo estiver aberto.": "Aún podrás editarla mientras el ciclo esté abierto.",
+  "Você está avaliando": "Estás evaluando a",
+  "Enquanto o ciclo estiver aberto, é possível revisar as respostas a qualquer momento.": "Mientras el ciclo esté abierto, puedes revisar las respuestas en cualquier momento.",
+  "Encerrar ciclo": "Cerrar ciclo",
+  "Esta ação é definitiva e não pode ser desfeita.": "Esta acción es definitiva y no se puede deshacer.",
+  "Os scores finais serão consolidados e as avaliações cruzadas (autoavaliação ↔ cliente) ficarão visíveis para todas as partes. Nenhuma avaliação poderá ser alterada após o encerramento.": "Los scores finales se consolidarán y las evaluaciones cruzadas (autoevaluación ↔ cliente) quedarán visibles para todas las partes. Ninguna evaluación podrá modificarse tras el cierre.",
+  "Desvincular": "Desasignar", "Alterar vínculo": "Cambiar asignación",
+  "deixará de ser avaliado por": "dejará de ser evaluado por",
+  "no ciclo em andamento. As avaliações já registradas permanecem no histórico.": "en el ciclo en curso. Las evaluaciones ya registradas permanecen en el historial.",
+  "passará a ser avaliado por": "pasará a ser evaluado por",
+  "Remover pergunta?": "¿Eliminar pregunta?",
+  "A pergunta será removida do formulário de avaliação. Você pode adicioná-la novamente depois.": "La pregunta se eliminará del formulario de evaluación. Puedes añadirla de nuevo más tarde.",
+  "Remover pergunta": "Eliminar pregunta",
+  "Sair da plataforma?": "¿Salir de la plataforma?",
+  "Você precisará entrar novamente para acessar seus ciclos de avaliação.": "Tendrás que iniciar sesión de nuevo para acceder a tus ciclos de evaluación.",
+  "Alterações não salvas serão perdidas.": "Los cambios no guardados se perderán.",
+};
+
+const DICTS = { en: EN, es: ES };
+const LANGS = [
+  { code: "pt", name: "Português", short: "PT", html: "pt-BR" },
+  { code: "en", name: "English", short: "EN", html: "en" },
+  { code: "es", name: "Español", short: "ES", html: "es" },
+];
+
+const LangContext = React.createContext({ lang: "pt", setLang: () => {}, t: (s) => s });
+
+function LangProvider({ children }) {
+  const [lang, setLangState] = React.useState(() => localStorage.getItem("lecode_lang") || "pt");
+  const setLang = (l) => { localStorage.setItem("lecode_lang", l); setLangState(l); };
+  React.useEffect(() => {
+    const meta = LANGS.find(l => l.code === lang);
+    document.documentElement.lang = meta ? meta.html : "pt-BR";
+  }, [lang]);
+  const t = React.useCallback((s) => { const d = DICTS[lang]; return d ? (d[s] ?? s) : s; }, [lang]);
+  return <LangContext.Provider value={{ lang, setLang, t }}>{children}</LangContext.Provider>;
+}
+function useLang() { return React.useContext(LangContext); }
+
+// ---- theme context (backed by the tweaks-managed theme) ----
+const ThemeContext = React.createContext({ theme: "dark", setTheme: () => {}, toggle: () => {} });
+function useTheme() { return React.useContext(ThemeContext); }
+
+// ---- Language dropdown (globe + PT/EN/ES) ----
+function LangToggle() {
+  const { lang, setLang, t } = useLang();
+  const [open, setOpen] = React.useState(false);
+  const cur = LANGS.find(l => l.code === lang) || LANGS[0];
+  return (
+    <div className="ui-menu-wrap">
+      <button className="icon-pill" onClick={() => setOpen(o => !o)} title={t("Idioma")} aria-expanded={open}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+        </svg>
+        <span className="ip-code">{cur.short}</span>
+      </button>
+      {open && (
+        <>
+          <div className="ui-menu-backdrop" onClick={() => setOpen(false)} />
+          <div className="ui-menu" role="listbox">
+            {LANGS.map(l => (
+              <button key={l.code} role="option" aria-selected={lang === l.code}
+                className={"ui-menu-item " + (lang === l.code ? "sel" : "")}
+                onClick={() => { setLang(l.code); setOpen(false); }}>
+                <span className="umi-name">{l.name}</span>
+                <span className="umi-code">{l.short}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ---- Theme toggle (sun / moon) ----
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const { t } = useLang();
+  const dark = theme === "dark";
+  return (
+    <button className="icon-pill circle" onClick={toggle} title={t(dark ? "Tema claro" : "Tema escuro")} aria-label={t(dark ? "Tema claro" : "Tema escuro")}>
+      {dark ? (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4.2" /><path d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" />
+        </svg>
+      ) : (
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+Object.assign(window, { LangProvider, useLang, LangToggle, ThemeContext, useTheme, ThemeToggle });
