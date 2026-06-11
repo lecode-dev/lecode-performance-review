@@ -14,6 +14,12 @@ export default async function RootPage() {
     case 'lecode_admin': redirect('/admin')
     case 'client_rep':   redirect('/client/team')
     case 'contractor':   redirect('/contractor')
-    default:             redirect('/login')
+    // role desconhecida: lê do banco como fallback antes de desistir
+    default: {
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
+      if (profile?.role === 'lecode_admin') redirect('/admin')
+      if (profile?.role === 'client_rep')   redirect('/client/team')
+      redirect('/contractor')
+    }
   }
 }

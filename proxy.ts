@@ -11,6 +11,13 @@ const ROLE_PREFIXES: Record<string, UserRole> = {
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
+  const { pathname } = request.nextUrl
+
+  // Rotas utilitárias: nunca interceptar
+  if (pathname.startsWith('/logout') || pathname.startsWith('/debug')) {
+    return response
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -30,16 +37,13 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // Renova a sessão (essencial para manter tokens frescos)
   const { data: { session } } = await supabase.auth.getSession()
+  const role = session?.user?.app_metadata?.role as UserRole | undefined
 
-  const { pathname } = request.nextUrl
-
-  // Rota pública: deixa passar
+  // Rotas públicas de auth
   if (pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/recover')) {
-    // Redireciona usuário já autenticado para a área correta
-    if (session) {
-      const role = session.user.app_metadata?.role as UserRole | undefined
+    // Só redireciona se a role for conhecida — evita loop quando role ainda não está no JWT
+    if (session && role) {
       return NextResponse.redirect(new URL(roleDefaultPath(role), request.url))
     }
     return response
@@ -50,24 +54,23 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Gate grosseiro por prefixo — autoridade real é sempre o RLS no banco
-  const role = session.user.app_metadata?.role as UserRole | undefined
-
+  // Gate por prefixo de role
   for (const [prefix, required] of Object.entries(ROLE_PREFIXES)) {
     if (pathname.startsWith(prefix) && role !== required) {
-      return NextResponse.redirect(new URL(roleDefaultPath(role), request.url))
+      // Se role é desconhecida manda pro login; se conhecida manda pro destino correto
+      const dest = role ? roleDefaultPath(role) : '/login'
+      return NextResponse.redirect(new URL(dest, request.url))
     }
   }
 
   return response
 }
 
-function roleDefaultPath(role: UserRole | undefined): string {
+function roleDefaultPath(role: UserRole): string {
   switch (role) {
     case 'lecode_admin': return '/admin'
     case 'client_rep':   return '/client/team'
     case 'contractor':   return '/contractor'
-    default:             return '/login'
   }
 }
 
