@@ -1,8 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScoreCard } from '@/components/review/ScoreCard'
-import { ReviewBadge } from '@/components/review/StatusBadge'
 import { DIMENSION_LABELS } from '@/lib/supabase/types'
 import type { DimensionKey } from '@/lib/supabase/types'
 
@@ -19,20 +17,17 @@ export default async function ContractorHistoryPage() {
 
   if (profile?.role !== 'contractor') redirect('/login')
 
-  // Histórico completo
   const { data: history } = await supabase
     .from('contractor_history')
     .select('*, cycles(id, name, status, closed_at)')
     .eq('contractor_id', session.user.id)
     .order('created_at', { ascending: false })
 
-  // Reviews fechadas (para ver as respostas — só disponível após ciclo fechar)
   const closedCycleIds = history?.map((h) => {
     const c = (h.cycles as { id: string } | null)
     return c?.id
   }).filter(Boolean) as string[] | undefined
 
-  // Busca reviews e answers por ciclo fechado (RLS libera após fechar)
   let reviewsByDimension: Record<string, Record<string, number[]>> = {}
   if (closedCycleIds?.length) {
     const { data: reviews } = await supabase
@@ -62,79 +57,82 @@ export default async function ContractorHistoryPage() {
     }
   }
 
+  const dims: DimensionKey[] = ['tech', 'delivery', 'comm', 'collab', 'autonomy']
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Meu Histórico</h1>
-        <p className="text-muted-foreground text-sm mt-1">Resultados dos ciclos de avaliação fechados</p>
-      </div>
+    <div className="content anim-in">
+      <div className="col" style={{ gap: 24, maxWidth: 720 }}>
+        <div className="page-head">
+          <div className="eyebrow">Contratado LeCode</div>
+          <h2>Meu Histórico</h2>
+          <p>Resultados dos ciclos de avaliação fechados.</p>
+        </div>
 
-      {!history?.length ? (
-        <p className="text-sm text-muted-foreground py-8 text-center">
-          Nenhum ciclo fechado ainda. Aguarde o fechamento do ciclo atual.
-        </p>
-      ) : (
-        history.map((h) => {
-          const cycle = (h.cycles as { id: string; name: string; status: string; closed_at: string | null } | null)
-          const dims: DimensionKey[] = ['tech', 'delivery', 'comm', 'collab', 'autonomy']
+        {!history?.length ? (
+          <div className="empty">
+            <p>Nenhum ciclo fechado ainda. Aguarde o fechamento do ciclo atual.</p>
+          </div>
+        ) : (
+          history.map((h) => {
+            const cycle = (h.cycles as { id: string; name: string; status: string; closed_at: string | null } | null)
 
-          return (
-            <Card key={h.id}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-base">{cycle?.name}</CardTitle>
-                  {cycle?.closed_at && (
-                    <span className="text-xs text-muted-foreground">
-                      Fechado em {new Date(cycle.closed_at).toLocaleDateString('pt-BR')}
-                    </span>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ScoreCard
-                  selfAvg={h.self_avg}
-                  clientAvg={h.client_avg}
-                  finalScore={h.final_score}
-                  selfWeight={h.self_weight ?? 0.3}
-                  clientWeight={h.client_weight ?? 0.7}
-                />
-
-                {/* Breakdown por dimensão */}
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">
-                    Por dimensão
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                    {dims.map((dim) => {
-                      const selfKey   = `${cycle?.id}:self:${dim}`
-                      const clientKey = `${cycle?.id}:client:${dim}`
-                      const selfScores   = reviewsByDimension[selfKey]?.[cycle?.id ?? ''] ?? []
-                      const clientScores = reviewsByDimension[clientKey]?.[cycle?.id ?? ''] ?? []
-
-                      const selfAvg   = selfScores.length   ? selfScores.reduce((s,v) => s+v,0)   / selfScores.length   : null
-                      const clientAvg = clientScores.length ? clientScores.reduce((s,v) => s+v,0) / clientScores.length : null
-
-                      return (
-                        <div key={dim} className="bg-muted/50 rounded-lg p-2 text-center">
-                          <p className="text-[10px] text-muted-foreground font-medium uppercase mb-1">
-                            {DIMENSION_LABELS[dim]}
-                          </p>
-                          <p className="text-sm font-semibold tabular-nums">
-                            {selfAvg != null ? selfAvg.toFixed(1) : '—'}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            cli: {clientAvg != null ? clientAvg.toFixed(1) : '—'}
-                          </p>
-                        </div>
-                      )
-                    })}
+            return (
+              <div key={h.id} className="card">
+                <div className="card-head">
+                  <div className="between">
+                    <h3>{cycle?.name}</h3>
+                    {cycle?.closed_at && (
+                      <span className="muted" style={{ fontSize: 12 }}>
+                        Fechado em {new Date(cycle.closed_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          )
-        })
-      )}
+                <div className="card-pad col" style={{ gap: 16 }}>
+                  <ScoreCard
+                    selfAvg={h.self_avg}
+                    clientAvg={h.client_avg}
+                    finalScore={h.final_score}
+                    selfWeight={h.self_weight ?? 0.3}
+                    clientWeight={h.client_weight ?? 0.7}
+                  />
+
+                  <div>
+                    <p className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, marginBottom: 10 }}>
+                      Por dimensão
+                    </p>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 8 }}>
+                      {dims.map((dim) => {
+                        const selfKey   = `${cycle?.id}:self:${dim}`
+                        const clientKey = `${cycle?.id}:client:${dim}`
+                        const selfScores   = reviewsByDimension[selfKey]?.[cycle?.id ?? ''] ?? []
+                        const clientScores = reviewsByDimension[clientKey]?.[cycle?.id ?? ''] ?? []
+
+                        const selfAvg   = selfScores.length   ? selfScores.reduce((s, v) => s + v, 0)   / selfScores.length   : null
+                        const clientAvg = clientScores.length ? clientScores.reduce((s, v) => s + v, 0) / clientScores.length : null
+
+                        return (
+                          <div key={dim} style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '10px 8px', textAlign: 'center' }}>
+                            <p className="muted" style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>
+                              {DIMENSION_LABELS[dim]}
+                            </p>
+                            <p className="mono" style={{ fontSize: 14, fontWeight: 600 }}>
+                              {selfAvg != null ? selfAvg.toFixed(1) : '—'}
+                            </p>
+                            <p className="muted" style={{ fontSize: 10 }}>
+                              cli: {clientAvg != null ? clientAvg.toFixed(1) : '—'}
+                            </p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
     </div>
   )
 }

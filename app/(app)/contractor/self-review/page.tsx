@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
 import { ReviewForm } from '@/components/review/ReviewForm'
 import { ReviewBadge, CycleBadge } from '@/components/review/StatusBadge'
-import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { submitSelfReview } from './actions'
 
@@ -20,7 +19,6 @@ export default async function SelfReviewPage() {
 
   if (profile?.role !== 'contractor') redirect('/login')
 
-  // Ciclo aberto
   const { data: cycle } = await supabase
     .from('cycles')
     .select('id, name, status')
@@ -31,16 +29,17 @@ export default async function SelfReviewPage() {
 
   if (!cycle) {
     return (
-      <div className="py-12 text-center">
-        <p className="text-muted-foreground">Nenhum ciclo aberto para auto-avaliação.</p>
-        <Link href="/contractor" className="mt-4 block">
-          <Button variant="outline">Voltar ao dashboard</Button>
-        </Link>
+      <div className="content anim-in">
+        <div className="empty">
+          <p>Nenhum ciclo aberto para auto-avaliação.</p>
+          <Link href="/contractor" className="btn btn-sm" style={{ marginTop: 12 }}>
+            Voltar ao dashboard
+          </Link>
+        </div>
       </div>
     )
   }
 
-  // Get or create self-review
   let { data: review } = await supabase
     .from('reviews')
     .select('id, status, strengths, growth, extra')
@@ -65,7 +64,6 @@ export default async function SelfReviewPage() {
 
   if (!review) redirect('/contractor')
 
-  // Form version + perguntas (self type)
   const { data: formVersion } = await supabase
     .from('form_versions')
     .select('id')
@@ -80,7 +78,6 @@ export default async function SelfReviewPage() {
     .order('dimension')
     .order('order_index')
 
-  // Respostas existentes
   const { data: existingAnswers } = await supabase
     .from('review_answers')
     .select('question_id, score')
@@ -93,52 +90,54 @@ export default async function SelfReviewPage() {
   const isSubmitted = review.status === 'submitted'
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <Link href="/contractor">
-          <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowLeft size={15} /> Voltar
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">Auto-avaliação</h1>
-          <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-sm text-muted-foreground">Ciclo: {cycle.name}</p>
+    <div className="content anim-in">
+      <div className="col" style={{ gap: 24, maxWidth: 720 }}>
+        <div className="page-head">
+          <Link href="/contractor" className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', marginBottom: 8 }}>
+            <ArrowLeft size={14} /> Voltar
+          </Link>
+          <div className="row" style={{ gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+            <h2 style={{ margin: 0 }}>Auto-avaliação</h2>
             <CycleBadge status={cycle.status} />
             <ReviewBadge status={review.status} />
           </div>
+          <p>Ciclo: {cycle.name}</p>
         </div>
+
+        {isSubmitted ? (
+          <div className="card card-pad" style={{ borderColor: 'var(--success, #22c55e)' }}>
+            <p style={{ fontSize: 13 }}>
+              Auto-avaliação submetida com sucesso. Aguarde o ciclo fechar para ver o resultado.
+            </p>
+          </div>
+        ) : (
+          <div className="card card-pad" style={{ borderColor: 'var(--warning)' }}>
+            <p style={{ fontSize: 13 }}>
+              Suas respostas são salvas automaticamente. Clique em <strong>Submeter</strong> quando concluir.
+            </p>
+          </div>
+        )}
+
+        <ReviewForm
+          reviewId={review.id}
+          questions={questions ?? []}
+          initialAnswers={initialAnswers}
+          initialComments={{
+            strengths: review.strengths ?? '',
+            growth:    review.growth    ?? '',
+            extra:     review.extra     ?? '',
+          }}
+          isSubmitted={isSubmitted}
+        />
+
+        {!isSubmitted && (
+          <form action={submitSelfReview.bind(null, review.id)}>
+            <button type="submit" className="btn btn-primary">
+              Submeter auto-avaliação
+            </button>
+          </form>
+        )}
       </div>
-
-      {isSubmitted ? (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          Auto-avaliação submetida com sucesso. Aguarde o ciclo fechar para ver o resultado.
-        </div>
-      ) : (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Suas respostas são salvas automaticamente. Clique em <strong>Submeter</strong> quando concluir.
-        </div>
-      )}
-
-      <ReviewForm
-        reviewId={review.id}
-        questions={questions ?? []}
-        initialAnswers={initialAnswers}
-        initialComments={{
-          strengths: review.strengths ?? '',
-          growth:    review.growth    ?? '',
-          extra:     review.extra     ?? '',
-        }}
-        isSubmitted={isSubmitted}
-      />
-
-      {!isSubmitted && (
-        <form action={submitSelfReview.bind(null, review.id)}>
-          <Button type="submit" className="w-full sm:w-auto">
-            Submeter auto-avaliação
-          </Button>
-        </form>
-      )}
     </div>
   )
 }
