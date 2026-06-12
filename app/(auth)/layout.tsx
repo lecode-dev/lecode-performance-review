@@ -1,29 +1,25 @@
-import { Star } from 'lucide-react'
+import { AuthAside } from '@/components/layout/AuthAside'
+import { LangToggle } from '@/components/lecode/LangToggle'
+import { ThemeToggle } from '@/components/lecode/ThemeToggle'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-full flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-96 bg-primary text-primary-foreground p-10 shrink-0">
-        <div className="flex items-center gap-2">
-          <Star size={20} />
-          <span className="font-semibold text-lg">LeCode Review</span>
-        </div>
-        <div>
-          <blockquote className="text-lg font-medium leading-relaxed">
-            "Feedback estruturado é o que transforma bons profissionais em excelentes."
-          </blockquote>
-          <p className="mt-4 text-sm text-primary-foreground/70">Plataforma de Performance Review</p>
-        </div>
-      </div>
+    <div className="auth">
+      <AuthAside />
 
-      {/* Right panel */}
-      <div className="flex flex-1 flex-col items-center justify-center p-8">
-        <div className="flex items-center gap-2 mb-8 lg:hidden">
-          <Star size={18} />
-          <span className="font-semibold">LeCode Review</span>
+      {/* ── Right panel ────────────────────────────── */}
+      <div className="auth-main">
+        <div className="auth-topbar">
+          <LangToggle />
+          <ThemeToggle />
         </div>
-        <div className="w-full max-w-sm">
+
+        <div className="auth-mark-sm">
+          <img src="/lecode-logo.png" alt="LeCode" />
+          <span>LeCode</span>
+        </div>
+
+        <div className="auth-card">
           {children}
         </div>
       </div>

@@ -1,10 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { DIMENSION_LABELS } from '@/lib/supabase/types'
 import { addQuestion, updateWeights } from './actions'
 import type { DimensionKey } from '@/lib/supabase/types'
@@ -19,7 +14,6 @@ export default async function FormPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
   if (profile?.role !== 'lecode_admin') redirect('/admin')
 
-  // Busca ciclo aberto mais recente
   const { data: cycle } = await supabase
     .from('cycles')
     .select('id, name')
@@ -29,7 +23,7 @@ export default async function FormPage() {
     .single()
 
   let formVersion = null
-  let questions:   {id: string; dimension: DimensionKey; text: string; order_index: number; applies_to: string}[] = []
+  let questions: {id: string; dimension: DimensionKey; text: string; order_index: number; applies_to: string}[] = []
 
   if (cycle) {
     const { data: fv } = await supabase
@@ -54,123 +48,121 @@ export default async function FormPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Formulário de Avaliação</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          {cycle ? `Ciclo ativo: ${cycle.name}` : 'Nenhum ciclo aberto. Crie um ciclo primeiro.'}
-        </p>
-      </div>
-
-      {!cycle && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Crie um ciclo aberto para gerenciar o formulário.
+    <div className="content anim-in">
+      <div className="col" style={{ gap: 24, maxWidth: 860 }}>
+        <div className="page-head">
+          <div className="eyebrow">Admin</div>
+          <h2>Formulário de Avaliação</h2>
+          <p>{cycle ? `Ciclo ativo: ${cycle.name}` : 'Nenhum ciclo aberto. Crie um ciclo primeiro.'}</p>
         </div>
-      )}
 
-      {formVersion && (
-        <>
-          {/* Pesos */}
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Pesos do Score Final</CardTitle></CardHeader>
-            <CardContent>
-              <form action={updateWeights} className="flex flex-col sm:flex-row gap-4 items-end">
-                <input type="hidden" name="form_version_id" value={formVersion.id} />
-                <div className="space-y-1.5">
-                  <Label>Auto-avaliação (%)</Label>
-                  <Input
-                    name="self_weight"
-                    type="number"
-                    step="0.05"
-                    min="0"
-                    max="1"
-                    defaultValue={formVersion.self_weight}
-                    className="w-28"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label>Cliente (%)</Label>
-                  <Input
-                    name="client_weight"
-                    type="number"
-                    step="0.05"
-                    min="0"
-                    max="1"
-                    defaultValue={formVersion.client_weight}
-                    className="w-28"
-                  />
-                </div>
-                <Button type="submit" variant="outline">Salvar pesos</Button>
-              </form>
-              <p className="text-xs text-muted-foreground mt-2">
-                Atual: Self {Math.round(formVersion.self_weight * 100)}% · Cliente {Math.round(formVersion.client_weight * 100)}% (devem somar 100%)
-              </p>
-            </CardContent>
-          </Card>
+        {!cycle && (
+          <div className="card card-pad" style={{ borderColor: 'var(--warning)' }}>
+            <p style={{ fontSize: 13 }}>Crie um ciclo aberto para gerenciar o formulário.</p>
+          </div>
+        )}
 
-          {/* Adicionar pergunta */}
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-base">Adicionar Pergunta</CardTitle></CardHeader>
-            <CardContent>
-              <form action={addQuestion} className="space-y-4">
-                <input type="hidden" name="form_version_id" value={formVersion.id} />
-                <div className="space-y-1.5">
-                  <Label>Texto da pergunta</Label>
-                  <Input name="text" required placeholder="Ex: O contratado cumpre os prazos acordados?" />
-                </div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-1.5">
-                    <Label>Dimensão</Label>
-                    <select name="dimension" required className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
-                      {DIMENSIONS.map((d) => (
-                        <option key={d} value={d}>{DIMENSION_LABELS[d]}</option>
-                      ))}
-                    </select>
+        {formVersion && (
+          <>
+            <div className="card">
+              <div className="card-head"><h3>Pesos do Score Final</h3></div>
+              <div className="card-pad">
+                <form action={updateWeights} className="row" style={{ gap: 14, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                  <input type="hidden" name="form_version_id" value={formVersion.id} />
+                  <div className="field">
+                    <label>Auto-avaliação (0–1)</label>
+                    <input
+                      name="self_weight"
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      max="1"
+                      defaultValue={formVersion.self_weight}
+                      className="input"
+                      style={{ width: 120 }}
+                    />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>Tipo</Label>
-                    <select name="applies_to" required className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
-                      <option value="self">Auto-avaliação</option>
-                      <option value="client">Cliente</option>
-                    </select>
+                  <div className="field">
+                    <label>Cliente (0–1)</label>
+                    <input
+                      name="client_weight"
+                      type="number"
+                      step="0.05"
+                      min="0"
+                      max="1"
+                      defaultValue={formVersion.client_weight}
+                      className="input"
+                      style={{ width: 120 }}
+                    />
                   </div>
-                  <div className="space-y-1.5">
-                    <Label>Ordem</Label>
-                    <Input name="order_index" type="number" min="1" defaultValue="1" />
-                  </div>
-                </div>
-                <Button type="submit">Adicionar pergunta</Button>
-              </form>
-            </CardContent>
-          </Card>
+                  <button type="submit" className="btn btn-sm" style={{ height: 40 }}>Salvar pesos</button>
+                </form>
+                <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
+                  Atual: Self {Math.round(formVersion.self_weight * 100)}% · Cliente {Math.round(formVersion.client_weight * 100)}% (devem somar 100%)
+                </p>
+              </div>
+            </div>
 
-          {/* Perguntas existentes */}
-          {DIMENSIONS.map((dim) => {
-            const dimQs = questions.filter((q) => q.dimension === dim)
-            if (!dimQs.length) return null
-            return (
-              <Card key={dim}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{DIMENSION_LABELS[dim]}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="divide-y divide-border">
+            <div className="card">
+              <div className="card-head"><h3>Adicionar Pergunta</h3></div>
+              <div className="card-pad">
+                <form action={addQuestion} className="col" style={{ gap: 14 }}>
+                  <input type="hidden" name="form_version_id" value={formVersion.id} />
+                  <div className="field">
+                    <label>Texto da pergunta</label>
+                    <input name="text" required className="input" placeholder="Ex: O contratado cumpre os prazos acordados?" />
+                  </div>
+                  <div className="grid grid-3" style={{ gap: 14 }}>
+                    <div className="field">
+                      <label>Dimensão</label>
+                      <select name="dimension" required className="input">
+                        {DIMENSIONS.map((d) => (
+                          <option key={d} value={d}>{DIMENSION_LABELS[d]}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label>Tipo</label>
+                      <select name="applies_to" required className="input">
+                        <option value="self">Auto-avaliação</option>
+                        <option value="client">Cliente</option>
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label>Ordem</label>
+                      <input name="order_index" type="number" min="1" defaultValue="1" className="input" />
+                    </div>
+                  </div>
+                  <div>
+                    <button type="submit" className="btn btn-primary">Adicionar pergunta</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            {DIMENSIONS.map((dim) => {
+              const dimQs = questions.filter((q) => q.dimension === dim)
+              if (!dimQs.length) return null
+              return (
+                <div key={dim} className="card">
+                  <div className="card-head"><h3>{DIMENSION_LABELS[dim]}</h3></div>
+                  <div className="card-pad col" style={{ gap: 0 }}>
                     {dimQs.map((q) => (
-                      <div key={q.id} className="py-2.5 flex items-start gap-3">
-                        <Badge variant="outline" className="shrink-0 mt-0.5 text-xs">
+                      <div key={q.id} className="between" style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', gap: 12 }}>
+                        <span className={q.applies_to === 'self' ? 'badge' : 'badge badge-done'} style={{ flexShrink: 0 }}>
                           {q.applies_to === 'self' ? 'Self' : 'Cliente'}
-                        </Badge>
-                        <p className="text-sm flex-1">{q.text}</p>
-                        <span className="text-xs text-muted-foreground shrink-0">#{q.order_index}</span>
+                        </span>
+                        <p style={{ fontSize: 13, flex: 1 }}>{q.text}</p>
+                        <span className="mono muted" style={{ fontSize: 12, flexShrink: 0 }}>#{q.order_index}</span>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </>
-      )}
+                </div>
+              )
+            })}
+          </>
+        )}
+      </div>
     </div>
   )
 }

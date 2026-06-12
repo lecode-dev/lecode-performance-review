@@ -1,9 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScoreCard, ScorePill } from '@/components/review/ScoreCard'
-import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
 interface Props {
@@ -47,68 +45,64 @@ export default async function ContractorDetailPage({ params }: Props) {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <Link href="/admin/contractors">
-          <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowLeft size={15} /> Voltar
-          </Button>
+    <div className="content anim-in">
+    <div className="col" style={{ gap: 20, maxWidth: 720 }}>
+      <div className="page-head">
+        <Link href="/admin/contractors" className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', marginBottom: 8 }}>
+          <ArrowLeft size={14} /> Voltar
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{profile.full_name}</h1>
-          <p className="text-muted-foreground text-sm">{profile.email}</p>
-        </div>
+        <h2>{profile.full_name}</h2>
+        <p>{profile.email}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Dados</CardTitle></CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <Row label="Role"    value={profile.role} />
-            <Row label="GitHub"  value={contractor?.github_handle ?? '—'} />
-            <Row label="Skills"  value={contractor?.skills?.join(', ') ?? '—'} />
-          </CardContent>
-        </Card>
+      <div className="grid grid-2" style={{ gap: 12 }}>
+        <div className="card">
+          <div className="card-head"><h3>Dados</h3></div>
+          <div className="card-pad col" style={{ gap: 10 }}>
+            <Row label="Role"   value={profile.role} />
+            <Row label="GitHub" value={contractor?.github_handle ?? '—'} />
+            <Row label="Skills" value={contractor?.skills?.join(', ') ?? '—'} />
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-base">Alocações</CardTitle></CardHeader>
-          <CardContent>
+        <div className="card">
+          <div className="card-head"><h3>Alocações</h3></div>
+          <div className="card-pad">
             {allocations?.length ? (
-              <ul className="text-sm space-y-2">
+              <div className="col" style={{ gap: 8 }}>
                 {allocations.map((a) => {
                   const client = (a.clients as { name: string } | null)
                   return (
-                    <li key={a.id} className="flex justify-between">
+                    <div key={a.id} className="between" style={{ fontSize: 13 }}>
                       <span>{client?.name ?? '—'}</span>
-                      <span className="text-muted-foreground text-xs">
+                      <span className="mono muted" style={{ fontSize: 11.5 }}>
                         {a.started_on} → {a.ended_on ?? 'atual'}
                       </span>
-                    </li>
+                    </div>
                   )
                 })}
-              </ul>
+              </div>
             ) : (
-              <p className="text-sm text-muted-foreground">Sem alocações.</p>
+              <p className="muted" style={{ fontSize: 13 }}>Sem alocações.</p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
-      {/* Histórico de scores */}
-      <Card>
-        <CardHeader className="pb-2"><CardTitle className="text-base">Histórico de Scores</CardTitle></CardHeader>
-        <CardContent>
+      <div className="card">
+        <div className="card-head"><h3>Histórico de Scores</h3></div>
+        <div className="card-pad">
           {history?.length ? (
-            <div className="divide-y divide-border">
+            <div className="col" style={{ gap: 0 }}>
               {history.map((h) => {
                 const cycle = (h.cycles as { name: string; status: string } | null)
                 return (
-                  <div key={h.id} className="py-3 flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-sm">{cycle?.name}</p>
-                      <p className="text-xs text-muted-foreground">
+                  <div key={h.id} className="between" style={{ padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
+                    <div className="col" style={{ gap: 2 }}>
+                      <span style={{ fontWeight: 500, fontSize: 13.5 }}>{cycle?.name}</span>
+                      <span className="muted" style={{ fontSize: 12 }}>
                         Self: {h.self_avg?.toFixed(2) ?? '—'} · Cliente: {h.client_avg?.toFixed(2) ?? '—'}
-                      </p>
+                      </span>
                     </div>
                     <ScorePill score={h.final_score} />
                   </div>
@@ -116,19 +110,20 @@ export default async function ContractorDetailPage({ params }: Props) {
               })}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Nenhum ciclo fechado ainda.</p>
+            <p className="muted" style={{ fontSize: 13 }}>Nenhum ciclo fechado ainda.</p>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+    </div>
     </div>
   )
 }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
+    <div className="between" style={{ fontSize: 13 }}>
+      <span className="muted">{label}</span>
+      <span style={{ fontWeight: 500 }}>{value}</span>
     </div>
   )
 }

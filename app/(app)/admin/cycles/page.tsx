@@ -1,9 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { CycleBadge } from '@/components/review/StatusBadge'
 import { createCycle, closeCycle } from './actions'
 import { AlertCircle } from 'lucide-react'
@@ -21,7 +17,6 @@ export default async function CyclesPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
-  // Para cada ciclo aberto, busca progresso
   const progressMap: Record<string, { total: number; complete: number }> = {}
   if (cycles) {
     for (const cycle of cycles.filter((c) => c.status === 'open')) {
@@ -44,108 +39,105 @@ export default async function CyclesPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Ciclos de Avaliação</h1>
-        <p className="text-muted-foreground text-sm mt-1">Crie e gerencie ciclos de performance review</p>
+    <div className="content anim-in">
+    <div className="col" style={{ gap: 24, maxWidth: 720 }}>
+      <div className="page-head">
+        <div className="eyebrow">Admin</div>
+        <h2>Ciclos de Avaliação</h2>
+        <p>Crie e gerencie os ciclos de performance review dos contratados.</p>
       </div>
 
       {/* Formulário de criação */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Novo Ciclo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form action={createCycle} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1.5 sm:col-span-3">
-              <Label htmlFor="name">Nome do ciclo</Label>
-              <Input id="name" name="name" required placeholder="Ex: Q3 2026" />
+      <div className="card">
+        <div className="card-head">
+          <h3>Novo Ciclo</h3>
+        </div>
+        <div className="card-pad">
+          <form action={createCycle} className="grid" style={{ gridTemplateColumns: '1fr 1fr auto', gap: 14, alignItems: 'end' }}>
+            <div className="field" style={{ gridColumn: '1 / -1' }}>
+              <label htmlFor="name">Nome do ciclo</label>
+              <input id="name" name="name" required className="input" placeholder="Ex: Q3 2026" />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="opens_at">Abertura</Label>
-              <Input id="opens_at" name="opens_at" type="date" required />
+            <div className="field">
+              <label htmlFor="opens_at">Abertura</label>
+              <input id="opens_at" name="opens_at" type="date" required className="input" />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="closes_at">Encerramento</Label>
-              <Input id="closes_at" name="closes_at" type="date" required />
+            <div className="field">
+              <label htmlFor="closes_at">Encerramento</label>
+              <input id="closes_at" name="closes_at" type="date" required className="input" />
             </div>
-            <div className="flex items-end">
-              <Button type="submit" className="w-full">Criar ciclo</Button>
-            </div>
+            <button type="submit" className="btn btn-primary" style={{ height: 40 }}>Criar ciclo</button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Lista de ciclos */}
-      <div className="space-y-3">
+      <div className="col" style={{ gap: 10 }}>
         {cycles?.map((cycle) => {
           const progress = progressMap[cycle.id]
-          const canClose = progress
-            ? progress.total > 0 && progress.complete === progress.total
-            : false
+          const canClose = progress ? progress.total > 0 && progress.complete === progress.total : false
 
           return (
-            <Card key={cycle.id}>
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold">{cycle.name}</p>
+            <div key={cycle.id} className="card">
+              <div className="card-pad">
+                <div className="between">
+                  <div className="col" style={{ gap: 4 }}>
+                    <div className="row" style={{ gap: 8 }}>
+                      <span style={{ fontWeight: 600, fontSize: 14 }}>{cycle.name}</span>
                       <CycleBadge status={cycle.status} />
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <span className="mono muted" style={{ fontSize: 12 }}>
                       {cycle.opens_at} → {cycle.closes_at}
-                    </p>
+                    </span>
 
                     {progress && cycle.status === 'open' && (
-                      <div className="mt-2">
-                        <p className="text-xs text-muted-foreground mb-1">
+                      <div className="col" style={{ gap: 4, marginTop: 6 }}>
+                        <span className="muted" style={{ fontSize: 11.5 }}>
                           Progresso: {progress.complete}/{progress.total} pares completos
-                        </p>
-                        <div className="h-1.5 w-48 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full transition-all"
-                            style={{ width: progress.total ? `${(progress.complete / progress.total) * 100}%` : '0%' }}
-                          />
+                        </span>
+                        <div className="progress" style={{ width: 180 }}>
+                          <span style={{ width: progress.total ? `${(progress.complete / progress.total) * 100}%` : '0%' }} />
                         </div>
                       </div>
                     )}
                   </div>
 
-                  {cycle.status === 'open' && (
-                    <form action={closeCycle.bind(null, cycle.id)}>
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        size="sm"
-                        disabled={!canClose}
-                        className="shrink-0"
-                      >
-                        Fechar ciclo
-                      </Button>
-                      {!canClose && progress && progress.total > 0 && (
-                        <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-                          <AlertCircle size={10} />
-                          Aguardando {progress.total - progress.complete} par(es)
-                        </p>
-                      )}
-                    </form>
-                  )}
-
-                  {cycle.status === 'closed' && cycle.closed_at && (
-                    <p className="text-xs text-muted-foreground shrink-0">
-                      Fechado em {new Date(cycle.closed_at).toLocaleDateString('pt-BR')}
-                    </p>
-                  )}
+                  <div className="col" style={{ gap: 6, alignItems: 'flex-end' }}>
+                    {cycle.status === 'open' && (
+                      <form action={closeCycle.bind(null, cycle.id)}>
+                        <button
+                          type="submit"
+                          className="btn btn-sm"
+                          disabled={!canClose}
+                        >
+                          Fechar ciclo
+                        </button>
+                        {!canClose && progress && progress.total > 0 && (
+                          <p className="muted" style={{ fontSize: 11, marginTop: 4, display: 'flex', gap: 4, alignItems: 'center' }}>
+                            <AlertCircle size={10} />
+                            Aguardando {progress.total - progress.complete} par(es)
+                          </p>
+                        )}
+                      </form>
+                    )}
+                    {cycle.status === 'closed' && cycle.closed_at && (
+                      <span className="muted" style={{ fontSize: 12 }}>
+                        Fechado em {new Date(cycle.closed_at).toLocaleDateString('pt-BR')}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )
         })}
         {!cycles?.length && (
-          <p className="text-sm text-muted-foreground text-center py-8">Nenhum ciclo criado ainda.</p>
+          <div className="empty">
+            <p>Nenhum ciclo criado ainda.</p>
+          </div>
         )}
       </div>
+    </div>
     </div>
   )
 }

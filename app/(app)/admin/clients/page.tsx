@@ -1,9 +1,5 @@
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { createClient, assignClientRep, createAllocation } from './actions'
 
 export default async function ClientsPage() {
@@ -23,100 +19,105 @@ export default async function ClientsPage() {
   ])
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Clientes</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie clientes, representantes e alocações</p>
+    <div className="content anim-in">
+      <div className="col" style={{ gap: 24, maxWidth: 860 }}>
+        <div className="page-head">
+          <div className="eyebrow">Admin</div>
+          <h2>Clientes</h2>
+          <p>Gerencie clientes, representantes e alocações de contratados.</p>
+        </div>
+
+        <div className="card">
+          <div className="card-head"><h3>Novo Cliente</h3></div>
+          <div className="card-pad">
+            <form action={createClient} className="grid" style={{ gridTemplateColumns: '1fr 1fr auto', gap: 14, alignItems: 'end' }}>
+              <div className="field">
+                <label>Nome</label>
+                <input name="name" required className="input" placeholder="Acme Corp" />
+              </div>
+              <div className="field">
+                <label>Slug</label>
+                <input name="slug" required className="input" placeholder="acme" pattern="[a-z0-9\-]+" />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ height: 40 }}>Criar</button>
+            </form>
+          </div>
+        </div>
+
+        {clients.data?.map((client) => {
+          const reps = allProfiles.data?.filter(
+            (p) => p.role === 'client_rep' && p.client_id === client.id
+          ) ?? []
+
+          return (
+            <div key={client.id} className="card">
+              <div className="card-head">
+                <h3 style={{ marginBottom: 2 }}>{client.name}</h3>
+                <span className="muted" style={{ fontSize: 12 }}>/{client.slug}</span>
+              </div>
+              <div className="card-pad col" style={{ gap: 20 }}>
+                <div>
+                  <p className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, marginBottom: 8 }}>
+                    Representantes
+                  </p>
+                  {reps.length ? (
+                    <div className="col" style={{ gap: 4 }}>
+                      {reps.map((r) => (
+                        <div key={r.id} style={{ fontSize: 13 }}>
+                          {r.full_name} <span className="muted">({r.email})</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="muted" style={{ fontSize: 13 }}>Nenhum representante atribuído</p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, marginBottom: 8 }}>
+                    Atribuir representante
+                  </p>
+                  <form action={assignClientRep} className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                    <input type="hidden" name="client_id" value={client.id} />
+                    <select name="profile_id" required className="input" style={{ flex: 1, minWidth: 200 }}>
+                      <option value="">Selecionar perfil…</option>
+                      {allProfiles.data
+                        ?.filter((p) => p.role !== 'lecode_admin')
+                        .map((p) => (
+                          <option key={p.id} value={p.id}>{p.full_name} ({p.email})</option>
+                        ))}
+                    </select>
+                    <button type="submit" className="btn btn-sm">Atribuir como Rep</button>
+                  </form>
+                </div>
+
+                <div>
+                  <p className="muted" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, marginBottom: 8 }}>
+                    Alocar contratado
+                  </p>
+                  <form action={createAllocation} className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                    <input type="hidden" name="client_id" value={client.id} />
+                    <select name="contractor_id" required className="input" style={{ flex: 1, minWidth: 200 }}>
+                      <option value="">Selecionar contratado…</option>
+                      {contractors.data?.map((c) => {
+                        const p = (c.profiles as { full_name: string; email: string } | null)
+                        return p ? <option key={c.id} value={c.id}>{p.full_name} ({p.email})</option> : null
+                      })}
+                    </select>
+                    <input type="date" name="started_on" required className="input" style={{ width: 160 }} />
+                    <button type="submit" className="btn btn-sm">Alocar</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+        {!clients.data?.length && (
+          <div className="empty">
+            <p>Nenhum cliente cadastrado.</p>
+          </div>
+        )}
       </div>
-
-      {/* Criar cliente */}
-      <Card>
-        <CardHeader className="pb-3"><CardTitle className="text-base">Novo Cliente</CardTitle></CardHeader>
-        <CardContent>
-          <form action={createClient} className="flex flex-col sm:flex-row gap-4">
-            <div className="space-y-1.5 flex-1">
-              <Label>Nome</Label>
-              <Input name="name" required placeholder="Acme Corp" />
-            </div>
-            <div className="space-y-1.5 flex-1">
-              <Label>Slug</Label>
-              <Input name="slug" required placeholder="acme" pattern="[a-z0-9\-]+" />
-            </div>
-            <div className="flex items-end">
-              <Button type="submit">Criar</Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Lista de clientes */}
-      {clients.data?.map((client) => {
-        const reps = allProfiles.data?.filter(
-          (p) => p.role === 'client_rep' && p.client_id === client.id
-        ) ?? []
-
-        return (
-          <Card key={client.id}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">{client.name}</CardTitle>
-              <p className="text-xs text-muted-foreground">/{client.slug}</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Representantes */}
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                  Representantes
-                </p>
-                {reps.length ? (
-                  <ul className="text-sm space-y-1">
-                    {reps.map((r) => <li key={r.id} className="text-foreground">{r.full_name} <span className="text-muted-foreground">({r.email})</span></li>)}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Nenhum representante atribuído</p>
-                )}
-              </div>
-
-              {/* Atribuir rep */}
-              <form action={assignClientRep} className="flex flex-col sm:flex-row gap-2">
-                <input type="hidden" name="client_id" value={client.id} />
-                <select name="profile_id" required className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
-                  <option value="">Selecionar perfil…</option>
-                  {allProfiles.data
-                    ?.filter((p) => p.role !== 'lecode_admin')
-                    .map((p) => (
-                      <option key={p.id} value={p.id}>{p.full_name} ({p.email})</option>
-                    ))}
-                </select>
-                <Button type="submit" variant="outline" size="sm" className="shrink-0">
-                  Atribuir como Rep
-                </Button>
-              </form>
-
-              {/* Alocar contratado */}
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
-                  Alocar contratado
-                </p>
-                <form action={createAllocation} className="flex flex-col sm:flex-row gap-2">
-                  <input type="hidden" name="client_id" value={client.id} />
-                  <select name="contractor_id" required className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
-                    <option value="">Selecionar contratado…</option>
-                    {contractors.data?.map((c) => {
-                      const p = (c.profiles as { full_name: string; email: string } | null)
-                      return p ? <option key={c.id} value={c.id}>{p.full_name} ({p.email})</option> : null
-                    })}
-                  </select>
-                  <Input type="date" name="started_on" required className="h-9 w-40 shrink-0" />
-                  <Button type="submit" variant="outline" size="sm" className="shrink-0">Alocar</Button>
-                </form>
-              </div>
-            </CardContent>
-          </Card>
-        )
-      })}
-      {!clients.data?.length && (
-        <p className="text-sm text-muted-foreground text-center py-8">Nenhum cliente cadastrado.</p>
-      )}
     </div>
   )
 }

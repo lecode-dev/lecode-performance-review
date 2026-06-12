@@ -96,7 +96,8 @@ export function Sidebar({ fullName, onNavigate }: SidebarProps) {
         <div key={g.group}>
           <div className="nav-group-label">{t(g.group)}</div>
           {g.items.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + '/')
+            const depth = item.href.split('/').length
+            const active = pathname === item.href || (depth > 2 && pathname.startsWith(item.href + '/'))
             return (
               <Link
                 key={item.href}

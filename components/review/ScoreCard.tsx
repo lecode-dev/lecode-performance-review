@@ -1,5 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+function scoreTier(s: number): string {
+  if (s >= 4.5) return 'tier-5'
+  if (s >= 3.5) return 'tier-4'
+  if (s >= 2.5) return 'tier-3'
+  if (s >= 1.5) return 'tier-2'
+  return 'tier-1'
+}
 
 interface ScoreCardProps {
   selfAvg:      number | null
@@ -7,90 +12,50 @@ interface ScoreCardProps {
   finalScore:   number | null
   selfWeight:   number
   clientWeight: number
-  className?:   string
 }
 
-export function ScoreCard({
-  selfAvg, clientAvg, finalScore, selfWeight, clientWeight, className,
-}: ScoreCardProps) {
+export function ScoreCard({ selfAvg, clientAvg, finalScore, selfWeight, clientWeight }: ScoreCardProps) {
   return (
-    <Card className={cn('', className)}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">Pontuação Final</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Final score highlight */}
-        <div className="flex items-end gap-2">
-          <span className="text-4xl font-bold tabular-nums">
+    <div className="card">
+      <div className="card-head">
+        <h3>Pontuação Final</h3>
+      </div>
+      <div className="card-pad col" style={{ gap: 16 }}>
+        <div className="row" style={{ gap: 8, alignItems: 'baseline' }}>
+          <span
+            className={'score-chip lg' + (finalScore != null ? ' ' + scoreTier(finalScore) : '')}
+            style={{ fontSize: 28 }}
+          >
             {finalScore != null ? finalScore.toFixed(2) : '—'}
           </span>
-          <span className="text-muted-foreground text-sm mb-1">/ 5.00</span>
+          <span className="muted" style={{ fontSize: 13 }}>/ 5.00</span>
         </div>
 
-        {/* Score bar */}
         {finalScore != null && (
-          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-            <div
-              className={cn(
-                'h-full rounded-full transition-all',
-                finalScore >= 4 ? 'bg-emerald-500' :
-                finalScore >= 3 ? 'bg-amber-400' : 'bg-red-400',
-              )}
-              style={{ width: `${(finalScore / 5) * 100}%` }}
-            />
+          <div className="progress">
+            <span style={{ width: `${(finalScore / 5) * 100}%` }} />
           </div>
         )}
 
-        {/* Breakdown */}
-        <div className="grid grid-cols-2 gap-3 pt-2">
-          <ScoreItem
-            label="Auto-avaliação"
-            value={selfAvg}
-            weight={selfWeight}
-          />
-          <ScoreItem
-            label="Cliente"
-            value={clientAvg}
-            weight={clientWeight}
-          />
+        <div className="grid grid-2" style={{ gap: 10 }}>
+          <div className="card-pad" style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '10px 14px' }}>
+            <p className="muted" style={{ fontSize: 11.5, marginBottom: 4 }}>Auto-avaliação · {Math.round(selfWeight * 100)}%</p>
+            <p className="mono" style={{ fontSize: 20, fontWeight: 600 }}>{selfAvg != null ? selfAvg.toFixed(2) : '—'}</p>
+          </div>
+          <div className="card-pad" style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '10px 14px' }}>
+            <p className="muted" style={{ fontSize: 11.5, marginBottom: 4 }}>Cliente · {Math.round(clientWeight * 100)}%</p>
+            <p className="mono" style={{ fontSize: 20, fontWeight: 600 }}>{clientAvg != null ? clientAvg.toFixed(2) : '—'}</p>
+          </div>
         </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function ScoreItem({
-  label, value, weight,
-}: {
-  label: string
-  value: number | null
-  weight: number
-}) {
-  return (
-    <div className="bg-muted/60 rounded-lg px-3 py-2">
-      <p className="text-xs text-muted-foreground mb-1">{label}</p>
-      <p className="text-xl font-semibold tabular-nums">
-        {value != null ? value.toFixed(2) : '—'}
-      </p>
-      <p className="text-xs text-muted-foreground">peso {Math.round(weight * 100)}%</p>
+      </div>
     </div>
   )
 }
 
-interface ScorePillProps {
-  score:    number | null
-  className?: string
-}
-
-export function ScorePill({ score, className }: ScorePillProps) {
-  if (score == null) return <span className="text-muted-foreground text-sm">—</span>
+export function ScorePill({ score }: { score: number | null }) {
+  if (score == null) return <span className="muted" style={{ fontSize: 13 }}>—</span>
   return (
-    <span className={cn(
-      'inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-sm font-semibold tabular-nums',
-      score >= 4 ? 'bg-emerald-100 text-emerald-700' :
-      score >= 3 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700',
-      className,
-    )}>
+    <span className={'score-chip ' + scoreTier(score)}>
       {score.toFixed(2)}
     </span>
   )

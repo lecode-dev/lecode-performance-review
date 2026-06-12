@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
 import { ReviewForm } from '@/components/review/ReviewForm'
 import { ReviewBadge } from '@/components/review/StatusBadge'
-import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import { submitClientReview } from './actions'
 
@@ -26,7 +25,6 @@ export default async function EvaluatePage({ params }: Props) {
 
   if (repProfile?.role !== 'client_rep' || !repProfile.client_id) redirect('/client/team')
 
-  // Valida que o contractor está alocado ao cliente
   const { data: alloc } = await supabase
     .from('allocations')
     .select('id')
@@ -37,14 +35,12 @@ export default async function EvaluatePage({ params }: Props) {
 
   if (!alloc) notFound()
 
-  // Perfil do contratado
   const { data: contractorProfile } = await supabase
     .from('profiles')
     .select('full_name, email')
     .eq('id', contractorId)
     .single()
 
-  // Ciclo aberto
   const { data: cycle } = await supabase
     .from('cycles')
     .select('id, name, status')
@@ -55,13 +51,14 @@ export default async function EvaluatePage({ params }: Props) {
 
   if (!cycle) {
     return (
-      <div className="py-12 text-center">
-        <p className="text-muted-foreground">Nenhum ciclo aberto para avaliação.</p>
+      <div className="content anim-in">
+        <div className="empty">
+          <p>Nenhum ciclo aberto para avaliação.</p>
+        </div>
       </div>
     )
   }
 
-  // Get or create review
   let { data: review } = await supabase
     .from('reviews')
     .select('id, status, strengths, growth, extra')
@@ -87,7 +84,6 @@ export default async function EvaluatePage({ params }: Props) {
 
   if (!review) redirect('/client/team')
 
-  // Form version + questions (client type)
   const { data: formVersion } = await supabase
     .from('form_versions')
     .select('id')
@@ -102,7 +98,6 @@ export default async function EvaluatePage({ params }: Props) {
     .order('dimension')
     .order('order_index')
 
-  // Existing answers
   const { data: existingAnswers } = await supabase
     .from('review_answers')
     .select('question_id, score')
@@ -115,49 +110,47 @@ export default async function EvaluatePage({ params }: Props) {
   const isSubmitted = review.status === 'submitted'
 
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div className="flex items-center gap-3">
-        <Link href="/client/team">
-          <Button variant="ghost" size="sm" className="gap-1">
-            <ArrowLeft size={15} /> Voltar
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">
-            Avaliação de {contractorProfile?.full_name}
-          </h1>
-          <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-sm text-muted-foreground">Ciclo: {cycle.name}</p>
+    <div className="content anim-in">
+      <div className="col" style={{ gap: 24, maxWidth: 720 }}>
+        <div className="page-head">
+          <Link href="/client/team" className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', marginBottom: 8 }}>
+            <ArrowLeft size={14} /> Voltar
+          </Link>
+          <div className="row" style={{ gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
+            <h2 style={{ margin: 0 }}>Avaliação de {contractorProfile?.full_name}</h2>
             <ReviewBadge status={review.status} />
           </div>
+          <p>Ciclo: {cycle.name}</p>
         </div>
+
+        {isSubmitted && (
+          <div className="card card-pad" style={{ borderColor: 'var(--success, #22c55e)' }}>
+            <p style={{ fontSize: 13 }}>
+              Avaliação submetida. Respostas somente leitura até o ciclo fechar.
+            </p>
+          </div>
+        )}
+
+        <ReviewForm
+          reviewId={review.id}
+          questions={questions ?? []}
+          initialAnswers={initialAnswers}
+          initialComments={{
+            strengths: review.strengths ?? '',
+            growth:    review.growth    ?? '',
+            extra:     review.extra     ?? '',
+          }}
+          isSubmitted={isSubmitted}
+        />
+
+        {!isSubmitted && (
+          <form action={submitClientReview.bind(null, review.id)}>
+            <button type="submit" className="btn btn-primary">
+              Submeter avaliação
+            </button>
+          </form>
+        )}
       </div>
-
-      {isSubmitted && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          Avaliação submetida. Respostas somente leitura até o ciclo fechar.
-        </div>
-      )}
-
-      <ReviewForm
-        reviewId={review.id}
-        questions={questions ?? []}
-        initialAnswers={initialAnswers}
-        initialComments={{
-          strengths: review.strengths ?? '',
-          growth:    review.growth    ?? '',
-          extra:     review.extra     ?? '',
-        }}
-        isSubmitted={isSubmitted}
-      />
-
-      {!isSubmitted && (
-        <form action={submitClientReview.bind(null, review.id)}>
-          <Button type="submit" className="w-full sm:w-auto">
-            Submeter avaliação
-          </Button>
-        </form>
-      )}
     </div>
   )
 }

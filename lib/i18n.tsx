@@ -219,6 +219,7 @@ const EN: Record<string, string> = {
   "Ao continuar, você concorda com os termos de uso e a política de privacidade.": "By continuing, you agree to the terms of use and privacy policy.",
   "ou": "or", "Continuar com SSO": "Continue with SSO",
   "Desenvolvimento Ágil, Gestão Simplificada.": "Agile Development, Simplified Management.",
+  "Desenvolvimento": "Development", "Ágil,": "Agile,", "Gestão Simplificada.": "Simplified Management.",
   "Selecione seu perfil para entrar no protótipo.": "Select your profile to enter the prototype.",
   "Outsourcing de engenharia · desde 2019": "Engineering outsourcing · since 2019",
 
@@ -490,6 +491,7 @@ const ES: Record<string, string> = {
   "Ao continuar, você concorda com os termos de uso e a política de privacidade.": "Al continuar, aceptas los términos de uso y la política de privacidad.",
   "ou": "o", "Continuar com SSO": "Continuar con SSO",
   "Desenvolvimento Ágil, Gestão Simplificada.": "Desarrollo Ágil, Gestión Simplificada.",
+  "Desenvolvimento": "Desarrollo", "Ágil,": "Ágil,", "Gestão Simplificada.": "Gestión Simplificada.",
   "Selecione seu perfil para entrar no protótipo.": "Selecciona tu perfil para entrar al prototipo.",
   "Outsourcing de engenharia · desde 2019": "Outsourcing de ingeniería · desde 2019",
 
