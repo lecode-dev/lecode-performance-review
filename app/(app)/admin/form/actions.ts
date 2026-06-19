@@ -1,10 +1,10 @@
 'use server'
 import { revalidatePath } from 'next/cache'
-import { createServerClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import type { DimensionKey, ReviewType } from '@/lib/supabase/types'
 
 export async function addQuestion(formData: FormData) {
-  const supabase = await createServerClient()
+  const admin = createAdminClient()
 
   const form_version_id = formData.get('form_version_id') as string
   const dimension       = formData.get('dimension')       as DimensionKey
@@ -14,7 +14,7 @@ export async function addQuestion(formData: FormData) {
 
   if (!form_version_id || !dimension || !text || !applies_to) throw new Error('Campos obrigatórios')
 
-  const { error } = await supabase.from('form_questions').insert({
+  const { error } = await admin.from('form_questions').insert({
     form_version_id, dimension, text, order_index: order_index || 1, applies_to,
   })
 
@@ -23,7 +23,7 @@ export async function addQuestion(formData: FormData) {
 }
 
 export async function updateWeights(formData: FormData) {
-  const supabase = await createServerClient()
+  const admin = createAdminClient()
 
   const form_version_id = formData.get('form_version_id') as string
   const rawSelf   = parseFloat(formData.get('self_weight')   as string)
@@ -34,7 +34,7 @@ export async function updateWeights(formData: FormData) {
   const self_weight   = rawSelf / 100
   const client_weight = rawClient / 100
 
-  const { error } = await supabase
+  const { error } = await admin
     .from('form_versions')
     .update({ self_weight, client_weight })
     .eq('id', form_version_id)
@@ -44,12 +44,12 @@ export async function updateWeights(formData: FormData) {
 }
 
 export async function removeQuestion(formData: FormData) {
-  const supabase = await createServerClient()
+  const admin = createAdminClient()
 
   const id = formData.get('question_id') as string
   if (!id) throw new Error('ID obrigatório')
 
-  const { error } = await supabase.from('form_questions').delete().eq('id', id)
+  const { error } = await admin.from('form_questions').delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/form')
 }
