@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useRole } from '@/components/providers/RoleProvider'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
-import { useLang } from '@/lib/i18n'
+import { useLang, useTheme } from '@/lib/i18n'
 import { getBrowserClient } from '@/lib/supabase/client'
 import { Icon, type IconName } from '@/components/lecode/Icon'
 import { Avatar } from '@/components/lecode/Avatar'
@@ -67,7 +67,9 @@ export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
   const router   = useRouter()
   const confirm  = useConfirm()
   const { t }    = useLang()
+  const { theme } = useTheme()
   const groups   = NAV_BY_ROLE[role]
+  const logoSrc  = theme === 'dark' ? '/lecode-logo.png' : '/lecode-logo-white.svg'
   const person   = { name: fullName, role: t(ROLE_LABEL[role]) }
 
   async function handleSignOut() {
@@ -89,7 +91,7 @@ export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand-mark"><img src="/lecode-logo.png" alt="LeCode" /></div>
+        <div className="brand-mark"><img src={logoSrc} alt="LeCode" /></div>
         <div className="brand-name">LeCode<small>performance_review</small></div>
       </div>
 

@@ -1,13 +1,15 @@
 'use client'
-import { useLang } from '@/lib/i18n'
+import { useLang, useTheme } from '@/lib/i18n'
 
 export function AuthAside() {
   const { t } = useLang()
+  const { theme } = useTheme()
+  const logoSrc = theme === 'dark' ? '/lecode-logo.png' : '/lecode-logo-white.svg'
 
   return (
     <aside className="auth-aside">
       <div className="auth-brand">
-        <img src="/lecode-logo.png" alt="LeCode" />
+        <img src={logoSrc} alt="LeCode" />
         <div>
           <div className="ab-name">LeCode</div>
           <div className="ab-sub">performance_review</div>
