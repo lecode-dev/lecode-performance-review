@@ -1,16 +1,16 @@
 'use server'
 import { revalidatePath } from 'next/cache'
-import { createServerClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 
 export async function createContractor(data: {
   name: string; role: string; seniority: string; track: string; clientId: string | null
 }) {
-  const supabase = await createServerClient()
+  const admin = createAdminClient()
 
   const email = `${data.name.toLowerCase().replace(/\s+/g, '.')}@placeholder.lecode.dev`
   const since = new Date().toISOString().slice(0, 7)
 
-  const { data: authUser, error: authErr } = await supabase.auth.admin.createUser({
+  const { data: authUser, error: authErr } = await admin.auth.admin.createUser({
     email,
     password: crypto.randomUUID(),
     email_confirm: true,
@@ -19,16 +19,16 @@ export async function createContractor(data: {
   if (authErr) throw new Error(authErr.message)
   const userId = authUser.user.id
 
-  await supabase.from('profiles').update({
+  await admin.from('profiles').update({
     full_name: data.name, email,
   }).eq('id', userId)
 
-  await supabase.from('contractors').update({
+  await admin.from('contractors').update({
     seniority: data.seniority, track: data.track, since,
   }).eq('id', userId)
 
   if (data.clientId) {
-    await supabase.from('allocations').insert({
+    await admin.from('allocations').insert({
       contractor_id: userId, client_id: data.clientId,
       started_on: new Date().toISOString().slice(0, 10),
     })
@@ -43,15 +43,15 @@ export async function updateContractor(
   data: { name: string; role: string; seniority: string; track: string },
   adminName: string,
 ) {
-  const supabase = await createServerClient()
+  const admin = createAdminClient()
 
-  const { data: prev } = await supabase
+  const { data: prev } = await admin
     .from('contractors').select('seniority, track').eq('id', contractorId).single()
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from('profiles').select('full_name').eq('id', contractorId).single()
 
-  await supabase.from('profiles').update({ full_name: data.name }).eq('id', contractorId)
-  await supabase.from('contractors').update({
+  await admin.from('profiles').update({ full_name: data.name }).eq('id', contractorId)
+  await admin.from('contractors').update({
     seniority: data.seniority, track: data.track,
   }).eq('id', contractorId)
 
@@ -61,7 +61,7 @@ export async function updateContractor(
   if (profile && profile.full_name !== data.name) changes.push({ field: 'role', old_value: profile.full_name, new_value: data.name })
 
   for (const c of changes) {
-    await supabase.from('contractor_changelog').insert({
+    await admin.from('contractor_changelog').insert({
       contractor_id: contractorId, field: c.field,
       old_value: c.old_value, new_value: c.new_value,
       changed_by: adminName,
@@ -77,10 +77,10 @@ export async function updateAllocation(
   newClientId: string | null,
   adminName: string,
 ) {
-  const supabase = await createServerClient()
+  const admin = createAdminClient()
   const today = new Date().toISOString().slice(0, 10)
 
-  const { data: currentAlloc } = await supabase
+  const { data: currentAlloc } = await admin
     .from('allocations')
     .select('id, client_id, clients(name)')
     .eq('contractor_id', contractorId)
@@ -92,22 +92,22 @@ export async function updateAllocation(
     : null
 
   if (currentAlloc) {
-    await supabase.from('allocations').update({ ended_on: today }).eq('id', currentAlloc.id)
+    await admin.from('allocations').update({ ended_on: today }).eq('id', currentAlloc.id)
   }
 
   if (newClientId) {
-    await supabase.from('allocations').insert({
+    await admin.from('allocations').insert({
       contractor_id: contractorId, client_id: newClientId, started_on: today,
     })
-    const { data: newClient } = await supabase.from('clients').select('name').eq('id', newClientId).single()
-    await supabase.from('contractor_changelog').insert({
+    const { data: newClient } = await admin.from('clients').select('name').eq('id', newClientId).single()
+    await admin.from('contractor_changelog').insert({
       contractor_id: contractorId, field: 'allocation',
       old_value: oldClientName ?? 'Sem alocação',
       new_value: newClient?.name ?? '—',
       changed_by: adminName,
     })
   } else if (currentAlloc) {
-    await supabase.from('contractor_changelog').insert({
+    await admin.from('contractor_changelog').insert({
       contractor_id: contractorId, field: 'allocation',
       old_value: oldClientName ?? '—',
       new_value: 'Sem alocação',

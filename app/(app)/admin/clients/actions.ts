@@ -1,16 +1,25 @@
 'use server'
 import { revalidatePath } from 'next/cache'
-import { createServerClient } from '@/lib/supabase/server'
+import { createServerClient, createAdminClient } from '@/lib/supabase/server'
+
+async function requireAdmin() {
+  const supabase = await createServerClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error('Não autenticado')
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
+  if (profile?.role !== 'lecode_admin') throw new Error('Acesso negado')
+}
 
 export async function createClient(formData: FormData) {
-  const supabase = await createServerClient()
+  await requireAdmin()
+  const admin = createAdminClient()
 
   const name = formData.get('name') as string
   const slug = formData.get('slug') as string
   const industry = (formData.get('industry') as string) || null
   if (!name || !slug) throw new Error('Nome e slug são obrigatórios')
 
-  const { error } = await supabase.from('clients').insert({ name, slug, industry })
+  const { error } = await admin.from('clients').insert({ name, slug, industry })
   if (error) throw new Error(error.message)
 
   revalidatePath('/admin/clients')
@@ -18,13 +27,14 @@ export async function createClient(formData: FormData) {
 }
 
 export async function assignClientRep(formData: FormData) {
-  const supabase = await createServerClient()
+  await requireAdmin()
+  const admin = createAdminClient()
 
   const profileId = formData.get('profile_id') as string
   const clientId  = formData.get('client_id')  as string
   if (!profileId || !clientId) throw new Error('Campos obrigatórios')
 
-  const { error } = await supabase
+  const { error } = await admin
     .from('profiles')
     .update({ role: 'client_rep', client_id: clientId })
     .eq('id', profileId)
@@ -34,21 +44,21 @@ export async function assignClientRep(formData: FormData) {
 }
 
 export async function createAllocation(formData: FormData) {
-  const supabase = await createServerClient()
+  await requireAdmin()
+  const admin = createAdminClient()
 
   const contractor_id = formData.get('contractor_id') as string
   const client_id     = formData.get('client_id')     as string
   const started_on    = formData.get('started_on')    as string
   if (!contractor_id || !client_id || !started_on) throw new Error('Campos obrigatórios')
 
-  // Fecha alocação ativa anterior se existir
-  await supabase
+  await admin
     .from('allocations')
     .update({ ended_on: started_on })
     .eq('contractor_id', contractor_id)
     .is('ended_on', null)
 
-  const { error } = await supabase.from('allocations').insert({ contractor_id, client_id, started_on })
+  const { error } = await admin.from('allocations').insert({ contractor_id, client_id, started_on })
   if (error) throw new Error(error.message)
 
   revalidatePath('/admin/clients')
