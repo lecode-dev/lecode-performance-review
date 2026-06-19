@@ -7,9 +7,10 @@ export async function createClient(formData: FormData) {
 
   const name = formData.get('name') as string
   const slug = formData.get('slug') as string
+  const industry = (formData.get('industry') as string) || null
   if (!name || !slug) throw new Error('Nome e slug são obrigatórios')
 
-  const { error } = await supabase.from('clients').insert({ name, slug })
+  const { error } = await supabase.from('clients').insert({ name, slug, industry })
   if (error) throw new Error(error.message)
 
   revalidatePath('/admin/clients')
