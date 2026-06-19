@@ -12,6 +12,7 @@ import type { UserRole } from '@/lib/supabase/types'
 interface AppShellProps {
   role:     UserRole
   fullName: string
+  badges?:  Record<string, string | number>
   children: React.ReactNode
 }
 
@@ -36,7 +37,7 @@ function pageTitle(pathname: string): string {
   return prefix ? PAGE_TITLES[prefix] : 'LeCode Review'
 }
 
-export function AppShell({ role, fullName, children }: AppShellProps) {
+export function AppShell({ role, fullName, badges, children }: AppShellProps) {
   const [navOpen, setNavOpen] = useState(false)
   const pathname = usePathname()
   const { t } = useLang()
@@ -45,7 +46,7 @@ export function AppShell({ role, fullName, children }: AppShellProps) {
     <RoleProvider role={role}>
       <div className={'app' + (navOpen ? ' nav-open' : '')}>
         <div className="nav-backdrop" onClick={() => setNavOpen(false)} />
-        <Sidebar fullName={fullName} onNavigate={() => setNavOpen(false)} />
+        <Sidebar fullName={fullName} badges={badges} onNavigate={() => setNavOpen(false)} />
         <div className="main">
           <header className="topbar">
             <button className="nav-toggle" aria-label="Menu" onClick={() => setNavOpen((v) => !v)}>

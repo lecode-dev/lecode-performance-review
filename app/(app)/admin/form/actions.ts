@@ -26,16 +26,30 @@ export async function updateWeights(formData: FormData) {
   const supabase = await createServerClient()
 
   const form_version_id = formData.get('form_version_id') as string
-  const self_weight     = parseFloat(formData.get('self_weight')   as string)
-  const client_weight   = parseFloat(formData.get('client_weight') as string)
+  const rawSelf   = parseFloat(formData.get('self_weight')   as string)
+  const rawClient = parseFloat(formData.get('client_weight') as string)
 
-  if (Math.abs(self_weight + client_weight - 1.0) > 0.001) throw new Error('Pesos devem somar 1.0')
+  if (Math.abs(rawSelf + rawClient - 100) > 1) throw new Error('Pesos devem somar 100%')
+
+  const self_weight   = rawSelf / 100
+  const client_weight = rawClient / 100
 
   const { error } = await supabase
     .from('form_versions')
     .update({ self_weight, client_weight })
     .eq('id', form_version_id)
 
+  if (error) throw new Error(error.message)
+  revalidatePath('/admin/form')
+}
+
+export async function removeQuestion(formData: FormData) {
+  const supabase = await createServerClient()
+
+  const id = formData.get('question_id') as string
+  if (!id) throw new Error('ID obrigatório')
+
+  const { error } = await supabase.from('form_questions').delete().eq('id', id)
   if (error) throw new Error(error.message)
   revalidatePath('/admin/form')
 }

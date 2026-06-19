@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase/server'
-import { ScorePill, ScoreCard } from '@/components/review/ScoreCard'
-import { CycleBadge } from '@/components/review/StatusBadge'
+import { ClientHistoryView } from '@/components/lecode/screens/ClientHistoryView'
+import { finalScore } from '@/lib/domain'
+import type { DimensionKey } from '@/lib/supabase/types'
 
 export default async function ClientHistoryPage() {
   const supabase = await createServerClient()
@@ -23,93 +24,111 @@ export default async function ClientHistoryPage() {
     )
   }
 
-  const { data: cycles } = await supabase
-    .from('cycles')
-    .select('id, name, status, closed_at')
-    .eq('status', 'closed')
-    .order('closed_at', { ascending: false })
+  const [clientRes, cyclesRes, allocationsRes] = await Promise.all([
+    supabase.from('clients').select('name').eq('id', profile.client_id).single(),
+    supabase.from('cycles').select('*').order('created_at', { ascending: false }),
+    supabase.from('allocations').select('contractor_id').eq('client_id', profile.client_id),
+  ])
 
-  const { data: allocations } = await supabase
-    .from('allocations')
-    .select('contractor_id')
-    .eq('client_id', profile.client_id)
-
-  const contractorIds = [...new Set(allocations?.map((a) => a.contractor_id) ?? [])]
+  const clientName = clientRes.data?.name ?? ''
+  const cycles = cyclesRes.data ?? []
+  const contractorIds = [...new Set(allocationsRes.data?.map((a) => a.contractor_id) ?? [])]
 
   const { data: contractorProfiles } = contractorIds.length
-    ? await supabase.from('profiles').select('id, full_name').in('id', contractorIds)
+    ? await supabase.from('profiles').select('id, full_name, email').in('id', contractorIds)
     : { data: [] }
 
-  const { data: history } = await supabase
-    .from('contractor_history')
-    .select('cycle_id, contractor_id, self_avg, client_avg, final_score, self_weight, client_weight')
-    .in('contractor_id', contractorIds.length ? contractorIds : ['none'])
-    .order('created_at', { ascending: false })
+  const profileMap = new Map((contractorProfiles ?? []).map((p) => [p.id, p]))
 
-  const nameMap = new Map(
-    contractorProfiles?.map((p) => [p.id, p.full_name]) ?? []
-  )
+  type TeamRow = {
+    contractorId: string; name: string; email: string
+    myAvg: number | null; selfAvg: number | null; finalScoreVal: number | null
+    selfDims: Record<DimensionKey, number> | null
+    clientDims: Record<DimensionKey, number> | null
+    selfDone: boolean; clientDone: boolean
+    selfOpen: { strengths?: string; growth?: string; extra?: string } | null
+    clientOpen: { strengths?: string; growth?: string; extra?: string } | null
+  }
+
+  const cycleTeamData: Record<string, TeamRow[]> = {}
+
+  for (const cycle of cycles) {
+    const rows: TeamRow[] = []
+
+    for (const cId of contractorIds) {
+      const p = profileMap.get(cId)
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('id, type, status, strengths, growth, extra')
+        .eq('cycle_id', cycle.id)
+        .eq('contractor_id', cId)
+
+      const selfReview = reviews?.find((r) => r.type === 'self')
+      const clientReview = reviews?.find((r) => r.type === 'client')
+
+      let selfDims: Record<DimensionKey, number> | null = null
+      let clientDims: Record<DimensionKey, number> | null = null
+      let selfAvg: number | null = null
+      let myAvg: number | null = null
+
+      const reviewIds = [selfReview?.id, clientReview?.id].filter(Boolean) as string[]
+      if (reviewIds.length > 0) {
+        const { data: answers } = await supabase
+          .from('review_answers')
+          .select('review_id, score, form_questions(dimension)')
+          .in('review_id', reviewIds)
+
+        if (answers) {
+          for (const entry of [{ review: selfReview, type: 'self' as const }, { review: clientReview, type: 'client' as const }]) {
+            if (!entry.review) continue
+            const rAnswers = answers.filter((a) => a.review_id === entry.review!.id)
+            if (rAnswers.length === 0) continue
+
+            const dimScores: Record<string, number[]> = {}
+            for (const a of rAnswers) {
+              const dim = (a.form_questions as { dimension: DimensionKey } | null)?.dimension
+              if (!dim) continue
+              if (!dimScores[dim]) dimScores[dim] = []
+              dimScores[dim].push(a.score)
+            }
+
+            const dims: Record<string, number> = {}
+            let totalSum = 0, totalCount = 0
+            for (const [dim, scores] of Object.entries(dimScores)) {
+              dims[dim] = Math.round((scores.reduce((s, v) => s + v, 0) / scores.length) * 100) / 100
+              totalSum += scores.reduce((s, v) => s + v, 0)
+              totalCount += scores.length
+            }
+
+            const avg = totalCount > 0 ? Math.round((totalSum / totalCount) * 100) / 100 : null
+            if (entry.type === 'self') { selfDims = dims as Record<DimensionKey, number>; selfAvg = avg }
+            else { clientDims = dims as Record<DimensionKey, number>; myAvg = avg }
+          }
+        }
+      }
+
+      rows.push({
+        contractorId: cId,
+        name: p?.full_name ?? '—',
+        email: p?.email ?? '',
+        myAvg, selfAvg,
+        finalScoreVal: finalScore(selfAvg, myAvg),
+        selfDims, clientDims,
+        selfDone: selfReview?.status === 'submitted',
+        clientDone: clientReview?.status === 'submitted',
+        selfOpen: selfReview ? { strengths: selfReview.strengths ?? undefined, growth: selfReview.growth ?? undefined, extra: selfReview.extra ?? undefined } : null,
+        clientOpen: clientReview ? { strengths: clientReview.strengths ?? undefined, growth: clientReview.growth ?? undefined, extra: clientReview.extra ?? undefined } : null,
+      })
+    }
+
+    cycleTeamData[cycle.id] = rows
+  }
 
   return (
-    <div className="content anim-in">
-      <div className="col" style={{ gap: 24, maxWidth: 860 }}>
-        <div className="page-head">
-          <div className="eyebrow">Representante</div>
-          <h2>Histórico</h2>
-          <p>Scores de ciclos de avaliação fechados do seu time.</p>
-        </div>
-
-        {!cycles?.length ? (
-          <div className="empty">
-            <p>Nenhum ciclo fechado ainda.</p>
-          </div>
-        ) : (
-          cycles.map((cycle) => {
-            const cycleHistory = history?.filter((h) => h.cycle_id === cycle.id) ?? []
-
-            return (
-              <div key={cycle.id} className="card">
-                <div className="card-head">
-                  <div className="between">
-                    <div className="row" style={{ gap: 8 }}>
-                      <h3>{cycle.name}</h3>
-                      <CycleBadge status={cycle.status} />
-                    </div>
-                    {cycle.closed_at && (
-                      <span className="muted" style={{ fontSize: 12 }}>
-                        Fechado em {new Date(cycle.closed_at).toLocaleDateString('pt-BR')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="card-pad">
-                  {!cycleHistory.length ? (
-                    <p className="muted" style={{ fontSize: 13 }}>Sem dados para este ciclo.</p>
-                  ) : (
-                    <div className="col" style={{ gap: 0 }}>
-                      {cycleHistory.map((h) => (
-                        <div key={h.contractor_id} style={{ padding: '16px 0', borderBottom: '1px solid var(--border)' }}>
-                          <div className="between" style={{ marginBottom: 12 }}>
-                            <span style={{ fontWeight: 500, fontSize: 14 }}>{nameMap.get(h.contractor_id)}</span>
-                            <ScorePill score={h.final_score} />
-                          </div>
-                          <ScoreCard
-                            selfAvg={h.self_avg}
-                            clientAvg={h.client_avg}
-                            finalScore={h.final_score}
-                            selfWeight={h.self_weight ?? 0.3}
-                            clientWeight={h.client_weight ?? 0.7}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          })
-        )}
-      </div>
-    </div>
+    <ClientHistoryView
+      clientName={clientName}
+      cycles={cycles}
+      cycleTeamData={cycleTeamData}
+    />
   )
 }

@@ -19,9 +19,9 @@ export interface Database {
   public: {
     Tables: {
       clients: {
-        Row:           { id: string; name: string; slug: string; created_at: string }
-        Insert:        { id?: string; name: string; slug: string }
-        Update:        { name?: string; slug?: string }
+        Row:           { id: string; name: string; slug: string; industry: string | null; color: string | null; created_at: string }
+        Insert:        { id?: string; name: string; slug: string; industry?: string | null; color?: string | null }
+        Update:        { name?: string; slug?: string; industry?: string | null; color?: string | null }
         Relationships: []
       }
       profiles: {
@@ -36,9 +36,9 @@ export interface Database {
         ]
       }
       contractors: {
-        Row:    { id: string; github_handle: string | null; skills: string[] | null; created_at: string }
-        Insert: { id: string; github_handle?: string | null; skills?: string[] | null }
-        Update: { github_handle?: string | null; skills?: string[] | null }
+        Row:    { id: string; github_handle: string | null; skills: string[] | null; seniority: string; track: string; since: string | null; created_at: string }
+        Insert: { id: string; github_handle?: string | null; skills?: string[] | null; seniority?: string; track?: string; since?: string | null }
+        Update: { github_handle?: string | null; skills?: string[] | null; seniority?: string; track?: string; since?: string | null }
         Relationships: [
           { foreignKeyName: 'contractors_id_fkey'; columns: ['id']; isOneToOne: true; referencedRelation: 'profiles'; referencedColumns: ['id'] }
         ]
@@ -112,6 +112,24 @@ export interface Database {
         Relationships: [
           { foreignKeyName: 'review_answers_review_id_fkey';   columns: ['review_id'];   isOneToOne: false; referencedRelation: 'reviews';        referencedColumns: ['id'] },
           { foreignKeyName: 'review_answers_question_id_fkey'; columns: ['question_id']; isOneToOne: false; referencedRelation: 'form_questions'; referencedColumns: ['id'] }
+        ]
+      }
+      contractor_changelog: {
+        Row: {
+          id: string; contractor_id: string; field: string
+          old_value: string | null; new_value: string | null; note: string | null
+          changed_by: string | null; changed_at: string; created_at: string
+        }
+        Insert: {
+          id?: string; contractor_id: string; field: string
+          old_value?: string | null; new_value?: string | null; note?: string | null
+          changed_by?: string | null; changed_at?: string
+        }
+        Update: {
+          old_value?: string | null; new_value?: string | null; note?: string | null
+        }
+        Relationships: [
+          { foreignKeyName: 'contractor_changelog_contractor_id_fkey'; columns: ['contractor_id']; isOneToOne: false; referencedRelation: 'contractors'; referencedColumns: ['id'] }
         ]
       }
       contractor_history: {

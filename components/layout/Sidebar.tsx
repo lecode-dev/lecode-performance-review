@@ -57,10 +57,11 @@ const ROLE_LABEL: Record<UserRole, string> = {
 
 interface SidebarProps {
   fullName:    string
+  badges?:     Record<string, string | number>
   onNavigate?: () => void
 }
 
-export function Sidebar({ fullName, onNavigate }: SidebarProps) {
+export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
   const role     = useRole()
   const pathname = usePathname()
   const router   = useRouter()
@@ -107,6 +108,7 @@ export function Sidebar({ fullName, onNavigate }: SidebarProps) {
               >
                 <Icon name={item.icon} size={18} className="ni-icon" />
                 <span>{t(item.label)}</span>
+                {badges?.[item.href] != null && <span className="ni-badge">{badges[item.href]}</span>}
               </Link>
             )
           })}

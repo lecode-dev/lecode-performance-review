@@ -1,10 +1,8 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase/server'
-import { ReviewForm } from '@/components/review/ReviewForm'
-import { ReviewBadge, CycleBadge } from '@/components/review/StatusBadge'
-import { ArrowLeft } from 'lucide-react'
-import { submitSelfReview } from './actions'
+import { SelfReviewView } from '@/components/lecode/screens/SelfReviewView'
+import { midMonth } from '@/lib/domain'
 
 export default async function SelfReviewPage() {
   const supabase = await createServerClient()
@@ -13,7 +11,7 @@ export default async function SelfReviewPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role')
+    .select('role, full_name')
     .eq('id', session.user.id)
     .single()
 
@@ -21,7 +19,7 @@ export default async function SelfReviewPage() {
 
   const { data: cycle } = await supabase
     .from('cycles')
-    .select('id, name, status')
+    .select('id, name, status, opens_at, closes_at')
     .eq('status', 'open')
     .order('created_at', { ascending: false })
     .limit(1)
@@ -32,9 +30,7 @@ export default async function SelfReviewPage() {
       <div className="content anim-in">
         <div className="empty">
           <p>Nenhum ciclo aberto para auto-avaliação.</p>
-          <Link href="/contractor" className="btn btn-sm" style={{ marginTop: 12 }}>
-            Voltar ao dashboard
-          </Link>
+          <Link href="/contractor" className="btn btn-sm" style={{ marginTop: 12 }}>Voltar ao dashboard</Link>
         </div>
       </div>
     )
@@ -52,10 +48,10 @@ export default async function SelfReviewPage() {
     const { data: newReview } = await supabase
       .from('reviews')
       .insert({
-        cycle_id:      cycle.id,
+        cycle_id: cycle.id,
         contractor_id: session.user.id,
-        type:          'self',
-        author_id:     session.user.id,
+        type: 'self',
+        author_id: session.user.id,
       })
       .select('id, status, strengths, growth, extra')
       .single()
@@ -87,57 +83,21 @@ export default async function SelfReviewPage() {
     (existingAnswers ?? []).map((a) => [a.question_id, a.score])
   )
 
-  const isSubmitted = review.status === 'submitted'
+  const submitEnd = midMonth(cycle.opens_at)
 
   return (
-    <div className="content anim-in">
-      <div className="col" style={{ gap: 24, maxWidth: 720 }}>
-        <div className="page-head">
-          <Link href="/contractor" className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', marginBottom: 8 }}>
-            <ArrowLeft size={14} /> Voltar
-          </Link>
-          <div className="row" style={{ gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
-            <h2 style={{ margin: 0 }}>Auto-avaliação</h2>
-            <CycleBadge status={cycle.status} />
-            <ReviewBadge status={review.status} />
-          </div>
-          <p>Ciclo: {cycle.name}</p>
-        </div>
-
-        {isSubmitted ? (
-          <div className="card card-pad" style={{ borderColor: 'var(--success, #22c55e)' }}>
-            <p style={{ fontSize: 13 }}>
-              Auto-avaliação submetida com sucesso. Aguarde o ciclo fechar para ver o resultado.
-            </p>
-          </div>
-        ) : (
-          <div className="card card-pad" style={{ borderColor: 'var(--warning)' }}>
-            <p style={{ fontSize: 13 }}>
-              Suas respostas são salvas automaticamente. Clique em <strong>Submeter</strong> quando concluir.
-            </p>
-          </div>
-        )}
-
-        <ReviewForm
-          reviewId={review.id}
-          questions={questions ?? []}
-          initialAnswers={initialAnswers}
-          initialComments={{
-            strengths: review.strengths ?? '',
-            growth:    review.growth    ?? '',
-            extra:     review.extra     ?? '',
-          }}
-          isSubmitted={isSubmitted}
-        />
-
-        {!isSubmitted && (
-          <form action={submitSelfReview.bind(null, review.id)}>
-            <button type="submit" className="btn btn-primary">
-              Submeter auto-avaliação
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+    <SelfReviewView
+      reviewId={review.id}
+      cycleName={cycle.name}
+      cycleSubmitEnd={submitEnd}
+      questions={questions ?? []}
+      initialAnswers={initialAnswers}
+      initialComments={{
+        strengths: review.strengths ?? '',
+        growth: review.growth ?? '',
+        extra: review.extra ?? '',
+      }}
+      isSubmitted={review.status === 'submitted'}
+    />
   )
 }
