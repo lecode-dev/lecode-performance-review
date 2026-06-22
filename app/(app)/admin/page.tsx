@@ -11,9 +11,9 @@ export default async function AdminDashboard() {
   if (profile?.role !== 'lecode_admin') redirect('/login')
 
   const [cyclesRes, contractorsRes, clientsRes, allocationsRes] = await Promise.all([
-    supabase.from('cycles').select('*').order('created_at', { ascending: false }),
-    supabase.from('contractors').select('id, profiles(full_name, email)'),
-    supabase.from('clients').select('*').order('name'),
+    supabase.from('cycles').select('id, name, status, opens_at, closes_at, created_at, closed_at').order('created_at', { ascending: false }),
+    supabase.from('contractors').select('id'),
+    supabase.from('clients').select('id, name').order('name'),
     supabase.from('allocations').select('contractor_id, client_id').is('ended_on', null),
   ])
 

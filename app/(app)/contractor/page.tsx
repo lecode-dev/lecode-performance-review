@@ -17,7 +17,7 @@ export default async function ContractorDashboard() {
 
   const { data: cycle } = await supabase
     .from('cycles')
-    .select('*')
+    .select('id, name, status, opens_at, closes_at, created_at, closed_at')
     .eq('status', 'open')
     .order('created_at', { ascending: false })
     .limit(1)

@@ -18,17 +18,18 @@ async function getNavBadges(
     if (contractorsRes.count) badges['/admin/contractors'] = contractorsRes.count
     if (cycleRes.data?.length) badges['/admin/cycles'] = '•'
   } else if (role === 'client_rep' && clientId) {
-    const { data: cycle } = await supabase.from('cycles').select('id').eq('status', 'open').limit(1).single()
-    if (cycle) {
-      const { data: allocs } = await supabase.from('allocations').select('contractor_id').eq('client_id', clientId).is('ended_on', null)
-      const contractorIds = allocs?.map((a) => a.contractor_id) ?? []
-      if (contractorIds.length) {
-        const { data: myReviews } = await supabase.from('reviews').select('contractor_id')
-          .eq('cycle_id', cycle.id).eq('author_id', userId).eq('type', 'client').eq('status', 'submitted')
-        const doneIds = new Set(myReviews?.map((r) => r.contractor_id) ?? [])
-        const pending = contractorIds.filter((id) => !doneIds.has(id)).length
-        if (pending > 0) badges['/client/team'] = pending
-      }
+    const [cycleRes, allocsRes] = await Promise.all([
+      supabase.from('cycles').select('id').eq('status', 'open').limit(1).single(),
+      supabase.from('allocations').select('contractor_id').eq('client_id', clientId).is('ended_on', null),
+    ])
+    const cycle = cycleRes.data
+    const contractorIds = allocsRes.data?.map((a) => a.contractor_id) ?? []
+    if (cycle && contractorIds.length) {
+      const { data: myReviews } = await supabase.from('reviews').select('contractor_id')
+        .eq('cycle_id', cycle.id).eq('author_id', userId).eq('type', 'client').eq('status', 'submitted')
+      const doneIds = new Set(myReviews?.map((r) => r.contractor_id) ?? [])
+      const pending = contractorIds.filter((id) => !doneIds.has(id)).length
+      if (pending > 0) badges['/client/team'] = pending
     }
   } else if (role === 'contractor') {
     const { data: cycle } = await supabase.from('cycles').select('id').eq('status', 'open').limit(1).single()
