@@ -9,28 +9,17 @@ export default async function ContractorHistoryPage() {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name')
-    .eq('id', session.user.id)
-    .single()
+  const [profileRes, cyclesRes, allocRes] = await Promise.all([
+    supabase.from('profiles').select('role, full_name').eq('id', session.user.id).single(),
+    supabase.from('cycles').select('id, name, status, opens_at, closes_at, created_at, closed_at').order('created_at', { ascending: false }),
+    supabase.from('allocations').select('clients(name)').eq('contractor_id', session.user.id).is('ended_on', null).limit(1).single(),
+  ])
 
+  const profile = profileRes.data
   if (profile?.role !== 'contractor') redirect('/login')
 
-  const { data: cycles } = await supabase
-    .from('cycles')
-    .select('id, name, status, opens_at, closes_at, created_at, closed_at')
-    .order('created_at', { ascending: false })
-
-  let clientName: string | null = null
-  const { data: alloc } = await supabase
-    .from('allocations')
-    .select('clients(name)')
-    .eq('contractor_id', session.user.id)
-    .is('ended_on', null)
-    .limit(1)
-    .single()
-  if (alloc) clientName = (alloc.clients as { name: string } | null)?.name ?? null
+  const cycles = cyclesRes.data
+  const clientName = (allocRes.data?.clients as { name: string } | null)?.name ?? null
 
   const cycleData: Record<string, {
     selfAvg: number | null; clientAvg: number | null; finalScore: number | null

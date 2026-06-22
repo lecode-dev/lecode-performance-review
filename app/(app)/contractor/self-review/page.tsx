@@ -9,22 +9,15 @@ export default async function SelfReviewPage() {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name')
-    .eq('id', session.user.id)
-    .single()
+  const [profileRes, cycleRes] = await Promise.all([
+    supabase.from('profiles').select('role, full_name').eq('id', session.user.id).single(),
+    supabase.from('cycles').select('id, name, status, opens_at, closes_at').eq('status', 'open').order('created_at', { ascending: false }).limit(1).single(),
+  ])
 
+  const profile = profileRes.data
   if (profile?.role !== 'contractor') redirect('/login')
 
-  const { data: cycle } = await supabase
-    .from('cycles')
-    .select('id, name, status, opens_at, closes_at')
-    .eq('status', 'open')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
-
+  const cycle = cycleRes.data
   if (!cycle) {
     return (
       <div className="content anim-in">
@@ -36,23 +29,17 @@ export default async function SelfReviewPage() {
     )
   }
 
-  let { data: review } = await supabase
-    .from('reviews')
-    .select('id, status, strengths, growth, extra')
-    .eq('cycle_id', cycle.id)
-    .eq('author_id', session.user.id)
-    .eq('type', 'self')
-    .single()
+  const [reviewRes, formVersionRes] = await Promise.all([
+    supabase.from('reviews').select('id, status, strengths, growth, extra')
+      .eq('cycle_id', cycle.id).eq('author_id', session.user.id).eq('type', 'self').single(),
+    supabase.from('form_versions').select('id').eq('cycle_id', cycle.id).single(),
+  ])
 
+  let review = reviewRes.data
   if (!review) {
     const { data: newReview } = await supabase
       .from('reviews')
-      .insert({
-        cycle_id: cycle.id,
-        contractor_id: session.user.id,
-        type: 'self',
-        author_id: session.user.id,
-      })
+      .insert({ cycle_id: cycle.id, contractor_id: session.user.id, type: 'self', author_id: session.user.id })
       .select('id, status, strengths, growth, extra')
       .single()
     review = newReview
@@ -60,24 +47,15 @@ export default async function SelfReviewPage() {
 
   if (!review) redirect('/contractor')
 
-  const { data: formVersion } = await supabase
-    .from('form_versions')
-    .select('id')
-    .eq('cycle_id', cycle.id)
-    .single()
+  const [questionsRes, existingAnswersRes] = await Promise.all([
+    supabase.from('form_questions').select('id, dimension, text, order_index')
+      .eq('form_version_id', formVersionRes.data?.id ?? '')
+      .eq('applies_to', 'self').order('dimension').order('order_index'),
+    supabase.from('review_answers').select('question_id, score').eq('review_id', review.id),
+  ])
 
-  const { data: questions } = await supabase
-    .from('form_questions')
-    .select('id, dimension, text, order_index')
-    .eq('form_version_id', formVersion?.id ?? '')
-    .eq('applies_to', 'self')
-    .order('dimension')
-    .order('order_index')
-
-  const { data: existingAnswers } = await supabase
-    .from('review_answers')
-    .select('question_id, score')
-    .eq('review_id', review.id)
+  const questions = questionsRes.data
+  const existingAnswers = existingAnswersRes.data
 
   const initialAnswers = Object.fromEntries(
     (existingAnswers ?? []).map((a) => [a.question_id, a.score])
