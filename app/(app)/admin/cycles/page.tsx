@@ -12,22 +12,24 @@ export default async function CyclesPage() {
 
   const { data: cycles } = await supabase
     .from('cycles')
-    .select('*')
+    .select('id, name, status, opens_at, closes_at, created_at, closed_at')
     .order('created_at', { ascending: false })
 
   const progressMap: Record<string, { done: number; total: number; pct: number }> = {}
-  if (cycles) {
-    for (const cycle of cycles) {
-      const { data: reviews } = await supabase
-        .from('reviews')
-        .select('contractor_id, type, status')
-        .eq('cycle_id', cycle.id)
+  if (cycles && cycles.length > 0) {
+    const cycleIds = cycles.map((c) => c.id)
+    const { data: allReviews } = await supabase
+      .from('reviews')
+      .select('cycle_id, status')
+      .in('cycle_id', cycleIds)
 
-      if (!reviews) continue
-
-      const total = reviews.length
-      const done = reviews.filter((r) => r.status === 'submitted').length
-      progressMap[cycle.id] = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
+    if (allReviews) {
+      for (const cycle of cycles) {
+        const reviews = allReviews.filter((r) => r.cycle_id === cycle.id)
+        const total = reviews.length
+        const done = reviews.filter((r) => r.status === 'submitted').length
+        progressMap[cycle.id] = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
+      }
     }
   }
 

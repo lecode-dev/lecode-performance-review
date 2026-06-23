@@ -31,7 +31,8 @@ const NAV_BY_ROLE: Record<UserRole, NavGroup[]> = {
       { href: '/admin/clients',     label: 'Clientes',    icon: 'building' },
     ] },
     { group: 'Configuração', items: [
-      { href: '/admin/form', label: 'Formulário', icon: 'form' },
+      { href: '/admin/form',     label: 'Formulário', icon: 'form' },
+      { href: '/admin/accounts', label: 'Contas',     icon: 'shield' },
     ] },
   ],
   client_rep: [

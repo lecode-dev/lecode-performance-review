@@ -14,12 +14,13 @@ export default async function EvaluatePage({ params }: Props) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/login')
 
-  const { data: repProfile } = await supabase
-    .from('profiles')
-    .select('role, client_id')
-    .eq('id', session.user.id)
-    .single()
+  const [repProfileRes, contractorProfileRes, cycleRes] = await Promise.all([
+    supabase.from('profiles').select('role, client_id').eq('id', session.user.id).single(),
+    supabase.from('profiles').select('full_name, email').eq('id', contractorId).single(),
+    supabase.from('cycles').select('id, name, status, opens_at, closes_at').eq('status', 'open').order('created_at', { ascending: false }).limit(1).single(),
+  ])
 
+  const repProfile = repProfileRes.data
   if (repProfile?.role !== 'client_rep' || !repProfile.client_id) redirect('/client/team')
 
   const { data: alloc } = await supabase
@@ -33,20 +34,8 @@ export default async function EvaluatePage({ params }: Props) {
   if (!alloc) notFound()
 
   const clientName = (alloc.clients as { name: string } | null)?.name ?? ''
-
-  const { data: contractorProfile } = await supabase
-    .from('profiles')
-    .select('full_name, email')
-    .eq('id', contractorId)
-    .single()
-
-  const { data: cycle } = await supabase
-    .from('cycles')
-    .select('id, name, status, opens_at, closes_at')
-    .eq('status', 'open')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
+  const contractorProfile = contractorProfileRes.data
+  const cycle = cycleRes.data
 
   if (!cycle) {
     return (
@@ -56,24 +45,18 @@ export default async function EvaluatePage({ params }: Props) {
     )
   }
 
-  let { data: review } = await supabase
-    .from('reviews')
-    .select('id, status, strengths, growth, extra')
-    .eq('cycle_id', cycle.id)
-    .eq('contractor_id', contractorId)
-    .eq('author_id', session.user.id)
-    .eq('type', 'client')
-    .single()
+  const [reviewRes, formVersionRes] = await Promise.all([
+    supabase.from('reviews').select('id, status, strengths, growth, extra')
+      .eq('cycle_id', cycle.id).eq('contractor_id', contractorId)
+      .eq('author_id', session.user.id).eq('type', 'client').single(),
+    supabase.from('form_versions').select('id').eq('cycle_id', cycle.id).single(),
+  ])
 
+  let review = reviewRes.data
   if (!review) {
     const { data: newReview } = await supabase
       .from('reviews')
-      .insert({
-        cycle_id: cycle.id,
-        contractor_id: contractorId,
-        type: 'client',
-        author_id: session.user.id,
-      })
+      .insert({ cycle_id: cycle.id, contractor_id: contractorId, type: 'client', author_id: session.user.id })
       .select('id, status, strengths, growth, extra')
       .single()
     review = newReview
@@ -81,24 +64,15 @@ export default async function EvaluatePage({ params }: Props) {
 
   if (!review) redirect('/client/team')
 
-  const { data: formVersion } = await supabase
-    .from('form_versions')
-    .select('id')
-    .eq('cycle_id', cycle.id)
-    .single()
+  const [questionsRes, existingAnswersRes] = await Promise.all([
+    supabase.from('form_questions').select('id, dimension, text, order_index')
+      .eq('form_version_id', formVersionRes.data?.id ?? '')
+      .eq('applies_to', 'client').order('dimension').order('order_index'),
+    supabase.from('review_answers').select('question_id, score').eq('review_id', review.id),
+  ])
 
-  const { data: questions } = await supabase
-    .from('form_questions')
-    .select('id, dimension, text, order_index')
-    .eq('form_version_id', formVersion?.id ?? '')
-    .eq('applies_to', 'client')
-    .order('dimension')
-    .order('order_index')
-
-  const { data: existingAnswers } = await supabase
-    .from('review_answers')
-    .select('question_id, score')
-    .eq('review_id', review.id)
+  const questions = questionsRes.data
+  const existingAnswers = existingAnswersRes.data
 
   const initialAnswers = Object.fromEntries(
     (existingAnswers ?? []).map((a) => [a.question_id, a.score])

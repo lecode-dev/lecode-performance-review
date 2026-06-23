@@ -29,9 +29,9 @@ export default async function ContractorDetailPage({ params }: Props) {
   const [contractorRes, allocationsRes, cyclesRes, clientsRes, changelogRes] = await Promise.all([
     supabase.from('contractors').select('seniority, track, since').eq('id', id).single(),
     supabase.from('allocations').select('id, started_on, ended_on, client_id, clients(name)').eq('contractor_id', id).order('started_on', { ascending: false }),
-    supabase.from('cycles').select('*').order('created_at', { ascending: false }),
+    supabase.from('cycles').select('id, name, status, opens_at, closes_at, created_at, closed_at').order('created_at', { ascending: false }),
     supabase.from('clients').select('id, name').order('name'),
-    supabase.from('contractor_changelog').select('*').eq('contractor_id', id).order('changed_at', { ascending: false }),
+    supabase.from('contractor_changelog').select('id, field, old_value, new_value, note, changed_at, changed_by').eq('contractor_id', id).order('changed_at', { ascending: false }),
   ])
 
   const contractor = contractorRes.data
@@ -50,58 +50,68 @@ export default async function ContractorDetailPage({ params }: Props) {
     clientName: string | null
   }> = {}
 
-  for (const cycle of cycles) {
-    const { data: reviews } = await supabase
-      .from('reviews')
-      .select('id, type, status, strengths, growth, extra')
-      .eq('cycle_id', cycle.id)
-      .eq('contractor_id', id)
+  const cycleIds = cycles.map((c) => c.id)
 
-    const selfReview = reviews?.find((r) => r.type === 'self')
-    const clientReview = reviews?.find((r) => r.type === 'client')
+  const { data: allReviews } = cycleIds.length
+    ? await supabase
+        .from('reviews')
+        .select('id, cycle_id, type, status, strengths, growth, extra')
+        .in('cycle_id', cycleIds)
+        .eq('contractor_id', id)
+    : { data: [] }
+
+  const allReviewIds = (allReviews ?? []).map((r) => r.id)
+  const { data: allAnswers } = allReviewIds.length
+    ? await supabase
+        .from('review_answers')
+        .select('review_id, score, form_questions(dimension)')
+        .in('review_id', allReviewIds)
+    : { data: [] }
+
+  const answersByReview = new Map<string, typeof allAnswers>()
+  for (const a of allAnswers ?? []) {
+    const arr = answersByReview.get(a.review_id) ?? []
+    arr.push(a)
+    answersByReview.set(a.review_id, arr)
+  }
+
+  for (const cycle of cycles) {
+    const reviews = (allReviews ?? []).filter((r) => r.cycle_id === cycle.id)
+    const selfReview = reviews.find((r) => r.type === 'self')
+    const clientReview = reviews.find((r) => r.type === 'client')
 
     let selfDims: Record<DimensionKey, number> | null = null
     let clientDims: Record<DimensionKey, number> | null = null
     let selfAvg: number | null = null
     let clientAvg: number | null = null
 
-    const reviewIds = [selfReview?.id, clientReview?.id].filter(Boolean) as string[]
-    if (reviewIds.length > 0) {
-      const { data: answers } = await supabase
-        .from('review_answers')
-        .select('review_id, score, form_questions(dimension)')
-        .in('review_id', reviewIds)
+    for (const reviewEntry of [{ review: selfReview, type: 'self' as const }, { review: clientReview, type: 'client' as const }]) {
+      if (!reviewEntry.review) continue
+      const rAnswers = answersByReview.get(reviewEntry.review.id) ?? []
+      if (rAnswers.length === 0) continue
 
-      if (answers) {
-        for (const reviewEntry of [{ review: selfReview, type: 'self' as const }, { review: clientReview, type: 'client' as const }]) {
-          if (!reviewEntry.review) continue
-          const rAnswers = answers.filter((a) => a.review_id === reviewEntry.review!.id)
-          if (rAnswers.length === 0) continue
+      const dimScores: Record<string, number[]> = {}
+      for (const a of rAnswers) {
+        const dim = (a.form_questions as { dimension: DimensionKey } | null)?.dimension
+        if (!dim) continue
+        if (!dimScores[dim]) dimScores[dim] = []
+        dimScores[dim].push(a.score)
+      }
 
-          const dimScores: Record<string, number[]> = {}
-          for (const a of rAnswers) {
-            const dim = (a.form_questions as { dimension: DimensionKey } | null)?.dimension
-            if (!dim) continue
-            if (!dimScores[dim]) dimScores[dim] = []
-            dimScores[dim].push(a.score)
-          }
+      const dims: Record<string, number> = {}
+      let totalSum = 0, totalCount = 0
+      for (const [dim, scores] of Object.entries(dimScores)) {
+        dims[dim] = Math.round((scores.reduce((s, v) => s + v, 0) / scores.length) * 100) / 100
+        totalSum += scores.reduce((s, v) => s + v, 0)
+        totalCount += scores.length
+      }
 
-          const dims: Record<string, number> = {}
-          let totalSum = 0, totalCount = 0
-          for (const [dim, scores] of Object.entries(dimScores)) {
-            dims[dim] = Math.round((scores.reduce((s, v) => s + v, 0) / scores.length) * 100) / 100
-            totalSum += scores.reduce((s, v) => s + v, 0)
-            totalCount += scores.length
-          }
-
-          if (reviewEntry.type === 'self') {
-            selfDims = dims as Record<DimensionKey, number>
-            selfAvg = totalCount > 0 ? Math.round((totalSum / totalCount) * 100) / 100 : null
-          } else {
-            clientDims = dims as Record<DimensionKey, number>
-            clientAvg = totalCount > 0 ? Math.round((totalSum / totalCount) * 100) / 100 : null
-          }
-        }
+      if (reviewEntry.type === 'self') {
+        selfDims = dims as Record<DimensionKey, number>
+        selfAvg = totalCount > 0 ? Math.round((totalSum / totalCount) * 100) / 100 : null
+      } else {
+        clientDims = dims as Record<DimensionKey, number>
+        clientAvg = totalCount > 0 ? Math.round((totalSum / totalCount) * 100) / 100 : null
       }
     }
 

@@ -27,7 +27,7 @@ export default async function FormPage() {
   if (cycle) {
     const { data: fv } = await supabase
       .from('form_versions')
-      .select('*')
+      .select('id, self_weight, client_weight')
       .eq('cycle_id', cycle.id)
       .single()
 

@@ -11,7 +11,7 @@ export default async function ClientsPage() {
   if (profile?.role !== 'lecode_admin') redirect('/admin')
 
   const [clientsRes, allocationsRes, profilesRes] = await Promise.all([
-    supabase.from('clients').select('*').order('name'),
+    supabase.from('clients').select('id, name, slug, industry').order('name'),
     supabase.from('allocations').select('contractor_id, client_id').is('ended_on', null),
     supabase.from('profiles').select('id, full_name, email, role, client_id').order('full_name'),
   ])

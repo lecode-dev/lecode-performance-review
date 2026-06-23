@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useRef, useCallback, useMemo } from 'react'
 import { getBrowserClient } from '@/lib/supabase/client'
 import { useReviewDraft } from '@/stores/useReviewDraft'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
@@ -46,7 +46,6 @@ export function EvaluationForm({
   const { answers, comments, isDirty, setReviewId, setAnswer, setComment, loadDraft, markSaving, markClean } =
     useReviewDraft()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [, forceRender] = useState(0)
 
   useEffect(() => {
     setReviewId(reviewId)
@@ -82,30 +81,41 @@ export function EvaluationForm({
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
   }, [isDirty, autosave])
 
-  const grouped = DIMENSIONS.map((d) => ({
-    ...d,
-    questions: questions.filter((q) => q.dimension === d.key).sort((a, b) => a.order_index - b.order_index),
-  })).filter((d) => d.questions.length > 0)
+  const grouped = useMemo(() =>
+    DIMENSIONS.map((d) => ({
+      ...d,
+      questions: questions.filter((q) => q.dimension === d.key).sort((a, b) => a.order_index - b.order_index),
+    })).filter((d) => d.questions.length > 0),
+    [questions],
+  )
 
-  const dimAvg = (dk: DimensionKey) => {
-    const qs = grouped.find((d) => d.key === dk)?.questions ?? []
-    const vals = qs.map((q) => answers[q.id]).filter((v) => v != null && v > 0) as number[]
-    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null
-  }
+  const { dimAvgMap, dimCompleteMap, answeredCount, allComplete, overall } = useMemo(() => {
+    const avgMap: Record<string, number | null> = {}
+    const completeMap: Record<string, boolean> = {}
+    let answered = 0
 
-  const dimComplete = (dk: DimensionKey) => {
-    const qs = grouped.find((d) => d.key === dk)?.questions ?? []
-    return qs.length > 0 && qs.every((q) => answers[q.id] != null && answers[q.id] > 0)
-  }
+    for (const d of grouped) {
+      const vals = d.questions.map((q) => answers[q.id]).filter((v) => v != null && v > 0) as number[]
+      avgMap[d.key] = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null
+      completeMap[d.key] = d.questions.length > 0 && d.questions.every((q) => answers[q.id] != null && answers[q.id] > 0)
+      answered += vals.length
+    }
 
+    const avgs = Object.values(avgMap).filter((v): v is number => v != null)
+    const ov = avgs.length === grouped.length ? avgs.reduce((a, b) => a + b, 0) / avgs.length : null
+
+    return {
+      dimAvgMap: avgMap,
+      dimCompleteMap: completeMap,
+      answeredCount: answered,
+      allComplete: questions.length > 0 && answered === questions.length,
+      overall: ov,
+    }
+  }, [answers, grouped, questions])
+
+  const dimAvg = (dk: DimensionKey) => dimAvgMap[dk] ?? null
+  const dimComplete = (dk: DimensionKey) => dimCompleteMap[dk] ?? false
   const totalQuestions = questions.length
-  const answeredCount = questions.filter((q) => answers[q.id] != null && answers[q.id] > 0).length
-  const allComplete = totalQuestions > 0 && answeredCount === totalQuestions
-
-  const overall = (() => {
-    const avgs = grouped.map((d) => dimAvg(d.key)).filter((v): v is number => v != null)
-    return avgs.length === grouped.length ? avgs.reduce((a, b) => a + b, 0) / avgs.length : null
-  })()
 
   const handleSubmit = async () => {
     if (debounceRef.current) { clearTimeout(debounceRef.current); await autosave() }
@@ -131,7 +141,6 @@ export function EvaluationForm({
 
   const handleAnswer = (qId: string, score: number) => {
     setAnswer(qId, score as 1 | 2 | 3 | 4 | 5)
-    forceRender((n) => n + 1)
   }
 
   return (

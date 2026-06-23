@@ -15,13 +15,36 @@ export default async function ContractorDashboard() {
 
   if (profile?.role !== 'contractor') redirect('/login')
 
-  const { data: cycle } = await supabase
-    .from('cycles')
-    .select('*')
-    .eq('status', 'open')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .single()
+  const [cycleRes, allocRes, closedCyclesRes, historyRes] = await Promise.all([
+    supabase
+      .from('cycles')
+      .select('id, name, status, opens_at, closes_at, created_at, closed_at')
+      .eq('status', 'open')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single(),
+    supabase
+      .from('allocations')
+      .select('client_id, clients(name)')
+      .eq('contractor_id', session.user.id)
+      .is('ended_on', null)
+      .limit(1)
+      .single(),
+    supabase
+      .from('cycles')
+      .select('id, name')
+      .eq('status', 'closed')
+      .order('created_at', { ascending: true }),
+    supabase
+      .from('contractor_history')
+      .select('cycle_id, final_score')
+      .eq('contractor_id', session.user.id)
+      .not('final_score', 'is', null),
+  ])
+
+  const cycle = cycleRes.data
+  const clientName = (allocRes.data?.clients as { name: string } | null)?.name ?? null
+  const closedCycles = closedCyclesRes.data ?? []
 
   let selfDone = false
   if (cycle) {
@@ -32,51 +55,20 @@ export default async function ContractorDashboard() {
       .eq('author_id', session.user.id)
       .eq('type', 'self')
       .single()
-
     selfDone = review?.status === 'submitted'
   }
 
-  let clientName: string | null = null
-  const { data: alloc } = await supabase
-    .from('allocations')
-    .select('client_id, clients(name)')
-    .eq('contractor_id', session.user.id)
-    .is('ended_on', null)
-    .limit(1)
-    .single()
-
-  if (alloc) {
-    clientName = (alloc.clients as { name: string } | null)?.name ?? null
-  }
-
-  const { data: closedCycles } = await supabase
-    .from('cycles')
-    .select('id, name')
-    .eq('status', 'closed')
-    .order('created_at', { ascending: true })
-
   let series: { label: string; score: number }[] = []
   let lastScore: number | null = null
-  if (closedCycles?.length) {
-    const { data: history } = await supabase
-      .from('contractor_history')
-      .select('cycle_id, final_score')
-      .eq('contractor_id', session.user.id)
-      .not('final_score', 'is', null)
-
-    if (history) {
-      const scoreMap = new Map(history.map((h) => [h.cycle_id, h.final_score!]))
-      series = closedCycles
-        .filter((c) => scoreMap.has(c.id))
-        .map((c) => ({ label: c.name, score: scoreMap.get(c.id)! }))
-
-      if (series.length > 0) {
-        lastScore = series[series.length - 1].score
-      }
-    }
+  if (closedCycles.length && historyRes.data) {
+    const scoreMap = new Map(historyRes.data.map((h) => [h.cycle_id, h.final_score!]))
+    series = closedCycles
+      .filter((c) => scoreMap.has(c.id))
+      .map((c) => ({ label: c.name, score: scoreMap.get(c.id)! }))
+    if (series.length > 0) lastScore = series[series.length - 1].score
   }
 
-  const lastClosedName = closedCycles?.length ? closedCycles[closedCycles.length - 1].name : null
+  const lastClosedName = closedCycles.length ? closedCycles[closedCycles.length - 1].name : null
 
   return (
     <ContractorHomeView

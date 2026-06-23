@@ -28,7 +28,7 @@ export default async function ClientTeamPage() {
 
   const [clientRes, cycleRes, allocationsRes] = await Promise.all([
     supabase.from('clients').select('name, slug, industry').eq('id', profile.client_id).single(),
-    supabase.from('cycles').select('*').eq('status', 'open').order('created_at', { ascending: false }).limit(1).single(),
+    supabase.from('cycles').select('id, name, status, opens_at, closes_at, created_at, closed_at').eq('status', 'open').order('created_at', { ascending: false }).limit(1).single(),
     supabase.from('allocations').select('contractor_id').eq('client_id', profile.client_id).is('ended_on', null),
   ])
 

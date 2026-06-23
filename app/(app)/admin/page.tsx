@@ -11,9 +11,9 @@ export default async function AdminDashboard() {
   if (profile?.role !== 'lecode_admin') redirect('/login')
 
   const [cyclesRes, contractorsRes, clientsRes, allocationsRes] = await Promise.all([
-    supabase.from('cycles').select('*').order('created_at', { ascending: false }),
-    supabase.from('contractors').select('id, profiles(full_name, email)'),
-    supabase.from('clients').select('*').order('name'),
+    supabase.from('cycles').select('id, name, status, opens_at, closes_at, created_at, closed_at').order('created_at', { ascending: false }),
+    supabase.from('contractors').select('id'),
+    supabase.from('clients').select('id, name').order('name'),
     supabase.from('allocations').select('contractor_id, client_id').is('ended_on', null),
   ])
 
@@ -25,64 +25,58 @@ export default async function AdminDashboard() {
   const activeCycle = cycles.find((c) => c.status === 'open') ?? null
   const lastClosed = cycles.find((c) => c.status === 'closed') ?? null
 
+  const [reviewsRes, historyRes] = await Promise.all([
+    activeCycle
+      ? supabase.from('reviews').select('contractor_id, type, status').eq('cycle_id', activeCycle.id)
+      : Promise.resolve({ data: null }),
+    lastClosed
+      ? supabase.from('contractor_history').select('contractor_id, final_score')
+          .eq('cycle_id', lastClosed.id).not('final_score', 'is', null).order('final_score', { ascending: true })
+      : Promise.resolve({ data: null }),
+  ])
+
   let cycleProgress = { done: 0, total: 0, pct: 0 }
   const clientProgress: { clientId: string; name: string; done: number; total: number }[] = []
+  const reviews = reviewsRes.data
 
-  if (activeCycle) {
-    const { data: reviews } = await supabase
-      .from('reviews')
-      .select('contractor_id, type, status')
-      .eq('cycle_id', activeCycle.id)
+  if (reviews) {
+    const contractorIds = [...new Set(reviews.map((r) => r.contractor_id))]
+    const total = contractorIds.length * 2
+    const done = reviews.filter((r) => r.status === 'submitted').length
+    cycleProgress = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
 
-    if (reviews) {
-      const contractorIds = [...new Set(reviews.map((r) => r.contractor_id))]
-      const total = contractorIds.length * 2
-      const done = reviews.filter((r) => r.status === 'submitted').length
-      cycleProgress = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
-
-      for (const cl of clients) {
-        const clContractors = allocations.filter((a) => a.client_id === cl.id).map((a) => a.contractor_id)
-        const clReviews = reviews.filter((r) => clContractors.includes(r.contractor_id))
-        const clTotal = clReviews.length
-        const clDone = clReviews.filter((r) => r.status === 'submitted').length
-        if (clTotal > 0) {
-          clientProgress.push({ clientId: cl.id, name: cl.name, done: clDone, total: clTotal })
-        }
+    for (const cl of clients) {
+      const clContractors = allocations.filter((a) => a.client_id === cl.id).map((a) => a.contractor_id)
+      const clReviews = reviews.filter((r) => clContractors.includes(r.contractor_id))
+      const clTotal = clReviews.length
+      const clDone = clReviews.filter((r) => r.status === 'submitted').length
+      if (clTotal > 0) {
+        clientProgress.push({ clientId: cl.id, name: cl.name, done: clDone, total: clTotal })
       }
     }
   }
 
   let decisions: { contractorId: string; name: string; role: string; clientName: string | null; score: number }[] = []
-  if (lastClosed) {
-    const { data: history } = await supabase
-      .from('contractor_history')
-      .select('contractor_id, final_score')
-      .eq('cycle_id', lastClosed.id)
-      .not('final_score', 'is', null)
-      .order('final_score', { ascending: true })
+  const history = historyRes.data
+  if (history?.length) {
+    const ids = history.map((h) => h.contractor_id)
+    const { data: profiles } = await supabase.from('profiles').select('id, full_name, email').in('id', ids)
 
-    if (history) {
-      const ids = history.map((h) => h.contractor_id)
-      const { data: profiles } = ids.length
-        ? await supabase.from('profiles').select('id, full_name, email').in('id', ids)
-        : { data: [] }
+    const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]))
+    const allocMap = new Map(allocations.map((a) => [a.contractor_id, a.client_id]))
+    const clientMap = new Map(clients.map((c) => [c.id, c.name]))
 
-      const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]))
-      const allocMap = new Map(allocations.map((a) => [a.contractor_id, a.client_id]))
-      const clientMap = new Map(clients.map((c) => [c.id, c.name]))
-
-      decisions = history.map((h) => {
-        const p = profileMap.get(h.contractor_id)
-        const clientId = allocMap.get(h.contractor_id)
-        return {
-          contractorId: h.contractor_id,
-          name: p?.full_name ?? '—',
-          role: p?.email ?? '',
-          clientName: clientId ? clientMap.get(clientId) ?? null : null,
-          score: h.final_score!,
-        }
-      })
-    }
+    decisions = history.map((h) => {
+      const p = profileMap.get(h.contractor_id)
+      const clientId = allocMap.get(h.contractor_id)
+      return {
+        contractorId: h.contractor_id,
+        name: p?.full_name ?? '—',
+        role: p?.email ?? '',
+        clientName: clientId ? clientMap.get(clientId) ?? null : null,
+        score: h.final_score!,
+      }
+    })
   }
 
   const activeContractors = allocations.length
