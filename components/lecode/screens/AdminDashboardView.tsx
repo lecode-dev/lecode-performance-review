@@ -7,7 +7,7 @@ import { CountUp } from '@/components/lecode/CountUp'
 import { CycleBadge, PhaseBadge, CyclePhases } from '@/components/lecode/Cycle'
 import { Icon } from '@/components/lecode/Icon'
 import { ScoreChip } from '@/components/lecode/ScoreChip'
-import { DecisionTag } from '@/components/lecode/Decision'
+import { decisionFor } from '@/lib/domain'
 import { PersonRow } from '@/components/lecode/Avatar'
 import type { Database } from '@/lib/supabase/types'
 
@@ -38,11 +38,42 @@ function fmtBR(iso: string): string {
   return `${d}/${m}/${y}`
 }
 
+function tierColor(tier: number) {
+  const map: Record<number, string> = {
+    5: 'oklch(0.55 0.16 155)',
+    4: 'oklch(0.58 0.14 85)',
+    3: 'oklch(0.55 0.12 200)',
+    2: 'oklch(0.58 0.15 55)',
+    1: 'oklch(0.55 0.16 25)',
+  }
+  return map[tier] ?? 'var(--ink-3)'
+}
+
+function tierBg(tier: number) {
+  const map: Record<number, string> = {
+    5: 'oklch(0.25 0.05 155)',
+    4: 'oklch(0.25 0.04 85)',
+    3: 'oklch(0.25 0.03 200)',
+    2: 'oklch(0.25 0.04 55)',
+    1: 'oklch(0.25 0.05 25)',
+  }
+  return map[tier] ?? 'var(--surface-2)'
+}
+
 export function AdminDashboardView({
   adminName, activeCycle, lastClosed, cycleProgress, clientProgress,
   decisions, activeContractors, clientsCount, unallocated,
 }: AdminDashboardViewProps) {
   const { t } = useLang()
+
+  const decisionsByTier = new Map<number, Decision[]>()
+  for (const d of decisions) {
+    const dec = decisionFor(d.score)
+    const tier = dec?.tier ?? 0
+    if (!decisionsByTier.has(tier)) decisionsByTier.set(tier, [])
+    decisionsByTier.get(tier)!.push(d)
+  }
+  const sortedTiers = [...decisionsByTier.entries()].sort((a, b) => b[0] - a[0])
 
   return (
     <div className="content anim-in">
@@ -59,90 +90,131 @@ export function AdminDashboardView({
         <Stat label={t('Sem alocação')} icon="warning" value={<CountUp end={unallocated} />} />
       </div>
 
-      <div className="l-split s360">
-        {activeCycle ? (
-          <div className="card">
-            <div className="card-head">
-              <Icon name="cycle" size={16} />
-              <div className="col" style={{ gap: 1 }}>
-                <h3>{t('Ciclo')} {activeCycle.name}</h3>
-                <span className="sub">{fmtBR(activeCycle.opens_at)} → {fmtBR(activeCycle.closes_at)}</span>
-              </div>
-              <span style={{ marginLeft: 'auto' }} className="row">
-                <PhaseBadge cycle={activeCycle} />
-                <CycleBadge status={activeCycle.status} />
-              </span>
-            </div>
-            <div className="card-pad">
-              <div style={{ marginBottom: 14 }}><CyclePhases cycle={activeCycle} compact /></div>
-              <div className="between" style={{ marginBottom: 6 }}>
-                <span className="muted" style={{ fontSize: 12.5 }}>{t('Avaliações concluídas')}</span>
-                <span className="mono" style={{ fontSize: 13, fontWeight: 600 }}>{cycleProgress.done}/{cycleProgress.total}</span>
-              </div>
-              <Progress pct={cycleProgress.pct} />
-              {clientProgress.length > 0 && (
-                <>
-                  <div className="divider" />
-                  <div className="col" style={{ gap: 10 }}>
-                    {clientProgress.map((cp) => {
-                      const pct = cp.total > 0 ? Math.round((cp.done / cp.total) * 100) : 0
-                      return (
-                        <div key={cp.clientId} className="between">
-                          <div className="row" style={{ gap: 10 }}>
-                            <span className="avatar sm" style={{ background: `oklch(0.55 0.13 ${cp.name.charCodeAt(0) % 360})` }}>{cp.name[0]}</span>
-                            <span style={{ fontSize: 13, fontWeight: 500 }}>{cp.name}</span>
-                          </div>
-                          <div className="row" style={{ gap: 12, width: 200 }}>
-                            <div className="progress" style={{ flex: 1 }}><span style={{ width: pct + '%' }} /></div>
-                            <span className="mono muted" style={{ fontSize: 12, width: 40, textAlign: 'right' }}>{cp.done}/{cp.total}</span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </>
-              )}
-              <div className="row" style={{ marginTop: 18, gap: 10 }}>
-                <Link href="/admin/cycles" className="btn btn-primary btn-sm">
-                  <Icon name="cycle" size={15} />{t('Gerenciar ciclo')}
-                </Link>
-                <Link href="/admin/contractors" className="btn btn-sm">{t('Ver contratados')}</Link>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="card card-pad">
-            <div className="col" style={{ gap: 12, alignItems: 'center', padding: 20 }}>
-              <Icon name="cycle" size={28} className="muted" />
-              <span className="muted" style={{ fontSize: 13 }}>{t('Nenhum ciclo em andamento')}</span>
-              <Link href="/admin/cycles" className="btn btn-primary btn-sm">
-                <Icon name="plus" size={15} />{t('Abrir ciclo')}
-              </Link>
-            </div>
-          </div>
-        )}
-
-        <div className="card">
+      {activeCycle ? (
+        <div className="card" style={{ marginBottom: 18 }}>
           <div className="card-head">
-            <Icon name="trend" size={16} />
-            <h3>{t('Decisões')}{lastClosed ? ` · ${lastClosed.name}` : ''}</h3>
+            <Icon name="cycle" size={16} />
+            <div className="col" style={{ gap: 1 }}>
+              <h3>{t('Ciclo')} {activeCycle.name}</h3>
+              <span className="sub">{fmtBR(activeCycle.opens_at)} → {fmtBR(activeCycle.closes_at)}</span>
+            </div>
+            <span style={{ marginLeft: 'auto' }} className="row">
+              <PhaseBadge cycle={activeCycle} />
+              <CycleBadge status={activeCycle.status} />
+            </span>
           </div>
-          <div className="card-pad col" style={{ gap: 4 }}>
-            {decisions.length === 0 ? (
-              <div className="muted" style={{ fontSize: 13 }}>{t('Nenhum score disponível ainda.')}</div>
-            ) : (
-              decisions.slice(0, 5).map((d) => (
-                <Link key={d.contractorId} href={`/admin/contractors/${d.contractorId}`}
-                  className="between clickable" style={{ padding: '8px 6px', borderRadius: 8, textDecoration: 'none', color: 'inherit' }}>
-                  <PersonRow person={{ name: d.name, role: d.role }} sub={d.clientName} />
-                  <div className="col" style={{ alignItems: 'flex-end', gap: 4 }}>
-                    <ScoreChip value={d.score} />
-                    <DecisionTag score={d.score} />
-                  </div>
-                </Link>
-              ))
+          <div className="card-pad">
+            <div style={{ marginBottom: 14 }}><CyclePhases cycle={activeCycle} compact /></div>
+            <div className="between" style={{ marginBottom: 6 }}>
+              <span className="muted" style={{ fontSize: 12.5 }}>{t('Avaliações concluídas')}</span>
+              <span className="mono" style={{ fontSize: 13, fontWeight: 600 }}>{cycleProgress.done}/{cycleProgress.total}</span>
+            </div>
+            <Progress pct={cycleProgress.pct} />
+            {clientProgress.length > 0 && (
+              <>
+                <div className="divider" />
+                <div className="col" style={{ gap: 10 }}>
+                  {clientProgress.map((cp) => {
+                    const pct = cp.total > 0 ? Math.round((cp.done / cp.total) * 100) : 0
+                    return (
+                      <div key={cp.clientId} className="between">
+                        <div className="row" style={{ gap: 10 }}>
+                          <span className="avatar sm" style={{ background: `oklch(0.55 0.13 ${cp.name.charCodeAt(0) % 360})` }}>{cp.name[0]}</span>
+                          <span style={{ fontSize: 13, fontWeight: 500 }}>{cp.name}</span>
+                        </div>
+                        <div className="row" style={{ gap: 12, width: 200 }}>
+                          <div className="progress" style={{ flex: 1 }}><span style={{ width: pct + '%' }} /></div>
+                          <span className="mono muted" style={{ fontSize: 12, width: 40, textAlign: 'right' }}>{cp.done}/{cp.total}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </>
             )}
+            <div className="row" style={{ marginTop: 18, gap: 10 }}>
+              <Link href="/admin/cycles" className="btn btn-primary btn-sm">
+                <Icon name="cycle" size={15} />{t('Gerenciar ciclo')}
+              </Link>
+              <Link href="/admin/contractors" className="btn btn-sm">{t('Ver contratados')}</Link>
+            </div>
           </div>
+        </div>
+      ) : (
+        <div className="card card-pad" style={{ marginBottom: 18 }}>
+          <div className="col" style={{ gap: 12, alignItems: 'center', padding: 20 }}>
+            <Icon name="cycle" size={28} className="muted" />
+            <span className="muted" style={{ fontSize: 13 }}>{t('Nenhum ciclo em andamento')}</span>
+            <Link href="/admin/cycles" className="btn btn-primary btn-sm">
+              <Icon name="plus" size={15} />{t('Abrir ciclo')}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      <div className="card">
+        <div className="card-head">
+          <Icon name="award" size={16} />
+          <div className="col" style={{ gap: 1 }}>
+            <h3>{t('Decisões de carreira')}</h3>
+            <span className="sub">{lastClosed ? `${t('Baseado no ciclo')} ${lastClosed.name}` : t('Nenhum ciclo fechado')}</span>
+          </div>
+          {decisions.length > 0 && (
+            <span className="mono muted" style={{ marginLeft: 'auto', fontSize: 12 }}>
+              {decisions.length} {t('contratados')}
+            </span>
+          )}
+        </div>
+        <div className="card-pad">
+          {decisions.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '32px 20px' }}>
+              <Icon name="trend" size={28} />
+              <p className="muted" style={{ marginTop: 10, fontSize: 13 }}>{t('Nenhum score disponível ainda. Feche um ciclo para ver as decisões.')}</p>
+            </div>
+          ) : (
+            <div className="col" style={{ gap: 20 }}>
+              {sortedTiers.map(([tier, members]) => {
+                const dec = decisionFor(members[0].score)
+                return (
+                  <div key={tier}>
+                    <div className="row" style={{ gap: 8, marginBottom: 10 }}>
+                      <Icon name={tier >= 4 ? 'award' : tier <= 2 ? 'warning' : 'trend'} size={14} style={{ color: tierColor(tier) }} />
+                      <span style={{ fontSize: 12.5, fontWeight: 700, color: tierColor(tier), textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                        {dec?.short ?? '—'}
+                      </span>
+                      <span style={{
+                        fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 600,
+                        background: 'var(--surface-3)', color: 'var(--ink-3)',
+                        padding: '1px 6px', borderRadius: 4,
+                      }}>
+                        {members.length}
+                      </span>
+                    </div>
+                    <div className="col" style={{ gap: 4 }}>
+                      {members.map((d) => (
+                        <Link
+                          key={d.contractorId}
+                          href={`/admin/contractors/${d.contractorId}`}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 12,
+                            padding: '10px 14px', borderRadius: 10, textDecoration: 'none', color: 'inherit',
+                            background: tierBg(tier),
+                            borderLeft: `3px solid ${tierColor(tier)}`,
+                            transition: 'opacity 0.15s',
+                          }}
+                        >
+                          <PersonRow person={{ name: d.name, role: d.role }} sub={d.clientName} />
+                          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <ScoreChip value={d.score} />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
