@@ -92,19 +92,8 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <div className="auth-or">{t('ou')}</div>
-
-      <button type="button" className="btn btn-block" style={{ gap: 8 }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-        {t('Continuar com SSO')}
-      </button>
-
-      <p className="auth-switch">
-        {t('Não tem conta?')}{' '}
-        <Link href="/signup" className="link">{t('Cadastre-se')}</Link>
+      <p className="auth-switch muted" style={{ fontSize: 12.5 }}>
+        {t('Solicite suas credenciais ao administrador LeCode.')}
       </p>
     </>
   )
