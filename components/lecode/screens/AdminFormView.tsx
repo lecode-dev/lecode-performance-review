@@ -138,7 +138,6 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
                 <form action={addQuestion} className="row" style={{ gap: 8, marginTop: 4 }}>
                   <input type="hidden" name="form_version_id" value={formVersionId} />
                   <input type="hidden" name="dimension" value={d.key} />
-                  <input type="hidden" name="applies_to" value="self" />
                   <input type="hidden" name="order_index" value={dimQs.length + 1} />
                   <input name="text" className="input" placeholder={t('Nova pergunta...')} style={{ flex: 1 }} required />
                   <button type="submit" className="btn btn-ghost btn-sm">

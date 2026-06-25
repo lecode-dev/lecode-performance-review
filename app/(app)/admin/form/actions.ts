@@ -1,7 +1,7 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/server'
-import type { DimensionKey, ReviewType } from '@/lib/supabase/types'
+import type { DimensionKey } from '@/lib/supabase/types'
 
 export async function addQuestion(formData: FormData) {
   const admin = createAdminClient()
@@ -9,14 +9,14 @@ export async function addQuestion(formData: FormData) {
   const form_version_id = formData.get('form_version_id') as string
   const dimension       = formData.get('dimension')       as DimensionKey
   const text            = formData.get('text')            as string
-  const order_index     = parseInt(formData.get('order_index') as string, 10)
-  const applies_to      = formData.get('applies_to')      as ReviewType
+  const order_index     = parseInt(formData.get('order_index') as string, 10) || 1
 
-  if (!form_version_id || !dimension || !text || !applies_to) throw new Error('Campos obrigatórios')
+  if (!form_version_id || !dimension || !text) throw new Error('Campos obrigatórios')
 
-  const { error } = await admin.from('form_questions').insert({
-    form_version_id, dimension, text, order_index: order_index || 1, applies_to,
-  })
+  const { error } = await admin.from('form_questions').insert([
+    { form_version_id, dimension, text, order_index, applies_to: 'self' },
+    { form_version_id, dimension, text, order_index, applies_to: 'client' },
+  ])
 
   if (error) throw new Error(error.message)
   revalidatePath('/admin/form')
@@ -49,7 +49,21 @@ export async function removeQuestion(formData: FormData) {
   const id = formData.get('question_id') as string
   if (!id) throw new Error('ID obrigatório')
 
-  const { error } = await admin.from('form_questions').delete().eq('id', id)
+  const { data: question } = await admin
+    .from('form_questions')
+    .select('form_version_id, dimension, text')
+    .eq('id', id)
+    .single()
+
+  if (!question) throw new Error('Pergunta não encontrada')
+
+  const { error } = await admin
+    .from('form_questions')
+    .delete()
+    .eq('form_version_id', question.form_version_id)
+    .eq('dimension', question.dimension)
+    .eq('text', question.text)
+
   if (error) throw new Error(error.message)
   revalidatePath('/admin/form')
 }

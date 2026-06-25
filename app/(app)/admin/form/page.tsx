@@ -40,6 +40,7 @@ export default async function FormPage() {
         .from('form_questions')
         .select('id, dimension, text, order_index, applies_to')
         .eq('form_version_id', fv.id)
+        .eq('applies_to', 'self')
         .order('dimension')
         .order('order_index')
 
