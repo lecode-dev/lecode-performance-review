@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useRole } from '@/components/providers/RoleProvider'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
@@ -92,7 +93,7 @@ export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand-mark"><img src={theme === 'light' ? '/logo-light.png' : '/lecode-logo.png'} alt="LeCode" /></div>
+        <div className="brand-mark"><Image src={theme === 'light' ? '/logo-light.png' : '/lecode-logo.png'} alt="LeCode" width={40} height={33} priority /></div>
         <div className="brand-name">LeCode<small>performance_review</small></div>
       </div>
 

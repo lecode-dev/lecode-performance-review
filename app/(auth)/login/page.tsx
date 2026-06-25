@@ -2,8 +2,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { getBrowserClient } from '@/lib/supabase/client'
+import { Icon } from '@/components/lecode/Icon'
 import { useLang } from '@/lib/i18n'
 
 export default function LoginPage() {
@@ -75,14 +75,14 @@ export default function LoginPage() {
               tabIndex={-1}
               aria-label={showPw ? t('Ocultar senha') : t('Mostrar senha')}
             >
-              {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              <Icon name={showPw ? 'eyeOff' : 'eye'} size={15} />
             </button>
           </div>
         </div>
 
         {error && (
           <div className="field-err">
-            <AlertCircle />
+            <Icon name="warning" size={16} />
             {error}
           </div>
         )}
