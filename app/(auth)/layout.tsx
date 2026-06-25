@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { AuthAside } from '@/components/layout/AuthAside'
 import { LangToggle } from '@/components/lecode/LangToggle'
 import { ThemeToggle } from '@/components/lecode/ThemeToggle'
@@ -15,7 +16,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         <div className="auth-mark-sm">
-          <img src="/lecode-logo.png" alt="LeCode" />
+          <Image src="/lecode-logo.png" alt="LeCode" width={32} height={26} priority />
           <span>LeCode</span>
         </div>
 

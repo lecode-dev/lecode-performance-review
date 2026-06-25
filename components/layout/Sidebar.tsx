@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useRole } from '@/components/providers/RoleProvider'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
@@ -7,6 +8,7 @@ import { useLang } from '@/lib/i18n'
 import { getBrowserClient } from '@/lib/supabase/client'
 import { Icon, type IconName } from '@/components/lecode/Icon'
 import { Avatar } from '@/components/lecode/Avatar'
+import { useUiPrefs } from '@/stores/useUiPrefs'
 import type { UserRole } from '@/lib/supabase/types'
 
 interface NavItem {
@@ -68,6 +70,7 @@ export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
   const router   = useRouter()
   const confirm  = useConfirm()
   const { t }    = useLang()
+  const theme    = useUiPrefs((s) => s.theme)
   const groups   = NAV_BY_ROLE[role]
   const person   = { name: fullName, role: t(ROLE_LABEL[role]) }
 
@@ -90,7 +93,7 @@ export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brand-mark"><img src="/lecode-logo.png" alt="LeCode" /></div>
+        <div className="brand-mark"><Image src={theme === 'light' ? '/logo-light.png' : '/lecode-logo.png'} alt="LeCode" width={40} height={33} priority /></div>
         <div className="brand-name">LeCode<small>performance_review</small></div>
       </div>
 

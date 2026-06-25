@@ -1,7 +1,7 @@
 'use client'
 
 import { useLang } from '@/lib/i18n'
-import { DIMENSIONS, SCALE } from '@/lib/domain'
+import { DIMENSIONS, SCALE, OPEN_QUESTIONS } from '@/lib/domain'
 import { Icon } from '@/components/lecode/Icon'
 import { Badge } from '@/components/lecode/Badge'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
@@ -149,6 +149,28 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
             </div>
           )
         })}
+
+        <div className="card">
+          <div className="card-head">
+            <Icon name="form" size={16} />
+            <div className="col" style={{ gap: 1 }}>
+              <h3>{t('Perguntas abertas')}</h3>
+              <span className="sub">{t('Campos de texto livre ao final de cada avaliação. Aplicadas automaticamente.')}</span>
+            </div>
+            <span style={{ marginLeft: 'auto' }}><Badge>{OPEN_QUESTIONS.length} {t('perguntas')}</Badge></span>
+          </div>
+          <div className="card-pad col" style={{ gap: 10 }}>
+            {OPEN_QUESTIONS.map((oq, i) => (
+              <div key={oq.key} className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
+                <span className="mono muted" style={{ fontSize: 11, paddingTop: 11 }}>T.{i + 1}</span>
+                <div style={{ flex: 1 }}>
+                  <span className="input" style={{ display: 'block', padding: '8px 12px', fontSize: 13 }}>{t(oq.label)}</span>
+                  <span className="muted" style={{ fontSize: 11.5, marginTop: 4, display: 'block' }}>{t(oq.hint)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -4,8 +4,8 @@ import { UiPrefsSync } from '@/components/providers/UiPrefsSync'
 import { ConfirmProvider } from '@/components/lecode/ConfirmDialog'
 import './globals.css'
 
-const display = Space_Grotesk({ variable: '--font-display', subsets: ['latin'], weight: ['400', '500', '600', '700'] })
-const mono    = IBM_Plex_Mono({ variable: '--font-mono', subsets: ['latin'], weight: ['400', '500', '600'] })
+const display = Space_Grotesk({ variable: '--font-display', subsets: ['latin'], weight: ['400', '600'], display: 'swap' })
+const mono    = IBM_Plex_Mono({ variable: '--font-mono', subsets: ['latin'], weight: ['400', '600'], display: 'swap' })
 
 export const metadata: Metadata = {
   title:       'LeCode Performance Review',

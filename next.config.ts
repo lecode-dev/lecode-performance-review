@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizeCss: true,
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
   },
 };
 

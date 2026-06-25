@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useLang } from '@/lib/i18n'
 
 export function AuthAside() {
@@ -7,7 +8,7 @@ export function AuthAside() {
   return (
     <aside className="auth-aside">
       <div className="auth-brand">
-        <img src="/lecode-logo.png" alt="LeCode" />
+        <Image src="/lecode-logo.png" alt="LeCode" width={36} height={29} priority />
         <div>
           <div className="ab-name">LeCode</div>
           <div className="ab-sub">performance_review</div>
