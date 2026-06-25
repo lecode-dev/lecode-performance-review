@@ -40,7 +40,7 @@ function fmtBR(iso: string): string {
 function tierColor(tier: number) {
   const map: Record<number, string> = {
     5: 'oklch(0.55 0.16 155)',
-    4: 'oklch(0.62 0.16 85)',
+    4: 'oklch(0.62 0.16 155)',
     3: 'oklch(0.55 0.12 200)',
     2: 'oklch(0.58 0.16 30)',
     1: 'oklch(0.55 0.18 15)',
