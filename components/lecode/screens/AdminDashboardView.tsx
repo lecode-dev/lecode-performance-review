@@ -6,7 +6,6 @@ import { Stat, Progress } from '@/components/lecode/Stat'
 import { CountUp } from '@/components/lecode/CountUp'
 import { CycleBadge, PhaseBadge, CyclePhases } from '@/components/lecode/Cycle'
 import { Icon } from '@/components/lecode/Icon'
-import { ScoreChip } from '@/components/lecode/ScoreChip'
 import { decisionFor } from '@/lib/domain'
 import { PersonRow } from '@/components/lecode/Avatar'
 import type { Database } from '@/lib/supabase/types'
@@ -41,23 +40,37 @@ function fmtBR(iso: string): string {
 function tierColor(tier: number) {
   const map: Record<number, string> = {
     5: 'oklch(0.55 0.16 155)',
-    4: 'oklch(0.58 0.14 85)',
+    4: 'oklch(0.62 0.16 85)',
     3: 'oklch(0.55 0.12 200)',
-    2: 'oklch(0.58 0.15 55)',
-    1: 'oklch(0.55 0.16 25)',
+    2: 'oklch(0.58 0.16 30)',
+    1: 'oklch(0.55 0.18 15)',
   }
   return map[tier] ?? 'var(--ink-3)'
 }
 
-function tierBg(tier: number) {
-  const map: Record<number, string> = {
-    5: 'oklch(0.25 0.05 155)',
-    4: 'oklch(0.25 0.04 85)',
-    3: 'oklch(0.25 0.03 200)',
-    2: 'oklch(0.25 0.04 55)',
-    1: 'oklch(0.25 0.05 25)',
-  }
-  return map[tier] ?? 'var(--surface-2)'
+function ScoreBar({ score }: { score: number }) {
+  const pct = Math.max(0, Math.min(100, (score / 5) * 100))
+  const dec = decisionFor(score)
+  const color = dec ? tierColor(dec.tier) : 'var(--ink-3)'
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 160 }}>
+      <div style={{
+        flex: 1, height: 6, borderRadius: 3,
+        background: 'var(--surface-3)', overflow: 'hidden',
+      }}>
+        <div style={{
+          width: pct + '%', height: '100%', borderRadius: 3,
+          background: color, transition: 'width 0.4s ease',
+        }} />
+      </div>
+      <span style={{
+        fontFamily: 'var(--mono)', fontSize: 14, fontWeight: 700,
+        color, minWidth: 36, textAlign: 'right',
+      }}>
+        {score.toFixed(2)}
+      </span>
+    </div>
+  )
 }
 
 export function AdminDashboardView({
@@ -198,14 +211,13 @@ export function AdminDashboardView({
                           style={{
                             display: 'flex', alignItems: 'center', gap: 12,
                             padding: '10px 14px', borderRadius: 10, textDecoration: 'none', color: 'inherit',
-                            background: tierBg(tier),
-                            borderLeft: `3px solid ${tierColor(tier)}`,
+                            background: 'var(--surface-2)',
                             transition: 'opacity 0.15s',
                           }}
                         >
                           <PersonRow person={{ name: d.name, role: d.role }} sub={d.clientName} />
-                          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <ScoreChip value={d.score} />
+                          <div style={{ marginLeft: 'auto' }}>
+                            <ScoreBar score={d.score} />
                           </div>
                         </Link>
                       ))}
