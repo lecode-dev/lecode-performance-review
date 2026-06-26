@@ -13,7 +13,7 @@ test.describe('Admin', () => {
 
   test('vê o dashboard com stats', async ({ page }) => {
     await expect(page.locator('h2')).toBeVisible()
-    await expect(page.locator('.stat, .card')).toHaveCount({ minimum: 1 } as any)
+    await expect(page.locator('.stat, .card').first()).toBeVisible()
   })
 
   test('navega para ciclos de avaliação', async ({ page }) => {

@@ -77,7 +77,7 @@ export function ClientTeamView({ clientName, clientIndustry, cycle, submitEnd, t
       )}
 
       {team.length === 0 ? (
-        <div className="empty"><p>{t('Nenhum contratado alocado ao seu cliente.')}</p></div>
+        <div className="empty"><p>{t('Nenhum contratado alocado a sua empresa.')}</p></div>
       ) : (
         <div className="card">
           <table className="tbl">

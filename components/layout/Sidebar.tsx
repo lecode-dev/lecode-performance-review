@@ -61,10 +61,11 @@ const ROLE_LABEL: Record<UserRole, string> = {
 interface SidebarProps {
   fullName:    string
   badges?:     Record<string, string | number>
+  clientName?: string | null
   onNavigate?: () => void
 }
 
-export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
+export function Sidebar({ fullName, badges, clientName, onNavigate }: SidebarProps) {
   const role     = useRole()
   const pathname = usePathname()
   const router   = useRouter()
@@ -126,7 +127,7 @@ export function Sidebar({ fullName, badges, onNavigate }: SidebarProps) {
             <span style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {fullName}
             </span>
-            <span className="muted" style={{ fontSize: 11 }}>{person.role}</span>
+            <span className="muted" style={{ fontSize: 11 }}>{clientName ? `${person.role} · ${clientName}` : person.role}</span>
           </div>
           <button className="icon-btn" title={t('Sair')} onClick={handleSignOut} style={{ marginLeft: 'auto' }}>
             <Icon name="logout" size={16} />

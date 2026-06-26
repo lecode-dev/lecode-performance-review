@@ -12,7 +12,7 @@ test.describe('Client Rep', () => {
   })
 
   test('vê a página do time', async ({ page }) => {
-    await expect(page.locator('h2')).toContainText('Time')
+    await expect(page.locator('h2')).toContainText('Minha equipe')
   })
 
   test('vê o histórico', async ({ page }) => {

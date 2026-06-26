@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Space_Grotesk, IBM_Plex_Mono } from 'next/font/google'
 import { UiPrefsSync } from '@/components/providers/UiPrefsSync'
 import { ConfirmProvider } from '@/components/lecode/ConfirmDialog'
+import { ToastProvider } from '@/components/lecode/Toast'
 import './globals.css'
 
 const display = Space_Grotesk({ variable: '--font-display', subsets: ['latin'], weight: ['400', '600'], display: 'swap' })
@@ -24,7 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="h-full">
         <UiPrefsSync />
         <ConfirmProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </ConfirmProvider>
       </body>
     </html>
