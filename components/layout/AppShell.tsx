@@ -10,10 +10,11 @@ import { Icon } from '@/components/lecode/Icon'
 import type { UserRole } from '@/lib/supabase/types'
 
 interface AppShellProps {
-  role:     UserRole
-  fullName: string
-  badges?:  Record<string, string | number>
-  children: React.ReactNode
+  role:       UserRole
+  fullName:   string
+  badges?:    Record<string, string | number>
+  clientName?: string | null
+  children:   React.ReactNode
 }
 
 const PAGE_TITLES: Record<string, string> = {
@@ -37,7 +38,7 @@ function pageTitle(pathname: string): string {
   return prefix ? PAGE_TITLES[prefix] : 'LeCode Review'
 }
 
-export function AppShell({ role, fullName, badges, children }: AppShellProps) {
+export function AppShell({ role, fullName, badges, clientName, children }: AppShellProps) {
   const [navOpen, setNavOpen] = useState(false)
   const pathname = usePathname()
   const { t } = useLang()
@@ -46,7 +47,7 @@ export function AppShell({ role, fullName, badges, children }: AppShellProps) {
     <RoleProvider role={role}>
       <div className={'app' + (navOpen ? ' nav-open' : '')}>
         <div className="nav-backdrop" onClick={() => setNavOpen(false)} />
-        <Sidebar fullName={fullName} badges={badges} onNavigate={() => setNavOpen(false)} />
+        <Sidebar fullName={fullName} badges={badges} clientName={clientName} onNavigate={() => setNavOpen(false)} />
         <div className="main">
           <header className="topbar">
             <button className="nav-toggle" aria-label="Menu" onClick={() => setNavOpen((v) => !v)}>

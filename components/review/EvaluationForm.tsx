@@ -7,6 +7,7 @@ import { useConfirm } from '@/components/lecode/ConfirmDialog'
 import { useLang } from '@/lib/i18n'
 import { DIMENSIONS, SCALE, OPEN_QUESTIONS, tierOf, fmt } from '@/lib/domain'
 import { Icon } from '@/components/lecode/Icon'
+import { useToast } from '@/components/lecode/Toast'
 import { Avatar, type Person } from '@/components/lecode/Avatar'
 import { ScoreChip } from '@/components/lecode/ScoreChip'
 import { RatingInput } from '@/components/lecode/RatingInput'
@@ -43,6 +44,7 @@ export function EvaluationForm({
 }: EvaluationFormProps) {
   const { t } = useLang()
   const confirm = useConfirm()
+  const toast = useToast()
   const { answers, comments, isDirty, setReviewId, setAnswer, setComment, loadDraft, markSaving, markClean } =
     useReviewDraft()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -133,7 +135,12 @@ export function EvaluationForm({
       confirmLabel: t('Enviar avaliação'), cancelLabel: t('Continuar editando'),
     })
     if (!ok) return
-    onSubmit()
+    if (isSubmitted) {
+      await autosave()
+      toast(t('Alterações salvas com sucesso'))
+    } else {
+      onSubmit()
+    }
   }
 
   const isSelf = type === 'self'
@@ -247,7 +254,6 @@ export function EvaluationForm({
                     placeholder={t(o.hint)}
                     value={comments[o.key]}
                     onChange={(e) => setComment(o.key, e.target.value)}
-                    disabled={isSubmitted}
                   />
                 </div>
               ))}

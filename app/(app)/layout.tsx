@@ -57,10 +57,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   if (error || !profile) redirect('/login')
 
-  const badges = await getNavBadges(supabase, profile.role, session.user.id, profile.client_id)
+  const [badges, clientName] = await Promise.all([
+    getNavBadges(supabase, profile.role, session.user.id, profile.client_id),
+    profile.role === 'client_rep' && profile.client_id
+      ? supabase.from('clients').select('name').eq('id', profile.client_id).single().then(r => r.data?.name ?? null)
+      : Promise.resolve(null),
+  ])
 
   return (
-    <AppShell role={profile.role} fullName={profile.full_name} badges={badges}>
+    <AppShell role={profile.role} fullName={profile.full_name} badges={badges} clientName={clientName}>
       {children}
     </AppShell>
   )

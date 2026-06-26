@@ -18,7 +18,7 @@ test.describe('Contractor', () => {
   test('vê o histórico', async ({ page }) => {
     await page.goto('/contractor/history')
     await expect(page).toHaveURL(/\/contractor\/history/)
-    await expect(page.locator('h2')).toContainText('Histórico')
+    await expect(page.locator('h2')).toContainText('histórico')
   })
 
   test('gate de role: contractor não acessa /admin', async ({ page }) => {
