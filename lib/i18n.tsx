@@ -277,6 +277,52 @@ const EN: Record<string, string> = {
   "Sair da plataforma?": "Sign out?",
   "Você precisará entrar novamente para acessar seus ciclos de avaliação.": "You'll need to sign in again to access your review cycles.",
   "Alterações não salvas serão perdidas.": "Unsaved changes will be lost.",
+
+  // ---- accounts ----
+  "Gestão de contas": "Account management",
+  "Convide contratados e representantes de clientes. Eles receberão um e-mail para definir a própria senha.": "Invite contractors and client representatives. They'll receive an e-mail to set their password.",
+  "Convidar usuário": "Invite user",
+  "Buscar por nome ou e-mail...": "Search by name or e-mail...",
+  "Nenhuma conta encontrada.": "No accounts found.",
+  "Reenviar convite": "Resend invite",
+  "Enviando...": "Sending...",
+  "Reenviar": "Resend",
+  "conta": "account", "contas": "accounts", "filtradas": "filtered",
+  "Convidar novo usuário": "Invite new user",
+  "Enviar convite": "Send invite",
+  "Tipo de conta": "Account type",
+  "Selecione o cliente...": "Select client...",
+  "E-mail": "E-mail",
+  "O usuário receberá um e-mail com link para definir sua senha e acessar a plataforma.": "The user will receive an e-mail with a link to set their password and access the platform.",
+
+  // ---- dashboard extras ----
+  "Baseado no ciclo": "Based on cycle",
+  "Decisões de carreira": "Career decisions",
+  "Nenhum ciclo em andamento": "No active cycle",
+  "Nenhum ciclo fechado": "No closed cycle",
+  "contratados": "contractors",
+  "Nenhum score disponível ainda. Feche um ciclo para ver as decisões.": "No scores available yet. Close a cycle to see decisions.",
+
+  // ---- form extras ----
+  "Adicionar": "Add",
+  "Crie um ciclo aberto para gerenciar o formulário.": "Create an open cycle to manage the form.",
+  "Nenhum ciclo em andamento. Abra um ciclo para editar o formulário.": "No active cycle. Open a cycle to edit the form.",
+  "Campos de texto livre ao final de cada avaliação. Aplicadas automaticamente.": "Free-text fields at the end of each review. Applied automatically.",
+  "Nova pergunta...": "New question...",
+  "Score = self ×": "Score = self ×",
+  "cliente ×": "client ×",
+  "Slug": "Slug",
+
+  // ---- misc missing ----
+  "Nenhum contratado alocado a sua empresa.": "No contractors allocated to your company.",
+  "Nenhum ciclo disponível ainda.": "No cycles available yet.",
+  "Nenhum ciclo disponível.": "No cycles available.",
+  "Alterações salvas com sucesso": "Changes saved successfully",
+  "Responda as": "Answer all",
+  "perguntas para concluir": "questions to finish",
+  "E-mail ou senha incorretos.": "Incorrect e-mail or password.",
+  "Entrando…": "Signing in…",
+  "Solicite suas credenciais ao administrador LeCode.": "Request your credentials from the LeCode administrator.",
 }
 
 const ES: Record<string, string> = {
@@ -549,6 +595,52 @@ const ES: Record<string, string> = {
   "Sair da plataforma?": "¿Salir de la plataforma?",
   "Você precisará entrar novamente para acessar seus ciclos de avaliação.": "Tendrás que iniciar sesión de nuevo para acceder a tus ciclos de evaluación.",
   "Alterações não salvas serão perdidas.": "Los cambios no guardados se perderán.",
+
+  // ---- accounts ----
+  "Gestão de contas": "Gestión de cuentas",
+  "Convide contratados e representantes de clientes. Eles receberão um e-mail para definir a própria senha.": "Invita a contratados y representantes de clientes. Recibirán un e-mail para definir su contraseña.",
+  "Convidar usuário": "Invitar usuario",
+  "Buscar por nome ou e-mail...": "Buscar por nombre o e-mail...",
+  "Nenhuma conta encontrada.": "Ninguna cuenta encontrada.",
+  "Reenviar convite": "Reenviar invitación",
+  "Enviando...": "Enviando...",
+  "Reenviar": "Reenviar",
+  "conta": "cuenta", "contas": "cuentas", "filtradas": "filtradas",
+  "Convidar novo usuário": "Invitar nuevo usuario",
+  "Enviar convite": "Enviar invitación",
+  "Tipo de conta": "Tipo de cuenta",
+  "Selecione o cliente...": "Selecciona el cliente...",
+  "E-mail": "E-mail",
+  "O usuário receberá um e-mail com link para definir sua senha e acessar a plataforma.": "El usuario recibirá un e-mail con un enlace para definir su contraseña y acceder a la plataforma.",
+
+  // ---- dashboard extras ----
+  "Baseado no ciclo": "Basado en el ciclo",
+  "Decisões de carreira": "Decisiones de carrera",
+  "Nenhum ciclo em andamento": "Ningún ciclo en curso",
+  "Nenhum ciclo fechado": "Ningún ciclo cerrado",
+  "contratados": "contratados",
+  "Nenhum score disponível ainda. Feche um ciclo para ver as decisões.": "Ningún score disponible aún. Cierra un ciclo para ver las decisiones.",
+
+  // ---- form extras ----
+  "Adicionar": "Añadir",
+  "Crie um ciclo aberto para gerenciar o formulário.": "Crea un ciclo abierto para gestionar el formulario.",
+  "Nenhum ciclo em andamento. Abra um ciclo para editar o formulário.": "Ningún ciclo en curso. Abre un ciclo para editar el formulario.",
+  "Campos de texto livre ao final de cada avaliação. Aplicadas automaticamente.": "Campos de texto libre al final de cada evaluación. Aplicados automáticamente.",
+  "Nova pergunta...": "Nueva pregunta...",
+  "Score = self ×": "Score = self ×",
+  "cliente ×": "cliente ×",
+  "Slug": "Slug",
+
+  // ---- misc missing ----
+  "Nenhum contratado alocado a sua empresa.": "Ningún contratado asignado a su empresa.",
+  "Nenhum ciclo disponível ainda.": "Ningún ciclo disponible aún.",
+  "Nenhum ciclo disponível.": "Ningún ciclo disponible.",
+  "Alterações salvas com sucesso": "Cambios guardados con éxito",
+  "Responda as": "Responde las",
+  "perguntas para concluir": "preguntas para finalizar",
+  "E-mail ou senha incorretos.": "E-mail o contraseña incorrectos.",
+  "Entrando…": "Entrando…",
+  "Solicite suas credenciais ao administrador LeCode.": "Solicita tus credenciales al administrador de LeCode.",
 }
 
 const DICTS: Record<'en' | 'es', Record<string, string>> = { en: EN, es: ES }
