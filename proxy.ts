@@ -53,12 +53,12 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Gate por prefixo de role
-  for (const [prefix, required] of Object.entries(ROLE_PREFIXES)) {
-    if (pathname.startsWith(prefix) && role !== required) {
-      // Se role é desconhecida manda pro login; se conhecida manda pro destino correto
-      const dest = role ? roleDefaultPath(role) : '/login'
-      return NextResponse.redirect(new URL(dest, request.url))
+  // Gate por prefixo de role (só aplica se role está presente no JWT)
+  if (role) {
+    for (const [prefix, required] of Object.entries(ROLE_PREFIXES)) {
+      if (pathname.startsWith(prefix) && role !== required) {
+        return NextResponse.redirect(new URL(roleDefaultPath(role), request.url))
+      }
     }
   }
 
