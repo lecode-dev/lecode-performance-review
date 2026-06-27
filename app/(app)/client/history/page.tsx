@@ -6,13 +6,13 @@ import type { DimensionKey } from '@/lib/supabase/types'
 
 export default async function ClientHistoryPage() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role, client_id')
-    .eq('id', user.id)
+    .eq('id', session.user.id)
     .single()
 
   if (profile?.role !== 'client_rep') redirect('/login')

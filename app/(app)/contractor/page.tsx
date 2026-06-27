@@ -4,13 +4,13 @@ import { ContractorHomeView } from '@/components/lecode/screens/ContractorHomeVi
 
 export default async function ContractorDashboard() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role, full_name, client_id')
-    .eq('id', user.id)
+    .eq('id', session.user.id)
     .single()
 
   if (profile?.role !== 'contractor') redirect('/login')
@@ -26,7 +26,7 @@ export default async function ContractorDashboard() {
     supabase
       .from('allocations')
       .select('client_id, clients(name)')
-      .eq('contractor_id', user.id)
+      .eq('contractor_id', session.user.id)
       .is('ended_on', null)
       .limit(1)
       .single(),
@@ -38,7 +38,7 @@ export default async function ContractorDashboard() {
     supabase
       .from('contractor_history')
       .select('cycle_id, final_score')
-      .eq('contractor_id', user.id)
+      .eq('contractor_id', session.user.id)
       .not('final_score', 'is', null),
   ])
 
@@ -52,7 +52,7 @@ export default async function ContractorDashboard() {
       .from('reviews')
       .select('status')
       .eq('cycle_id', cycle.id)
-      .eq('author_id', user.id)
+      .eq('author_id', session.user.id)
       .eq('type', 'self')
       .single()
     selfDone = review?.status === 'submitted'

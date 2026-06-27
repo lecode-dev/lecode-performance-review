@@ -4,10 +4,10 @@ import { AdminClientsView } from '@/components/lecode/screens/AdminClientsView'
 
 export default async function ClientsPage() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
   if (profile?.role !== 'lecode_admin') redirect('/admin')
 
   const [clientsRes, allocationsRes, profilesRes] = await Promise.all([

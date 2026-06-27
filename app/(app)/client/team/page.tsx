@@ -5,13 +5,13 @@ import { midMonth, fmt } from '@/lib/domain'
 
 export default async function ClientTeamPage() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role, client_id, full_name')
-    .eq('id', user.id)
+    .eq('id', session.user.id)
     .single()
 
   if (profile?.role !== 'client_rep') redirect('/login')
@@ -59,7 +59,7 @@ export default async function ClientTeamPage() {
 
   if (cycle && contractorIds.length) {
     const [myReviewsRes, selfReviewsRes] = await Promise.all([
-      supabase.from('reviews').select('id, contractor_id, status').eq('cycle_id', cycle.id).eq('author_id', user.id).eq('type', 'client'),
+      supabase.from('reviews').select('id, contractor_id, status').eq('cycle_id', cycle.id).eq('author_id', session.user.id).eq('type', 'client'),
       supabase.from('reviews').select('contractor_id, status').eq('cycle_id', cycle.id).eq('type', 'self').in('contractor_id', contractorIds),
     ])
 

@@ -6,11 +6,11 @@ import { midMonth } from '@/lib/domain'
 
 export default async function SelfReviewPage() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
   const [profileRes, cycleRes] = await Promise.all([
-    supabase.from('profiles').select('role, full_name').eq('id', user.id).single(),
+    supabase.from('profiles').select('role, full_name').eq('id', session.user.id).single(),
     supabase.from('cycles').select('id, name, status, opens_at, closes_at').eq('status', 'open').order('created_at', { ascending: false }).limit(1).single(),
   ])
 
@@ -31,7 +31,7 @@ export default async function SelfReviewPage() {
 
   const [reviewRes, formVersionRes] = await Promise.all([
     supabase.from('reviews').select('id, status, strengths, growth, extra')
-      .eq('cycle_id', cycle.id).eq('author_id', user.id).eq('type', 'self').single(),
+      .eq('cycle_id', cycle.id).eq('author_id', session.user.id).eq('type', 'self').single(),
     supabase.from('form_versions').select('id').eq('cycle_id', cycle.id).single(),
   ])
 
@@ -39,7 +39,7 @@ export default async function SelfReviewPage() {
   if (!review) {
     const { data: newReview } = await supabase
       .from('reviews')
-      .insert({ cycle_id: cycle.id, contractor_id: user.id, type: 'self', author_id: user.id })
+      .insert({ cycle_id: cycle.id, contractor_id: session.user.id, type: 'self', author_id: session.user.id })
       .select('id, status, strengths, growth, extra')
       .single()
     review = newReview

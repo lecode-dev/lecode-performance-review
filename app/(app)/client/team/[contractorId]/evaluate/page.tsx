@@ -11,11 +11,11 @@ export default async function EvaluatePage({ params }: Props) {
   const { contractorId } = await params
 
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
   const [repProfileRes, contractorProfileRes, cycleRes] = await Promise.all([
-    supabase.from('profiles').select('role, client_id').eq('id', user.id).single(),
+    supabase.from('profiles').select('role, client_id').eq('id', session.user.id).single(),
     supabase.from('profiles').select('full_name, email').eq('id', contractorId).single(),
     supabase.from('cycles').select('id, name, status, opens_at, closes_at').eq('status', 'open').order('created_at', { ascending: false }).limit(1).single(),
   ])
@@ -48,7 +48,7 @@ export default async function EvaluatePage({ params }: Props) {
   const [reviewRes, formVersionRes] = await Promise.all([
     supabase.from('reviews').select('id, status, strengths, growth, extra')
       .eq('cycle_id', cycle.id).eq('contractor_id', contractorId)
-      .eq('author_id', user.id).eq('type', 'client').single(),
+      .eq('author_id', session.user.id).eq('type', 'client').single(),
     supabase.from('form_versions').select('id').eq('cycle_id', cycle.id).single(),
   ])
 
@@ -56,7 +56,7 @@ export default async function EvaluatePage({ params }: Props) {
   if (!review) {
     const { data: newReview } = await supabase
       .from('reviews')
-      .insert({ cycle_id: cycle.id, contractor_id: contractorId, type: 'client', author_id: user.id })
+      .insert({ cycle_id: cycle.id, contractor_id: contractorId, type: 'client', author_id: session.user.id})
       .select('id, status, strengths, growth, extra')
       .single()
     review = newReview

@@ -4,10 +4,10 @@ import { AdminDashboardView } from '@/components/lecode/screens/AdminDashboardVi
 
 export default async function AdminDashboard() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
-  const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('role, full_name').eq('id', session.user.id).single()
   if (profile?.role !== 'lecode_admin') redirect('/login')
 
   const [cyclesRes, contractorsRes, clientsRes, allocationsRes] = await Promise.all([

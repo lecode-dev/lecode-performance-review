@@ -6,13 +6,13 @@ import type { DimensionKey } from '@/lib/supabase/types'
 
 export default async function ContractorHistoryPage() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
   const [profileRes, cyclesRes, allocRes] = await Promise.all([
-    supabase.from('profiles').select('role, full_name').eq('id', user.id).single(),
+    supabase.from('profiles').select('role, full_name').eq('id', session.user.id).single(),
     supabase.from('cycles').select('id, name, status, opens_at, closes_at, created_at, closed_at').order('created_at', { ascending: false }),
-    supabase.from('allocations').select('clients(name)').eq('contractor_id', user.id).is('ended_on', null).limit(1).single(),
+    supabase.from('allocations').select('clients(name)').eq('contractor_id', session.user.id).is('ended_on', null).limit(1).single(),
   ])
 
   const profile = profileRes.data
@@ -36,7 +36,7 @@ export default async function ContractorHistoryPage() {
         .from('reviews')
         .select('id, cycle_id, type, status, strengths, growth, extra')
         .in('cycle_id', cycleIds)
-        .eq('contractor_id', user.id)
+        .eq('contractor_id', session.user.id)
     : { data: [] }
 
   const allReviewIds = (allReviews ?? []).map((r) => r.id)

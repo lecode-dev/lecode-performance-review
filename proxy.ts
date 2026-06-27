@@ -37,19 +37,19 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
-  const role = user?.app_metadata?.role as UserRole | undefined
+  const { data: { session } } = await supabase.auth.getSession()
+  const role = session?.user?.app_metadata?.role as UserRole | undefined
 
   // Rotas públicas de auth
   if (pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/recover')) {
-    if (user && role) {
+    if (session && role) {
       return NextResponse.redirect(new URL(roleDefaultPath(role), request.url))
     }
     return response
   }
 
   // Área protegida: exige sessão
-  if (!user) {
+  if (!session) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 

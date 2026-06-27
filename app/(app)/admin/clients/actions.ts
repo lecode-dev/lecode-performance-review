@@ -4,9 +4,9 @@ import { createServerClient, createAdminClient } from '@/lib/supabase/server'
 
 async function requireAdmin() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Não autenticado')
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new Error('Não autenticado')
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
   if (profile?.role !== 'lecode_admin') throw new Error('Acesso negado')
 }
 

@@ -4,10 +4,10 @@ import { AdminContractorsView } from '@/components/lecode/screens/AdminContracto
 
 export default async function ContractorsListPage() {
   const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single()
   if (profile?.role !== 'lecode_admin') redirect('/admin')
 
   const [contractorsRes, allocationsRes, clientsRes, cyclesRes] = await Promise.all([
