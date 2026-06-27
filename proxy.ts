@@ -37,20 +37,19 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
-  const role = session?.user?.app_metadata?.role as UserRole | undefined
+  const { data: { user } } = await supabase.auth.getUser()
+  const role = user?.app_metadata?.role as UserRole | undefined
 
   // Rotas públicas de auth
   if (pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/recover')) {
-    // Só redireciona se a role for conhecida — evita loop quando role ainda não está no JWT
-    if (session && role) {
+    if (user && role) {
       return NextResponse.redirect(new URL(roleDefaultPath(role), request.url))
     }
     return response
   }
 
   // Área protegida: exige sessão
-  if (!session) {
+  if (!user) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 

@@ -45,20 +45,20 @@ async function getNavBadges(
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session) redirect('/login')
+  if (!user) redirect('/login')
 
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('role, full_name, client_id')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single()
 
   if (error || !profile) redirect('/login')
 
   const [badges, clientName] = await Promise.all([
-    getNavBadges(supabase, profile.role, session.user.id, profile.client_id),
+    getNavBadges(supabase, profile.role, user.id, profile.client_id),
     profile.role === 'client_rep' && profile.client_id
       ? supabase.from('clients').select('name').eq('id', profile.client_id).single().then(r => r.data?.name ?? null)
       : Promise.resolve(null),
