@@ -20,70 +20,62 @@ insert into form_versions (id, cycle_id, self_weight, client_weight) values
   ('fa000000-0000-0000-0000-000000000001', 'ca000000-0000-0000-0000-000000000001', 0.30, 0.70)
 on conflict (id) do nothing;
 
--- ─── Perguntas Self-review ────────────────────────────────────
+-- ─── Perguntas (mesmas para self e client) ───────────────────
+-- Cada pergunta é inserida duas vezes: uma para self, outra para client.
 insert into form_questions (form_version_id, dimension, text, order_index, applies_to) values
   -- tech
-  ('fa000000-0000-0000-0000-000000000001','tech',     'Aplico boas práticas de código (SOLID, Clean Code)?',                  1,'self'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'Entrego código com cobertura de testes adequada?',                      2,'self'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'Demonstro domínio das tecnologias do projeto?',                         3,'self'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'Resolvo problemas técnicos complexos de forma eficaz?',                 4,'self'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'Proponho melhorias técnicas proativamente?',                            5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Escreve código legível, bem estruturado e seguindo padrões de boas práticas (SOLID, Clean Code, convenções do projeto).',1,'self'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Escreve código legível, bem estruturado e seguindo padrões de boas práticas (SOLID, Clean Code, convenções do projeto).',1,'client'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Demonstra domínio da stack utilizada no projeto, entendendo impactos técnicos das decisões e propondo melhorias quando apropriado.',2,'self'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Demonstra domínio da stack utilizada no projeto, entendendo impactos técnicos das decisões e propondo melhorias quando apropriado.',2,'client'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Resolve problemas técnicos de forma eficiente, aplicando lógica de programação adequada e considerando performance e escalabilidade.',3,'self'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Resolve problemas técnicos de forma eficiente, aplicando lógica de programação adequada e considerando performance e escalabilidade.',3,'client'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Busca ativamente aprender novas tecnologias, acompanha tendências do mercado e aplica conhecimentos adquiridos no dia a dia.',4,'self'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Busca ativamente aprender novas tecnologias, acompanha tendências do mercado e aplica conhecimentos adquiridos no dia a dia.',4,'client'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Contribui ativamente para a qualidade do projeto através de code reviews construtivos, testes automatizados e refatorações.',5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','tech','Contribui ativamente para a qualidade do projeto através de code reviews construtivos, testes automatizados e refatorações.',5,'client'),
   -- delivery
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'Cumpro os prazos acordados consistentemente?',                          1,'self'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'Estimo tarefas com precisão?',                                         2,'self'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'Antecipo impedimentos e comunico cedo?',                                3,'self'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'Mantenho qualidade de entrega mesmo sob pressão?',                     4,'self'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'Finalizo o que começo sem deixar débitos abertos?',                    5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Cumpre prazos acordados de forma consistente, comunicando proativamente quando identifica riscos ou impedimentos.',1,'self'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Cumpre prazos acordados de forma consistente, comunicando proativamente quando identifica riscos ou impedimentos.',1,'client'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Entrega funcionalidades completas, testadas e com baixo índice de bugs, atendendo aos critérios de aceitação definidos.',2,'self'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Entrega funcionalidades completas, testadas e com baixo índice de bugs, atendendo aos critérios de aceitação definidos.',2,'client'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Mantém produtividade adequada ao seu nível, demonstrando evolução na velocidade e qualidade das entregas ao longo do tempo.',3,'self'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Mantém produtividade adequada ao seu nível, demonstrando evolução na velocidade e qualidade das entregas ao longo do tempo.',3,'client'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Demonstra comprometimento com os objetivos do projeto e da equipe, priorizando entregas de valor para o produto.',4,'self'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Demonstra comprometimento com os objetivos do projeto e da equipe, priorizando entregas de valor para o produto.',4,'client'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Mantém desempenho consistente ao longo do tempo, sem oscilações significativas de qualidade ou produtividade.',5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','delivery','Mantém desempenho consistente ao longo do tempo, sem oscilações significativas de qualidade ou produtividade.',5,'client'),
   -- comm
-  ('fa000000-0000-0000-0000-000000000001','comm',     'Comunico status e bloqueios de forma clara e proativa?',                1,'self'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'Escrevo documentação e comentários úteis?',                            2,'self'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'Adapto minha linguagem ao perfil do interlocutor?',                    3,'self'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'Ouço ativamente e incorporo feedbacks?',                               4,'self'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'Facilito reuniões e discussões técnicas com objetividade?',            5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Comunica-se de forma clara e objetiva, adaptando a linguagem ao público (técnico ou não-técnico) e contexto da situação.',1,'self'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Comunica-se de forma clara e objetiva, adaptando a linguagem ao público (técnico ou não-técnico) e contexto da situação.',1,'client'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Reporta proativamente o status das tarefas, antecipa riscos e comunica impedimentos antes que se tornem problemas críticos.',2,'self'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Reporta proativamente o status das tarefas, antecipa riscos e comunica impedimentos antes que se tornem problemas críticos.',2,'client'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Recebe feedback de forma construtiva, demonstra abertura para críticas e implementa melhorias sugeridas.',3,'self'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Recebe feedback de forma construtiva, demonstra abertura para críticas e implementa melhorias sugeridas.',3,'client'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Produz documentação técnica clara e útil (READMEs, comentários no código, wikis), facilitando a manutenção e onboarding.',4,'self'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Produz documentação técnica clara e útil (READMEs, comentários no código, wikis), facilitando a manutenção e onboarding.',4,'client'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Participa ativamente de reuniões, contribuindo com ideias relevantes, fazendo perguntas pertinentes e respeitando o tempo dos demais.',5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','comm','Participa ativamente de reuniões, contribuindo com ideias relevantes, fazendo perguntas pertinentes e respeitando o tempo dos demais.',5,'client'),
   -- collab
-  ('fa000000-0000-0000-0000-000000000001','collab',   'Apoio colegas e compartilho conhecimento ativamente?',                  1,'self'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'Faço revisões de código construtivas e tempestivas?',                  2,'self'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'Contribuo para um ambiente de trabalho positivo e inclusivo?',         3,'self'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'Alinhos expectativas com stakeholders antes de executar?',             4,'self'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'Trabalho bem em times distribuídos e assíncronos?',                    5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Trabalha bem em equipe, compartilhando conhecimento, participando de pair programming e contribuindo para o sucesso coletivo.',1,'self'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Trabalha bem em equipe, compartilhando conhecimento, participando de pair programming e contribuindo para o sucesso coletivo.',1,'client'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Demonstra disposição genuína para ajudar colegas, oferecendo suporte técnico e mentoria quando solicitado ou quando percebe necessidade.',2,'self'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Demonstra disposição genuína para ajudar colegas, oferecendo suporte técnico e mentoria quando solicitado ou quando percebe necessidade.',2,'client'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Mantém atitude positiva e construtiva mesmo em situações desafiadoras, evitando comportamentos que prejudiquem o clima da equipe.',3,'self'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Mantém atitude positiva e construtiva mesmo em situações desafiadoras, evitando comportamentos que prejudiquem o clima da equipe.',3,'client'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Respeita decisões técnicas do time mesmo quando discorda, expressando opiniões de forma profissional e acatando o consenso.',4,'self'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Respeita decisões técnicas do time mesmo quando discorda, expressando opiniões de forma profissional e acatando o consenso.',4,'client'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Contribui ativamente para um ambiente de trabalho saudável, inclusivo e psicologicamente seguro para todos os membros.',5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','collab','Contribui ativamente para um ambiente de trabalho saudável, inclusivo e psicologicamente seguro para todos os membros.',5,'client'),
   -- autonomy
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'Tomo decisões técnicas sem depender de aprovação constante?',          1,'self'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'Aprendo e aplico tecnologias novas com velocidade?',                   2,'self'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'Identifico e executo melhorias de processo sem ser solicitado?',       3,'self'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'Gerencio meu próprio tempo e prioridades com eficácia?',               4,'self'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'Mantenho foco em atividades de alto impacto?',                         5,'self')
-on conflict do nothing;
-
--- ─── Perguntas Client-review ──────────────────────────────────
-insert into form_questions (form_version_id, dimension, text, order_index, applies_to) values
-  -- tech
-  ('fa000000-0000-0000-0000-000000000001','tech',     'O contratado aplica boas práticas de código?',                         1,'client'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'O contratado entrega código testável e de qualidade?',                 2,'client'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'O contratado domina as tecnologias do projeto?',                       3,'client'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'O contratado resolve problemas técnicos de forma eficaz?',             4,'client'),
-  ('fa000000-0000-0000-0000-000000000001','tech',     'O contratado propõe melhorias técnicas proativamente?',                5,'client'),
-  -- delivery
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'O contratado cumpre os prazos acordados?',                             1,'client'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'O contratado estima tarefas com precisão?',                           2,'client'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'O contratado antecipa impedimentos e comunica cedo?',                  3,'client'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'O contratado mantém qualidade sob pressão?',                          4,'client'),
-  ('fa000000-0000-0000-0000-000000000001','delivery', 'O contratado finaliza o que começa?',                                  5,'client'),
-  -- comm
-  ('fa000000-0000-0000-0000-000000000001','comm',     'O contratado comunica status claramente?',                             1,'client'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'O contratado documenta seu trabalho adequadamente?',                   2,'client'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'O contratado adapta a linguagem ao contexto?',                        3,'client'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'O contratado ouve e incorpora feedbacks?',                            4,'client'),
-  ('fa000000-0000-0000-0000-000000000001','comm',     'O contratado facilita discussões técnicas?',                          5,'client'),
-  -- collab
-  ('fa000000-0000-0000-0000-000000000001','collab',   'O contratado apoia a equipe e compartilha conhecimento?',              1,'client'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'O contratado realiza revisões de código de qualidade?',               2,'client'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'O contratado contribui para ambiente de trabalho positivo?',           3,'client'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'O contratado alinha expectativas com stakeholders?',                   4,'client'),
-  ('fa000000-0000-0000-0000-000000000001','collab',   'O contratado trabalha bem em times distribuídos?',                    5,'client'),
-  -- autonomy
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'O contratado toma decisões autônomas com segurança?',                 1,'client'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'O contratado aprende novas tecnologias rapidamente?',                 2,'client'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'O contratado melhora processos sem ser solicitado?',                  3,'client'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'O contratado gerencia bem seu tempo e prioridades?',                  4,'client'),
-  ('fa000000-0000-0000-0000-000000000001','autonomy', 'O contratado mantém foco em atividades de alto impacto?',             5,'client')
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Trabalha de forma independente no nível esperado para seu cargo, buscando ajuda apenas quando realmente necessário.',1,'self'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Trabalha de forma independente no nível esperado para seu cargo, buscando ajuda apenas quando realmente necessário.',1,'client'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Identifica e resolve problemas proativamente, sem esperar que sejam reportados ou que alguém solicite a correção.',2,'self'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Identifica e resolve problemas proativamente, sem esperar que sejam reportados ou que alguém solicite a correção.',2,'client'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Propõe melhorias técnicas, de processo ou de produto de forma embasada, com argumentos claros sobre benefícios e impactos.',3,'self'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Propõe melhorias técnicas, de processo ou de produto de forma embasada, com argumentos claros sobre benefícios e impactos.',3,'client'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Voluntaria-se para assumir responsabilidades e desafios além do escopo básico, demonstrando interesse em crescer.',4,'self'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Voluntaria-se para assumir responsabilidades e desafios além do escopo básico, demonstrando interesse em crescer.',4,'client'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Gerencia bem seu tempo e tarefas, mantendo organização pessoal e cumprindo compromissos sem necessidade de microgerenciamento.',5,'self'),
+  ('fa000000-0000-0000-0000-000000000001','autonomy','Gerencia bem seu tempo e tarefas, mantendo organização pessoal e cumprindo compromissos sem necessidade de microgerenciamento.',5,'client')
 on conflict do nothing;
