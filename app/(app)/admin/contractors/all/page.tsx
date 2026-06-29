@@ -36,19 +36,24 @@ export default async function ContractorsListPage() {
     scoreMap = Object.fromEntries((history ?? []).map((h) => [h.contractor_id, h.final_score!]))
   }
 
-  const list = contractors.map((c) => {
-    const p = c.profiles as { full_name: string; email: string } | null
-    const clientId = allocMap.get(c.id)
-    return {
-      id: c.id,
-      name: p?.full_name ?? '—',
-      email: p?.email ?? '',
-      seniority: c.seniority,
-      track: c.track,
-      clientName: clientId ? clientMap.get(clientId) ?? null : null,
-      score: scoreMap[c.id] ?? null,
-    }
-  })
+  const { data: allProfiles } = await supabase.from('profiles').select('id, role').in('id', contractors.map(c => c.id))
+  const roleMap = new Map((allProfiles ?? []).map(p => [p.id, p.role]))
+
+  const list = contractors
+    .filter((c) => roleMap.get(c.id) === 'contractor')
+    .map((c) => {
+      const p = c.profiles as { full_name: string; email: string } | null
+      const clientId = allocMap.get(c.id)
+      return {
+        id: c.id,
+        name: p?.full_name ?? '—',
+        email: p?.email ?? '',
+        seniority: c.seniority,
+        track: c.track,
+        clientName: clientId ? clientMap.get(clientId) ?? null : null,
+        score: scoreMap[c.id] ?? null,
+      }
+    })
 
   return (
     <AdminContractorsView

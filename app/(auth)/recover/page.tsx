@@ -2,13 +2,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { getBrowserClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useLang } from '@/lib/i18n'
+import { Icon } from '@/components/lecode/Icon'
 
 export default function RecoverPage() {
-  const [email,   setEmail]   = useState('')
-  const [error,   setError]   = useState<string | null>(null)
+  const { t } = useLang()
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -32,54 +32,60 @@ export default function RecoverPage() {
 
   if (success) {
     return (
-      <div className="space-y-4 text-center">
-        <h2 className="text-xl font-semibold">E-mail enviado</h2>
-        <p className="text-sm text-muted-foreground">
-          Verifique sua caixa de entrada para o link de recuperação.
+      <>
+        <div style={{ display: 'grid', placeItems: 'center', width: 48, height: 48, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent-ink)', marginBottom: 12 }}>
+          <Icon name="check" size={24} />
+        </div>
+        <h1>{t('Link enviado')}</h1>
+        <p className="sub">
+          {t('Enviamos um link de redefinição de senha para')} <strong>{email}</strong>.
         </p>
-        <Link href="/login" className="block text-sm font-medium hover:underline">
-          Voltar para o login
+        <p className="sub" style={{ marginTop: 8 }}>
+          {t('Verifique sua caixa de entrada e a pasta de spam. O link expira em 30 minutos.')}
+        </p>
+        <Link href="/login" className="btn btn-primary btn-block" style={{ marginTop: 20 }}>
+          {t('Voltar ao login')}
         </Link>
-      </div>
+      </>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Recuperar senha</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Enviaremos um link para redefinir sua senha
-        </p>
-      </div>
+    <>
+      <h1>{t('Recupere seu acesso')}</h1>
+      <p className="sub">{t('Informe o e-mail da sua conta e enviaremos um link para redefinir a senha.')}</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="email">E-mail</Label>
-          <Input
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="field">
+          <label htmlFor="email">{t('E-mail corporativo')}</label>
+          <input
             id="email"
             type="email"
+            className={'input' + (error ? ' err' : '')}
             autoComplete="email"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setError(null) }}
             placeholder="voce@empresa.com"
           />
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <div className="field-err">
+            <Icon name="warning" size={16} />
+            {error}
+          </div>
+        )}
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Enviando…' : 'Enviar link de recuperação'}
-        </Button>
+        <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          {loading ? t('Enviando...') : <><Icon name="send" size={15} /> {t('Enviar link de recuperação')}</>}
+        </button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Lembrou a senha?{' '}
-        <Link href="/login" className="font-medium text-foreground hover:underline">
-          Voltar para o login
-        </Link>
+      <p className="auth-switch muted" style={{ fontSize: 12.5 }}>
+        {t('Lembrou a senha?')}{' '}
+        <Link href="/login" className="link">{t('Voltar ao login')}</Link>
       </p>
-    </div>
+    </>
   )
 }

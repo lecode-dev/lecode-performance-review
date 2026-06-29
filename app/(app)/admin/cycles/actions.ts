@@ -1,6 +1,6 @@
 'use server'
 import { revalidatePath } from 'next/cache'
-import { createAdminClient } from '@/lib/supabase/server'
+import { createServerClient, createAdminClient } from '@/lib/supabase/server'
 
 export async function createCycle(formData: FormData) {
   const admin = createAdminClient()
@@ -26,8 +26,8 @@ export async function createCycle(formData: FormData) {
 }
 
 export async function closeCycle(cycleId: string) {
-  const admin = createAdminClient()
-  const { error } = await admin.rpc('close_cycle', { p_cycle: cycleId })
+  const supabase = await createServerClient()
+  const { error } = await supabase.rpc('close_cycle', { p_cycle: cycleId })
   if (error) throw new Error(error.message)
   revalidatePath('/admin/cycles')
   revalidatePath('/admin')

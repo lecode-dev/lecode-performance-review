@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback, useMemo } from 'react'
+import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { getBrowserClient } from '@/lib/supabase/client'
 import { useReviewDraft } from '@/stores/useReviewDraft'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
@@ -45,6 +45,7 @@ export function EvaluationForm({
   const { t } = useLang()
   const confirm = useConfirm()
   const toast = useToast()
+  const [submitting, setSubmitting] = useState(false)
   const { answers, comments, isDirty, setReviewId, setAnswer, setComment, loadDraft, markSaving, markClean } =
     useReviewDraft()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -135,9 +136,11 @@ export function EvaluationForm({
       confirmLabel: t('Enviar avaliação'), cancelLabel: t('Continuar editando'),
     })
     if (!ok) return
+    setSubmitting(true)
     if (isSubmitted) {
       await autosave()
       toast(t('Alterações salvas com sucesso'))
+      setSubmitting(false)
     } else {
       onSubmit()
     }
@@ -277,9 +280,9 @@ export function EvaluationForm({
           </div>
           <div className="row" style={{ gap: 10 }}>
             {onCancel && <button className="btn btn-ghost" onClick={onCancel}>{t('Cancelar')}</button>}
-            <button className="btn btn-primary" disabled={!allComplete} onClick={handleSubmit}>
-              <Icon name="check" size={16} />
-              {isSubmitted ? t('Salvar alterações') : t('Enviar avaliação')}
+            <button className="btn btn-primary" disabled={!allComplete || submitting} onClick={handleSubmit}>
+              <Icon name={submitting ? 'cycle' : 'check'} size={16} />
+              {submitting ? t('Enviando...') : isSubmitted ? t('Salvar alterações') : t('Enviar avaliação')}
             </button>
           </div>
         </div>

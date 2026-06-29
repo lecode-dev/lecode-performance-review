@@ -18,18 +18,19 @@ export default async function CyclesPage() {
   const progressMap: Record<string, { done: number; total: number; pct: number }> = {}
   if (cycles && cycles.length > 0) {
     const cycleIds = cycles.map((c) => c.id)
-    const { data: allReviews } = await supabase
-      .from('reviews')
-      .select('cycle_id, status')
-      .in('cycle_id', cycleIds)
 
-    if (allReviews) {
-      for (const cycle of cycles) {
-        const reviews = allReviews.filter((r) => r.cycle_id === cycle.id)
-        const total = reviews.length
-        const done = reviews.filter((r) => r.status === 'submitted').length
-        progressMap[cycle.id] = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
-      }
+    const [reviewsRes, allocsRes] = await Promise.all([
+      supabase.from('reviews').select('cycle_id, type, status').in('cycle_id', cycleIds),
+      supabase.from('allocations').select('contractor_id').is('ended_on', null),
+    ])
+    const allReviews = reviewsRes.data ?? []
+    const activeContractors = allocsRes.data?.length ?? 0
+
+    for (const cycle of cycles) {
+      const reviews = allReviews.filter((r) => r.cycle_id === cycle.id)
+      const total = cycle.status === 'open' ? activeContractors * 2 : reviews.length
+      const done = reviews.filter((r) => r.status === 'submitted').length
+      progressMap[cycle.id] = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
     }
   }
 

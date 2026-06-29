@@ -323,6 +323,7 @@ const EN: Record<string, string> = {
   "E-mail ou senha incorretos.": "Incorrect e-mail or password.",
   "Entrando…": "Signing in…",
   "Solicite suas credenciais ao administrador LeCode.": "Request your credentials from the LeCode administrator.",
+  "Lembrou a senha?": "Remember your password?",
 }
 
 const ES: Record<string, string> = {
@@ -641,6 +642,7 @@ const ES: Record<string, string> = {
   "E-mail ou senha incorretos.": "E-mail o contraseña incorrectos.",
   "Entrando…": "Entrando…",
   "Solicite suas credenciais ao administrador LeCode.": "Solicita tus credenciales al administrador de LeCode.",
+  "Lembrou a senha?": "¿Recuerdas tu contraseña?",
 }
 
 const DICTS: Record<'en' | 'es', Record<string, string>> = { en: EN, es: ES }
