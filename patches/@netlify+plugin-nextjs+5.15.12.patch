@@ -1,0 +1,22 @@
+diff --git a/node_modules/@netlify/plugin-nextjs/edge-runtime/lib/cjs.ts b/node_modules/@netlify/plugin-nextjs/edge-runtime/lib/cjs.ts
+index 9887c63..e2af4cc 100644
+--- a/node_modules/@netlify/plugin-nextjs/edge-runtime/lib/cjs.ts
++++ b/node_modules/@netlify/plugin-nextjs/edge-runtime/lib/cjs.ts
+@@ -244,7 +244,7 @@ function seedCJSModuleCacheAndReturnTarget(matchedModule: RegisteredModule, pare
+         lineOffset: 0,
+         displayErrors: true,
+       })
+-      const modRequire = createRequire(pathToFileURL(filepath, { windows: false }))
++      const modRequire = createRequire(pathToFileURL(filepath))
+       compiled(mod.exports, modRequire, mod, filepath, dirname(filepath))
+     }
+     mod.loaded = matchedModule.loaded = true
+@@ -291,7 +291,7 @@ export function registerCJSModules(
+   modules: Map<string, string>,
+   symlinks: Map<string, string> = new Map(),
+ ) {
+-  const basePath = dirname(toPosixPath(fileURLToPath(baseUrl, { windows: false })))
++  const basePath = dirname(toPosixPath(fileURLToPath(baseUrl)))
+ 
+   for (const [filename, source] of modules.entries()) {
+     const target = join(basePath, filename)
