@@ -12,7 +12,12 @@ async function requireAdmin() {
 }
 
 export async function inviteUser(formData: FormData) {
-  await requireAdmin()
+  try {
+    await requireAdmin()
+  } catch {
+    return { error: 'Acesso negado.' }
+  }
+
   const admin = createAdminClient()
 
   const email = (formData.get('email') as string)?.trim()
@@ -34,7 +39,7 @@ export async function inviteUser(formData: FormData) {
 
   const { data: authData, error: authErr } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
-    redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ? '' : ''}${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/login`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/login`,
   })
 
   if (authErr) {
@@ -46,26 +51,32 @@ export async function inviteUser(formData: FormData) {
 
   const userId = authData.user.id
 
-  await admin.from('profiles').update({
+  const { error: profileErr } = await admin.from('profiles').update({
     full_name: fullName,
     role: role as UserRole,
     ...(role === 'client_rep' && clientId ? { client_id: clientId } : {}),
   }).eq('id', userId)
 
-  await admin.auth.admin.updateUserById(userId, {
+  if (profileErr) return { error: 'Erro ao configurar perfil do usuário.' }
+
+  const { error: metaErr } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: { role },
   })
 
+  if (metaErr) return { error: 'Erro ao configurar permissões do usuário.' }
+
   if (role === 'contractor') {
     const since = new Date().toISOString().slice(0, 7)
-    await admin.from('contractors').upsert({ id: userId, since })
+    const { error: contractorErr } = await admin.from('contractors').upsert({ id: userId, since })
+    if (contractorErr) return { error: 'Erro ao registrar contratado.' }
 
     if (clientId) {
-      await admin.from('allocations').insert({
+      const { error: allocationErr } = await admin.from('allocations').insert({
         contractor_id: userId,
         client_id: clientId,
         started_on: new Date().toISOString().slice(0, 10),
       })
+      if (allocationErr) return { error: 'Erro ao registrar alocação.' }
     }
   }
 
@@ -77,7 +88,12 @@ export async function inviteUser(formData: FormData) {
 }
 
 export async function resendInvite(userId: string) {
-  await requireAdmin()
+  try {
+    await requireAdmin()
+  } catch {
+    return { error: 'Acesso negado.' }
+  }
+
   const admin = createAdminClient()
 
   const { data: user, error: fetchErr } = await admin.auth.admin.getUserById(userId)
