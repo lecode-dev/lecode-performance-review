@@ -13,8 +13,9 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Rotas utilitárias: nunca interceptar
-  if (pathname.startsWith('/logout') || pathname.startsWith('/debug')) {
+  // Rotas que não precisam de verificação de sessão
+  if (pathname.startsWith('/logout') || pathname.startsWith('/debug') ||
+      pathname.startsWith('/accept-invite') || pathname.startsWith('/update-password')) {
     return response
   }
 
@@ -40,7 +41,7 @@ export async function proxy(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
   const role = session?.user?.app_metadata?.role as UserRole | undefined
 
-  // Rotas públicas de auth
+  // Rotas públicas de auth (redireciona para home se já estiver logado)
   if (pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/recover')) {
     if (session && role) {
       return NextResponse.redirect(new URL(roleDefaultPath(role), request.url))
