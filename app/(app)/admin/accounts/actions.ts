@@ -86,7 +86,7 @@ export async function resendInvite(userId: string) {
   }
 
   const { error } = await admin.auth.admin.inviteUserByEmail(user.user.email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/login`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/accept-invite`,
   })
 
   if (error) return { error: error.message }
