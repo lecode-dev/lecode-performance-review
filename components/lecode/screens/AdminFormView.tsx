@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useTransition } from 'react'
 import { useLang } from '@/lib/i18n'
 import { DIMENSIONS, SCALE, OPEN_QUESTIONS } from '@/lib/domain'
 import { Icon } from '@/components/lecode/Icon'
@@ -27,6 +28,8 @@ interface AdminFormViewProps {
 export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeight, questions }: AdminFormViewProps) {
   const { t } = useLang()
   const confirm = useConfirm()
+  const [pendingDim, setPendingDim] = useState<string | null>(null)
+  const [, startTransition] = useTransition()
 
   if (!cycleName || !formVersionId) {
     return (
@@ -135,13 +138,27 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
                     }}><Icon name="x" size={16} /></button>
                   </div>
                 ))}
-                <form action={addQuestion} className="row" style={{ gap: 8, marginTop: 4 }}>
+                <form
+                  className="row" style={{ gap: 8, marginTop: 4 }}
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    if (pendingDim) return
+                    const form = e.currentTarget
+                    const fd = new FormData(form)
+                    setPendingDim(d.key)
+                    startTransition(async () => {
+                      await addQuestion(fd)
+                      form.reset()
+                      setPendingDim(null)
+                    })
+                  }}
+                >
                   <input type="hidden" name="form_version_id" value={formVersionId} />
                   <input type="hidden" name="dimension" value={d.key} />
                   <input type="hidden" name="order_index" value={dimQs.length + 1} />
                   <input name="text" className="input" placeholder={t('Nova pergunta...')} style={{ flex: 1 }} required />
-                  <button type="submit" className="btn btn-ghost btn-sm">
-                    <Icon name="plus" size={15} />{t('Adicionar')}
+                  <button type="submit" className="btn btn-ghost btn-sm" disabled={pendingDim === d.key}>
+                    <Icon name="plus" size={15} />{pendingDim === d.key ? t('Adicionando...') : t('Adicionar')}
                   </button>
                 </form>
               </div>
