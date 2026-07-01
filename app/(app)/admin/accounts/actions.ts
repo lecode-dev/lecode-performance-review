@@ -28,11 +28,7 @@ export async function inviteUser(formData: FormData) {
     return { error: 'Perfil inválido.' }
   }
 
-  if (role === 'client_rep' && !clientId) {
-    return { error: 'Selecione o cliente para o representante.' }
-  }
-
-  const { data: authData, error: authErr } = await admin.auth.admin.inviteUserByEmail(email, {
+const { data: authData, error: authErr } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/accept-invite`,
   })

@@ -437,13 +437,13 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
               <input type="hidden" name="role" value={selectedRole} />
             </div>
 
-            {selectedRole !== 'lecode_admin' && (
+            {selectedRole === 'contractor' && (
               <div className="field">
                 <label>
                   {t('Cliente')}
-                  {selectedRole !== 'client_rep' && <span className="muted" style={{ fontWeight: 400 }}> · {t('opcional')}</span>}
+                  <span className="muted" style={{ fontWeight: 400 }}> · {t('opcional')}</span>
                 </label>
-                <select name="client_id" className="input" required={selectedRole === 'client_rep'}>
+                <select name="client_id" className="input">
                   <option value="">{t('Selecione o cliente...')}</option>
                   {clients.map((c) => (
                     <option key={c.id} value={c.id}>{c.name}</option>
