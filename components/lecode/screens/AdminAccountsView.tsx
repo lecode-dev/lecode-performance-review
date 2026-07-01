@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react'
 import { useLang } from '@/lib/i18n'
 import { Icon, type IconName } from '@/components/lecode/Icon'
 import { Modal } from '@/components/lecode/Modal'
-import { inviteUser, resendInvite } from '@/app/(app)/admin/accounts/actions'
+import { inviteUser, resendInvite, revokeAccess, removeAccount } from '@/app/(app)/admin/accounts/actions'
 
 interface Account {
   id: string
@@ -64,6 +64,9 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
   const [search, setSearch] = useState('')
   const [isPending, startTransition] = useTransition()
   const [resending, setResending] = useState<string | null>(null)
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [confirmAction, setConfirmAction] = useState<{ type: 'revoke' | 'remove'; account: Account } | null>(null)
+  const [actionPending, setActionPending] = useState(false)
 
   const filtered = accounts.filter((a) => {
     if (filter !== 'all' && a.role !== filter) return false
@@ -87,6 +90,23 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
         setTimeout(() => setSuccess(null), 4000)
       }
     })
+  }
+
+  const handleManageAction = async () => {
+    if (!confirmAction) return
+    setActionPending(true)
+    const result = confirmAction.type === 'revoke'
+      ? await revokeAccess(confirmAction.account.id)
+      : await removeAccount(confirmAction.account.id)
+    setActionPending(false)
+    setConfirmAction(null)
+    if (result.error) {
+      setError(result.error)
+      setTimeout(() => setError(null), 4000)
+    } else {
+      setSuccess(confirmAction.type === 'revoke' ? 'Acesso revogado.' : 'Conta removida.')
+      setTimeout(() => setSuccess(null), 4000)
+    }
   }
 
   const handleResend = async (userId: string) => {
@@ -244,16 +264,69 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
               </span>
 
               {a.role !== 'lecode_admin' ? (
-                <button
-                  className="btn btn-sm btn-ghost"
-                  title={t('Reenviar convite')}
-                  disabled={resending === a.id}
-                  onClick={() => handleResend(a.id)}
-                  style={{ flexShrink: 0, gap: 5, fontSize: 12 }}
-                >
-                  <Icon name="mail" size={13} />
-                  {resending === a.id ? t('Enviando...') : t('Reenviar')}
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, position: 'relative' }}>
+                  <button
+                    className="btn btn-sm btn-ghost"
+                    title={t('Reenviar convite')}
+                    disabled={resending === a.id}
+                    onClick={() => handleResend(a.id)}
+                    style={{ gap: 5, fontSize: 12 }}
+                  >
+                    <Icon name="mail" size={13} />
+                    {resending === a.id ? t('Enviando...') : t('Reenviar')}
+                  </button>
+                  <button
+                    className="btn btn-sm btn-ghost"
+                    title={t('Mais opções')}
+                    onClick={() => setActiveMenu(activeMenu === a.id ? null : a.id)}
+                    style={{ padding: '4px 6px' }}
+                  >
+                    <Icon name="moreVert" size={15} />
+                  </button>
+                  {activeMenu === a.id && (
+                    <>
+                      <div
+                        style={{ position: 'fixed', inset: 0, zIndex: 10 }}
+                        onClick={() => setActiveMenu(null)}
+                      />
+                      <div style={{
+                        position: 'absolute', top: '100%', right: 0, zIndex: 20,
+                        marginTop: 4, minWidth: 190,
+                        background: 'var(--surface-1)', border: '1px solid var(--border)',
+                        borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+                        overflow: 'hidden',
+                      }}>
+                        <button
+                          onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'revoke', account: a }) }}
+                          style={{
+                            width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                            padding: '10px 14px', background: 'none', border: 'none',
+                            color: 'var(--ink-1)', fontSize: 13, cursor: 'pointer', textAlign: 'left',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-2)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                        >
+                          <Icon name="ban" size={14} style={{ color: 'oklch(0.7 0.18 50)' }} />
+                          {t('Revogar acesso')}
+                        </button>
+                        <div style={{ height: 1, background: 'var(--border)', margin: '0 10px' }} />
+                        <button
+                          onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'remove', account: a }) }}
+                          style={{
+                            width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                            padding: '10px 14px', background: 'none', border: 'none',
+                            color: 'oklch(0.7 0.18 25)', fontSize: 13, cursor: 'pointer', textAlign: 'left',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = 'oklch(0.25 0.06 25)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                        >
+                          <Icon name="trash" size={14} />
+                          {t('Remover conta')}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               ) : (
                 <div style={{ width: 90 }} />
               )}
@@ -265,6 +338,54 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
       <div className="muted" style={{ fontSize: 12, marginTop: 14, textAlign: 'center' }}>
         {filtered.length} {filtered.length === 1 ? t('conta') : t('contas')} {filter !== 'all' ? t('filtradas') : ''}
       </div>
+
+      {confirmAction && (
+        <Modal
+          title={confirmAction.type === 'revoke' ? t('Revogar acesso') : t('Remover conta')}
+          onClose={() => setConfirmAction(null)}
+          footer={<>
+            <button className="btn btn-ghost" onClick={() => setConfirmAction(null)} disabled={actionPending}>
+              {t('Cancelar')}
+            </button>
+            <button
+              className="btn"
+              onClick={handleManageAction}
+              disabled={actionPending}
+              style={{
+                background: confirmAction.type === 'remove' ? 'oklch(0.5 0.18 25)' : 'oklch(0.55 0.14 50)',
+                color: '#fff',
+              }}
+            >
+              {actionPending ? t('Aguarde...') : confirmAction.type === 'revoke' ? t('Revogar acesso') : t('Remover conta')}
+            </button>
+          </>}
+        >
+          <div className="col" style={{ gap: 16 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 12,
+              padding: '12px 14px', borderRadius: 10, background: 'var(--surface-2)',
+            }}>
+              <span style={{
+                width: 38, height: 38, borderRadius: 10, flexShrink: 0,
+                display: 'grid', placeItems: 'center',
+                background: avatarColor(confirmAction.account.name), color: '#fff',
+                fontWeight: 700, fontSize: 13.5, fontFamily: 'var(--mono)',
+              }}>
+                {initials(confirmAction.account.name)}
+              </span>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{confirmAction.account.name}</div>
+                <div className="muted" style={{ fontSize: 12.5 }}>{confirmAction.account.email}</div>
+              </div>
+            </div>
+            <p style={{ fontSize: 13.5, color: 'var(--ink-2)', lineHeight: 1.6, margin: 0 }}>
+              {confirmAction.type === 'revoke'
+                ? t('Este usuário não conseguirá mais fazer login. Os dados são preservados e o acesso pode ser restaurado manualmente.')
+                : t('Esta ação é irreversível. O usuário e todos os seus dados serão removidos permanentemente da plataforma.')}
+            </p>
+          </div>
+        </Modal>
+      )}
 
       {modal && (
         <Modal title={t('Convidar novo usuário')} onClose={() => setModal(false)}
