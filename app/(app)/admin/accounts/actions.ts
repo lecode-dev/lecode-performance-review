@@ -92,3 +92,24 @@ export async function resendInvite(userId: string) {
   if (error) return { error: error.message }
   return { success: true }
 }
+
+export async function revokeAccess(userId: string) {
+  await requireAdmin()
+  const admin = createAdminClient()
+  const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: '876600h' })
+  if (error) return { error: error.message }
+  revalidatePath('/admin/accounts')
+  return { success: true }
+}
+
+export async function removeAccount(userId: string) {
+  await requireAdmin()
+  const admin = createAdminClient()
+  const { error } = await admin.auth.admin.deleteUser(userId)
+  if (error) return { error: error.message }
+  revalidatePath('/admin/accounts')
+  revalidatePath('/admin/contractors')
+  revalidatePath('/admin/clients')
+  revalidatePath('/admin')
+  return { success: true }
+}

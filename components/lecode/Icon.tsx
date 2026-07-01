@@ -31,6 +31,9 @@ const PATHS: Record<string, string> = {
   send: "M22 2 11 13M22 2l-7 20-4-9-9-4z",
   shield: "M12 2l8 3v6c0 5-3.4 8.6-8 9-4.6-.4-8-4-8-9V5z",
   shieldCheck: "M12 2l8 3v6c0 5-3.4 8.6-8 9-4.6-.4-8-4-8-9V5zM9 12l2 2 4-4",
+  trash: "M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2",
+  ban: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20M4.9 4.9l14.2 14.2",
+  moreVert: "M12 5h.01M12 12h.01M12 19h.01",
 }
 
 export type IconName = keyof typeof PATHS
