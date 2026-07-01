@@ -28,6 +28,8 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
   const { t } = useLang()
   const confirm = useConfirm()
   const [openModal, setOpenModal] = useState(false)
+  const [closing, setClosing] = useState(false)
+  const [closeError, setCloseError] = useState<string | null>(null)
   const hasActive = cycles.some((c) => c.status === 'open')
 
   const askClose = async (cy: Cycle) => {
@@ -38,7 +40,12 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
       detail: t('Esta ação é definitiva e não pode ser desfeita.'),
       confirmLabel: t('Encerrar ciclo'), cancelLabel: t('Cancelar'),
     })
-    if (ok) closeCycle(cy.id)
+    if (!ok) return
+    setClosing(true)
+    setCloseError(null)
+    const result = await closeCycle(cy.id)
+    setClosing(false)
+    if (result?.error) setCloseError(result.error)
   }
 
   return (
@@ -58,6 +65,23 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
         <div className="callout" style={{ marginBottom: 16 }}>
           <Icon name="info" />
           {t('Já existe um ciclo em andamento')} ({cycles.find((c) => c.status === 'open')?.name}). {t('Encerre-o antes de abrir um novo.')}
+        </div>
+      )}
+
+      {closeError && (
+        <div className="callout callout-danger" style={{ marginBottom: 16 }}>
+          <Icon name="warning" />
+          {t('Erro ao encerrar ciclo')}: {closeError}
+          <button className="btn btn-ghost btn-sm" style={{ marginLeft: 'auto' }} onClick={() => setCloseError(null)}>
+            <Icon name="x" size={14} />
+          </button>
+        </div>
+      )}
+
+      {closing && (
+        <div className="callout" style={{ marginBottom: 16 }}>
+          <Icon name="cycle" />
+          {t('Encerrando ciclo...')}
         </div>
       )}
 
@@ -82,7 +106,7 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
                   </div>
                 </div>
                 {cy.status === 'open' && (
-                  <button className="btn btn-primary btn-sm" disabled={!canClose} onClick={() => askClose(cy)}
+                  <button className="btn btn-primary btn-sm" disabled={!canClose || closing} onClick={() => askClose(cy)}
                     title={canClose ? '' : t('Todas as avaliações precisam estar concluídas')}>
                     <Icon name="lock" size={15} />{t('Encerrar ciclo')}
                   </button>

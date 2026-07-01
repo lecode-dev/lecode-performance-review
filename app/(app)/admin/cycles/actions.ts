@@ -28,7 +28,8 @@ export async function createCycle(formData: FormData) {
 export async function closeCycle(cycleId: string) {
   const supabase = await createServerClient()
   const { error } = await supabase.rpc('close_cycle', { p_cycle: cycleId })
-  if (error) throw new Error(error.message)
+  if (error) return { error: error.message }
   revalidatePath('/admin/cycles')
   revalidatePath('/admin')
+  return { success: true }
 }

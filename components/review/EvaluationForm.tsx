@@ -121,6 +121,7 @@ export function EvaluationForm({
   const totalQuestions = questions.length
 
   const handleSubmit = async () => {
+    setSubmitting(true)
     if (debounceRef.current) { clearTimeout(debounceRef.current); await autosave() }
     const ok = await confirm(isSubmitted ? {
       icon: 'edit', tone: 'primary',
@@ -135,8 +136,10 @@ export function EvaluationForm({
         : `${t('Você está avaliando')} ${contractorName}. ${t('Suas respostas serão registradas no ciclo')} ${cycleName}. ${t('Você poderá ajustá-las a qualquer momento enquanto o ciclo estiver aberto. Após o encerramento, a avaliação não poderá mais ser alterada.')}`,
       confirmLabel: t('Enviar avaliação'), cancelLabel: t('Continuar editando'),
     })
-    if (!ok) return
-    setSubmitting(true)
+    if (!ok) {
+      setSubmitting(false)
+      return
+    }
     if (isSubmitted) {
       await autosave()
       toast(t('Alterações salvas com sucesso'))
