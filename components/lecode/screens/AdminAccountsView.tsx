@@ -221,6 +221,8 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
                 display: 'flex', alignItems: 'center', gap: 14,
                 padding: '12px 18px',
                 transition: 'background 0.1s',
+                position: 'relative',
+                zIndex: activeMenu === a.id ? 30 : undefined,
               }}
             >
               <span style={{
