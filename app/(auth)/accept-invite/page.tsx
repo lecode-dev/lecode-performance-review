@@ -10,6 +10,7 @@ export default function AcceptInvitePage() {
   const router = useRouter()
   const { t } = useLang()
   const [ready, setReady] = useState(false)
+  const [invalid, setInvalid] = useState(false)
   const [userName, setUserName] = useState<string | null>(null)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -20,14 +21,41 @@ export default function AcceptInvitePage() {
 
   useEffect(() => {
     const supabase = getBrowserClient()
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
-        const name = session.user.user_metadata?.full_name as string | undefined
-        setUserName(name ?? null)
-        setReady(true)
+
+    async function processInvite() {
+      const hash = window.location.hash
+      const params = new URLSearchParams(hash.startsWith('#') ? hash.slice(1) : hash)
+      const type = params.get('type')
+      const accessToken = params.get('access_token')
+      const refreshToken = params.get('refresh_token') ?? ''
+
+      if (type !== 'invite' || !accessToken) {
+        setInvalid(true)
+        return
       }
-    })
-    return () => subscription.unsubscribe()
+
+      // Clear any existing session so we don't accidentally modify the wrong user
+      await supabase.auth.signOut()
+
+      // Exchange the invite token for a real session
+      const { data, error: sessionErr } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      })
+
+      if (sessionErr || !data.session?.user) {
+        setInvalid(true)
+        return
+      }
+
+      const name = data.session.user.user_metadata?.full_name as string | undefined
+      setUserName(name ?? null)
+      // Remove hash from URL without reload
+      window.history.replaceState(null, '', window.location.pathname)
+      setReady(true)
+    }
+
+    processInvite()
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -62,6 +90,21 @@ export default function AcceptInvitePage() {
         </div>
         <h1>{t('Senha definida!')}</h1>
         <p className="sub">{t('Sua conta está pronta. Redirecionando para o login...')}</p>
+      </>
+    )
+  }
+
+  if (invalid) {
+    return (
+      <>
+        <div style={{ display: 'grid', placeItems: 'center', width: 48, height: 48, borderRadius: 12, background: 'oklch(0.35 0.08 25)', color: 'oklch(0.7 0.18 25)', marginBottom: 12 }}>
+          <Icon name="warning" size={24} />
+        </div>
+        <h1>{t('Link inválido')}</h1>
+        <p className="sub">{t('Este link de convite é inválido ou já foi utilizado. Solicite um novo convite ao administrador.')}</p>
+        <button className="btn btn-primary" style={{ marginTop: 8 }} onClick={() => router.push('/login')}>
+          {t('Ir para o login')}
+        </button>
       </>
     )
   }
