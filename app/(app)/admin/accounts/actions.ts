@@ -34,7 +34,7 @@ export async function inviteUser(formData: FormData) {
 
   const { data: authData, error: authErr } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
-    redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL ? '' : ''}${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/login`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'}/accept-invite`,
   })
 
   if (authErr) {
