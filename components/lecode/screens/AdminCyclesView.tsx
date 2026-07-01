@@ -91,13 +91,13 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
           const canClose = cy.status === 'open' && prog.total > 0 && prog.done === prog.total
           return (
             <div className="card card-pad" key={cy.id}>
-              <div className="between" style={{ alignItems: 'flex-start' }}>
-                <div className="row" style={{ gap: 14 }}>
-                  <span style={{ width: 46, height: 46, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent-ink)', display: 'grid', placeItems: 'center' }}>
+              <div className="between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px 12px' }}>
+                <div className="row" style={{ gap: 14, flex: 1, minWidth: 0 }}>
+                  <span style={{ width: 46, height: 46, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent-ink)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                     <Icon name="calendar" size={22} />
                   </span>
-                  <div className="col">
-                    <div className="row" style={{ gap: 10 }}>
+                  <div className="col" style={{ minWidth: 0 }}>
+                    <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
                       <span style={{ fontWeight: 600, fontSize: 16 }}>{cy.name}</span>
                       <CycleBadge status={cy.status} />
                       <PhaseBadge cycle={cy} />
@@ -107,7 +107,8 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
                 </div>
                 {cy.status === 'open' && (
                   <button className="btn btn-primary btn-sm" disabled={!canClose || closing} onClick={() => askClose(cy)}
-                    title={canClose ? '' : t('Todas as avaliações precisam estar concluídas')}>
+                    title={canClose ? '' : t('Todas as avaliações precisam estar concluídas')}
+                    style={{ flexShrink: 0, marginLeft: 'auto' }}>
                     <Icon name="lock" size={15} />{t('Encerrar ciclo')}
                   </button>
                 )}

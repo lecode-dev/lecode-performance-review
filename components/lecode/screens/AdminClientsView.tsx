@@ -101,7 +101,7 @@ export function AdminClientsView({ clients }: AdminClientsViewProps) {
             <div className="grid grid-2" style={{ gap: 14 }}>
               <div className="field">
                 <label>{t('Slug')}</label>
-                <input name="slug" required className="input" placeholder="Ex.: fintrack" pattern="[a-z0-9\-]+" />
+                <input name="slug" required className="input" placeholder="Ex.: fintrack" pattern="[a-z0-9\-]+" title={t('Apenas letras minúsculas, números e hífens (ex.: google, fin-tech)')} />
               </div>
               <div className="field">
                 <label>{t('E-mail do representante')}</label>

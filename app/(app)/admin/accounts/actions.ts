@@ -24,7 +24,7 @@ export async function inviteUser(formData: FormData) {
     return { error: 'Nome, e-mail e perfil são obrigatórios.' }
   }
 
-  if (!['contractor', 'client_rep'].includes(role)) {
+  if (!['contractor', 'client_rep', 'lecode_admin'].includes(role)) {
     return { error: 'Perfil inválido.' }
   }
 
