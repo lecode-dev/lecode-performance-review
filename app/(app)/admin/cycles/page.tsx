@@ -20,16 +20,20 @@ export default async function CyclesPage() {
     const cycleIds = cycles.map((c) => c.id)
 
     const [reviewsRes, allocsRes] = await Promise.all([
-      supabase.from('reviews').select('cycle_id, type, status').in('cycle_id', cycleIds),
+      supabase.from('reviews').select('cycle_id, contractor_id, type, status').in('cycle_id', cycleIds),
       supabase.from('allocations').select('contractor_id').is('ended_on', null),
     ])
     const allReviews = reviewsRes.data ?? []
-    const activeContractors = allocsRes.data?.length ?? 0
+    const activeContractorIds = new Set((allocsRes.data ?? []).map((a) => a.contractor_id))
 
     for (const cycle of cycles) {
       const reviews = allReviews.filter((r) => r.cycle_id === cycle.id)
-      const total = cycle.status === 'open' ? activeContractors * 2 : reviews.length
-      const done = reviews.filter((r) => r.status === 'submitted').length
+      const contractorIds = cycle.status === 'open' ? activeContractorIds : new Set(reviews.map((r) => r.contractor_id))
+      const total = contractorIds.size
+      const done = [...contractorIds].filter((cId) =>
+        reviews.some((r) => r.contractor_id === cId && r.type === 'self'   && r.status === 'submitted') &&
+        reviews.some((r) => r.contractor_id === cId && r.type === 'client' && r.status === 'submitted')
+      ).length
       progressMap[cycle.id] = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
     }
   }

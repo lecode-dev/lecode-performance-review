@@ -19,7 +19,7 @@ export default function RecoverPage() {
 
     const supabase = getBrowserClient()
     const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/update-password`,
     })
 
     if (authError) {
@@ -34,14 +34,14 @@ export default function RecoverPage() {
     return (
       <>
         <div style={{ display: 'grid', placeItems: 'center', width: 48, height: 48, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent-ink)', marginBottom: 12 }}>
-          <Icon name="check" size={24} />
+          <Icon name="send" size={24} />
         </div>
         <h1>{t('Link enviado')}</h1>
         <p className="sub">
           {t('Enviamos um link de redefinição de senha para')} <strong>{email}</strong>.
         </p>
         <p className="sub" style={{ marginTop: 8 }}>
-          {t('Verifique sua caixa de entrada e a pasta de spam. O link expira em 30 minutos.')}
+          {t('Verifique sua caixa de entrada e a pasta de spam. O link expira em 60 minutos.')}
         </p>
         <Link href="/login" className="btn btn-primary btn-block" style={{ marginTop: 20 }}>
           {t('Voltar ao login')}
@@ -52,6 +52,9 @@ export default function RecoverPage() {
 
   return (
     <>
+      <div style={{ display: 'grid', placeItems: 'center', width: 48, height: 48, borderRadius: 12, background: 'var(--accent-soft)', color: 'var(--accent-ink)', marginBottom: 12 }}>
+        <Icon name="lock" size={24} />
+      </div>
       <h1>{t('Recupere seu acesso')}</h1>
       <p className="sub">{t('Informe o e-mail da sua conta e enviaremos um link para redefinir a senha.')}</p>
 
