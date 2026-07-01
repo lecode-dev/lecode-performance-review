@@ -221,8 +221,6 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
                 display: 'flex', alignItems: 'center', gap: 14,
                 padding: '12px 18px',
                 transition: 'background 0.1s',
-                position: 'relative',
-                zIndex: activeMenu === a.id ? 30 : undefined,
               }}
             >
               <span style={{
@@ -287,42 +285,23 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
                   </button>
                   {activeMenu === a.id && (
                     <>
-                      <div
-                        style={{ position: 'fixed', inset: 0, zIndex: 10 }}
-                        onClick={() => setActiveMenu(null)}
-                      />
-                      <div style={{
-                        position: 'absolute', top: '100%', right: 0, zIndex: 20,
-                        marginTop: 4, minWidth: 190,
-                        background: 'var(--surface-1)', border: '1px solid var(--border)',
-                        borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
-                        overflow: 'hidden',
-                      }}>
+                      <div className="ui-menu-backdrop" onClick={() => setActiveMenu(null)} />
+                      <div className="ui-menu" style={{ padding: 6, minWidth: 190 }}>
                         <button
+                          className="ui-menu-item"
                           onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'revoke', account: a }) }}
-                          style={{
-                            width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                            padding: '10px 14px', background: 'none', border: 'none',
-                            color: 'var(--ink-1)', fontSize: 13, cursor: 'pointer', textAlign: 'left',
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-2)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                          style={{ gap: 10 }}
                         >
-                          <Icon name="ban" size={14} style={{ color: 'oklch(0.7 0.18 50)' }} />
+                          <Icon name="ban" size={14} style={{ color: 'var(--s3)', flexShrink: 0 }} />
                           {t('Revogar acesso')}
                         </button>
-                        <div style={{ height: 1, background: 'var(--border)', margin: '0 10px' }} />
+                        <div style={{ height: 1, background: 'var(--border)', margin: '2px 8px' }} />
                         <button
+                          className="ui-menu-item"
                           onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'remove', account: a }) }}
-                          style={{
-                            width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                            padding: '10px 14px', background: 'none', border: 'none',
-                            color: 'oklch(0.7 0.18 25)', fontSize: 13, cursor: 'pointer', textAlign: 'left',
-                          }}
-                          onMouseEnter={(e) => (e.currentTarget.style.background = 'oklch(0.25 0.06 25)')}
-                          onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                          style={{ gap: 10, color: 'var(--danger, oklch(0.65 0.22 25))' }}
                         >
-                          <Icon name="trash" size={14} />
+                          <Icon name="trash" size={14} style={{ flexShrink: 0 }} />
                           {t('Remover conta')}
                         </button>
                       </div>
@@ -402,7 +381,7 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
             {error && (
               <div style={{
                 background: 'oklch(0.35 0.08 25)', borderLeft: '3px solid oklch(0.6 0.18 25)',
-                padding: '10px 14px', borderRadius: 8, fontSize: 13, color: 'var(--ink-1)',
+                padding: '10px 14px', borderRadius: 8, fontSize: 13, color: 'var(--ink)',
               }}>
                 <div className="row" style={{ gap: 8 }}>
                   <Icon name="warning" size={14} />
@@ -425,8 +404,9 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
               <label style={{ marginBottom: 8 }}>{t('Tipo de conta')}</label>
               <div className="row" style={{ gap: 10 }}>
                 {([
-                  { key: 'contractor', label: 'Contratado', desc: 'Faz autoavaliação', icon: 'users' as IconName },
-                  { key: 'client_rep', label: 'Representante', desc: 'Avalia contratados', icon: 'building' as IconName },
+                  { key: 'contractor',   label: 'Contratado',    desc: 'Faz autoavaliação',       icon: 'users'    as IconName },
+                  { key: 'client_rep',   label: 'Representante', desc: 'Avalia contratados',       icon: 'building' as IconName },
+                  { key: 'lecode_admin', label: 'Admin',         desc: 'Acesso administrativo',    icon: 'shield'   as IconName },
                 ]).map((opt) => {
                   const active = selectedRole === opt.key
                   return (
@@ -457,18 +437,20 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
               <input type="hidden" name="role" value={selectedRole} />
             </div>
 
-            <div className="field">
-              <label>
-                {t('Cliente')}
-                {selectedRole !== 'client_rep' && <span className="muted" style={{ fontWeight: 400 }}> · {t('opcional')}</span>}
-              </label>
-              <select name="client_id" className="input" required={selectedRole === 'client_rep'}>
-                <option value="">{t('Selecione o cliente...')}</option>
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
+            {selectedRole !== 'lecode_admin' && (
+              <div className="field">
+                <label>
+                  {t('Cliente')}
+                  {selectedRole !== 'client_rep' && <span className="muted" style={{ fontWeight: 400 }}> · {t('opcional')}</span>}
+                </label>
+                <select name="client_id" className="input" required={selectedRole === 'client_rep'}>
+                  <option value="">{t('Selecione o cliente...')}</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div style={{
               display: 'flex', alignItems: 'flex-start', gap: 10,
