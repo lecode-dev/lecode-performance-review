@@ -29,6 +29,9 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
   const { t } = useLang()
   const confirm = useConfirm()
   const [pendingDim, setPendingDim] = useState<string | null>(null)
+  const [weightsSaved, setWeightsSaved] = useState(false)
+  const [weightsError, setWeightsError] = useState<string | null>(null)
+  const [weightsPending, startWeights] = useTransition()
   const [, startTransition] = useTransition()
 
   if (!cycleName || !formVersionId) {
@@ -46,15 +49,10 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
 
   return (
     <div className="content anim-in">
-      <div className="page-head between" style={{ alignItems: 'flex-end' }}>
-        <div>
-          <div className="eyebrow">{t('Configuração')}</div>
-          <h2>{t('Formulário de avaliação')}</h2>
-          <p>{t('O mesmo formulário é usado na auto-avaliação e na avaliação do cliente. Escala de 1 a 5 em cinco dimensões.')}</p>
-        </div>
-        <button className="btn btn-primary" type="submit" form="weights-form">
-          <Icon name="check" size={16} />{t('Salvar formulário')}
-        </button>
+      <div className="page-head">
+        <div className="eyebrow">{t('Configuração')}</div>
+        <h2>{t('Formulário de avaliação')}</h2>
+        <p>{t('O mesmo formulário é usado na auto-avaliação e na avaliação do cliente. Escala de 1 a 5 em cinco dimensões.')}</p>
       </div>
 
       <div className="grid grid-2" style={{ marginBottom: 18 }}>
@@ -63,7 +61,23 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
             <Icon name="trend" size={16} className="muted" />
             <span style={{ fontWeight: 600 }}>{t('Pesos do score final')}</span>
           </div>
-          <form id="weights-form" action={updateWeights}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              setWeightsSaved(false)
+              setWeightsError(null)
+              const fd = new FormData(e.currentTarget)
+              startWeights(async () => {
+                try {
+                  await updateWeights(fd)
+                  setWeightsSaved(true)
+                  setTimeout(() => setWeightsSaved(false), 3000)
+                } catch (err) {
+                  setWeightsError(err instanceof Error ? err.message : 'Erro ao salvar')
+                }
+              })
+            }}
+          >
             <input type="hidden" name="form_version_id" value={formVersionId} />
             <div className="row" style={{ gap: 12 }}>
               <div className="field" style={{ flex: 1 }}>
@@ -84,6 +98,20 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
             <div className="mono muted" style={{ fontSize: 12, marginTop: 12 }}>
               {t('Score = self ×')} {selfWeight.toFixed(2)} + {t('cliente ×')} {clientWeight.toFixed(2)}
             </div>
+            {weightsError && (
+              <div style={{ marginTop: 10, fontSize: 12.5, color: 'var(--danger, oklch(0.65 0.22 25))' }}>
+                <Icon name="warning" size={13} /> {weightsError}
+              </div>
+            )}
+            <button
+              type="submit"
+              className="btn btn-primary btn-sm"
+              disabled={weightsPending}
+              style={{ marginTop: 14, width: '100%' }}
+            >
+              <Icon name="check" size={15} />
+              {weightsPending ? t('Salvando...') : weightsSaved ? t('Salvo!') : t('Salvar formulário')}
+            </button>
           </form>
         </div>
         <div className="card card-pad">

@@ -11,6 +11,7 @@ const mono    = IBM_Plex_Mono({ variable: '--font-mono', subsets: ['latin'], wei
 export const metadata: Metadata = {
   title:       'LeCode Performance Review',
   description: 'Plataforma de avaliação de desempenho LeCode',
+  icons: { icon: '/icon.png', shortcut: '/icon.png' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
