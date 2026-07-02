@@ -324,6 +324,51 @@ const EN: Record<string, string> = {
   "Entrando…": "Signing in…",
   "Solicite suas credenciais ao administrador LeCode.": "Request your credentials from the LeCode administrator.",
   "Lembrou a senha?": "Remember your password?",
+
+  // ---- accept-invite / update-password / account actions ----
+  "Verificando convite...": "Verifying invite...",
+  "Verificando link...": "Verifying link...",
+  "Aguarde...": "Please wait...",
+  "Aguarde enquanto validamos seu link.": "Please wait while we validate your link.",
+  "Aguarde enquanto validamos seu link de recuperação.": "Please wait while we validate your recovery link.",
+  "Link inválido": "Invalid link",
+  "Este link de convite é inválido ou já foi utilizado. Solicite um novo convite ao administrador.": "This invite link is invalid or has already been used. Request a new invite from the administrator.",
+  "Ir para o login": "Go to sign in",
+  "Bem-vindo": "Welcome",
+  "Bem-vindo!": "Welcome!",
+  "Criar senha": "Create password",
+  "Criar nova senha": "Create new password",
+  "Nova senha": "New password",
+  "Escolha uma senha para acessar sua conta na plataforma de avaliação de performance.": "Choose a password to access your account on the performance review platform.",
+  "Escolha uma senha segura para sua conta.": "Choose a secure password for your account.",
+  "A senha deve ter pelo menos 8 caracteres.": "Password must be at least 8 characters.",
+  "As senhas não coincidem.": "Passwords don't match.",
+  "Salvar nova senha": "Save new password",
+  "Senha definida!": "Password set!",
+  "Senha atualizada": "Password updated",
+  "Sua conta está pronta. Redirecionando para o login...": "Your account is ready. Redirecting to sign in...",
+  "Sua senha foi redefinida com sucesso. Redirecionando...": "Your password has been reset successfully. Redirecting...",
+  "Acessar plataforma": "Access platform",
+
+  // ---- accounts / context menu ----
+  "Revogar acesso": "Revoke access",
+  "Remover conta": "Remove account",
+  "Mais opções": "More options",
+  "Este usuário não conseguirá mais fazer login. Os dados são preservados e o acesso pode ser restaurado manualmente.": "This user will no longer be able to log in. Data is preserved and access can be manually restored.",
+  "Esta ação é irreversível. O usuário e todos os seus dados serão removidos permanentemente da plataforma.": "This action is irreversible. The user and all their data will be permanently removed from the platform.",
+
+  // ---- form / cycles ----
+  "Salvando...": "Saving...",
+  "Salvo!": "Saved!",
+  "Adicionando...": "Adding...",
+  "Encerrando ciclo...": "Closing cycle...",
+  "Erro ao encerrar ciclo": "Error closing cycle",
+
+  // ---- slug hint ----
+  "Apenas letras minúsculas, números e hífens (ex.: google, fin-tech)": "Lowercase letters, numbers and hyphens only (e.g.: google, fin-tech)",
+
+  // ---- misc ----
+  "Verifique sua caixa de entrada e a pasta de spam. O link expira em 60 minutos.": "Check your inbox and spam folder. The link expires in 60 minutes.",
 }
 
 const ES: Record<string, string> = {
@@ -643,6 +688,51 @@ const ES: Record<string, string> = {
   "Entrando…": "Entrando…",
   "Solicite suas credenciais ao administrador LeCode.": "Solicita tus credenciales al administrador de LeCode.",
   "Lembrou a senha?": "¿Recuerdas tu contraseña?",
+
+  // ---- accept-invite / update-password / account actions ----
+  "Verificando convite...": "Verificando invitación...",
+  "Verificando link...": "Verificando enlace...",
+  "Aguarde...": "Espera...",
+  "Aguarde enquanto validamos seu link.": "Espera mientras validamos tu enlace.",
+  "Aguarde enquanto validamos seu link de recuperação.": "Espera mientras validamos tu enlace de recuperación.",
+  "Link inválido": "Enlace inválido",
+  "Este link de convite é inválido ou já foi utilizado. Solicite um novo convite ao administrador.": "Este enlace de invitación no es válido o ya fue utilizado. Solicita una nueva invitación al administrador.",
+  "Ir para o login": "Ir al inicio de sesión",
+  "Bem-vindo": "Bienvenido",
+  "Bem-vindo!": "¡Bienvenido!",
+  "Criar senha": "Crear contraseña",
+  "Criar nova senha": "Crear nueva contraseña",
+  "Nova senha": "Nueva contraseña",
+  "Escolha uma senha para acessar sua conta na plataforma de avaliação de performance.": "Elige una contraseña para acceder a tu cuenta en la plataforma de evaluación de rendimiento.",
+  "Escolha uma senha segura para sua conta.": "Elige una contraseña segura para tu cuenta.",
+  "A senha deve ter pelo menos 8 caracteres.": "La contraseña debe tener al menos 8 caracteres.",
+  "As senhas não coincidem.": "Las contraseñas no coinciden.",
+  "Salvar nova senha": "Guardar nueva contraseña",
+  "Senha definida!": "¡Contraseña definida!",
+  "Senha atualizada": "Contraseña actualizada",
+  "Sua conta está pronta. Redirecionando para o login...": "Tu cuenta está lista. Redirigiendo al inicio de sesión...",
+  "Sua senha foi redefinida com sucesso. Redirecionando...": "Tu contraseña se restableció con éxito. Redirigiendo...",
+  "Acessar plataforma": "Acceder a la plataforma",
+
+  // ---- accounts / context menu ----
+  "Revogar acesso": "Revocar acceso",
+  "Remover conta": "Eliminar cuenta",
+  "Mais opções": "Más opciones",
+  "Este usuário não conseguirá mais fazer login. Os dados são preservados e o acesso pode ser restaurado manualmente.": "Este usuario ya no podrá iniciar sesión. Los datos se conservan y el acceso puede restaurarse manualmente.",
+  "Esta ação é irreversível. O usuário e todos os seus dados serão removidos permanentemente da plataforma.": "Esta acción es irreversible. El usuario y todos sus datos serán eliminados permanentemente de la plataforma.",
+
+  // ---- form / cycles ----
+  "Salvando...": "Guardando...",
+  "Salvo!": "¡Guardado!",
+  "Adicionando...": "Añadiendo...",
+  "Encerrando ciclo...": "Cerrando ciclo...",
+  "Erro ao encerrar ciclo": "Error al cerrar el ciclo",
+
+  // ---- slug hint ----
+  "Apenas letras minúsculas, números e hífens (ex.: google, fin-tech)": "Solo letras minúsculas, números y guiones (ej.: google, fin-tech)",
+
+  // ---- misc ----
+  "Verifique sua caixa de entrada e a pasta de spam. O link expira em 60 minutos.": "Revisa tu bandeja de entrada y la carpeta de spam. El enlace caduca en 60 minutos.",
 }
 
 const DICTS: Record<'en' | 'es', Record<string, string>> = { en: EN, es: ES }
