@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { getBrowserClient } from '@/lib/supabase/client'
 import { useReviewDraft } from '@/stores/useReviewDraft'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
@@ -50,7 +50,7 @@ export function EvaluationForm({
     useReviewDraft()
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setReviewId(reviewId)
     loadDraft(
       initialAnswers as Record<string, 1 | 2 | 3 | 4 | 5>,
@@ -59,7 +59,7 @@ export function EvaluationForm({
   }, [reviewId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const autosave = useCallback(async () => {
-    if (!isDirty || isSubmitted) return
+    if (!isDirty) return
     markSaving(true)
     const supabase = getBrowserClient()
     const answerRows = Object.entries(answers).map(([question_id, score]) => ({
@@ -75,7 +75,7 @@ export function EvaluationForm({
     }).eq('id', reviewId)
     markSaving(false)
     markClean()
-  }, [answers, comments, isDirty, reviewId, isSubmitted, markSaving, markClean])
+  }, [answers, comments, isDirty, reviewId, markSaving, markClean])
 
   useEffect(() => {
     if (!isDirty) return
