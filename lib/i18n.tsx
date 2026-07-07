@@ -313,6 +313,12 @@ const EN: Record<string, string> = {
   "cliente ×": "client ×",
   "Slug": "Slug",
 
+  // ---- close cycle challenge ----
+  "Digite": "Type",
+  "para confirmar": "to confirm",
+  "avaliação(ões) ainda não concluída(s). Contratados sem par completo não terão score registrado neste ciclo.": "review(s) not yet completed. Contractors without a complete pair will have no score recorded for this cycle.",
+  "Os scores finais serão consolidados e as avaliações cruzadas ficarão visíveis para todas as partes.": "Final scores will be consolidated and cross-reviews will become visible to all parties.",
+
   // ---- misc missing ----
   "Nenhum contratado alocado a sua empresa.": "No contractors allocated to your company.",
   "Nenhum ciclo disponível ainda.": "No cycles available yet.",
@@ -676,6 +682,12 @@ const ES: Record<string, string> = {
   "Score = self ×": "Score = self ×",
   "cliente ×": "cliente ×",
   "Slug": "Slug",
+
+  // ---- close cycle challenge ----
+  "Digite": "Escribe",
+  "para confirmar": "para confirmar",
+  "avaliação(ões) ainda não concluída(s). Contratados sem par completo não terão score registrado neste ciclo.": "evaluación(es) aún no completada(s). Los contratados sin par completo no tendrán score registrado en este ciclo.",
+  "Os scores finais serão consolidados e as avaliações cruzadas ficarão visíveis para todas as partes.": "Los scores finales se consolidarán y las evaluaciones cruzadas quedarán visibles para todas las partes.",
 
   // ---- misc missing ----
   "Nenhum contratado alocado a sua empresa.": "Ningún contratado asignado a su empresa.",
