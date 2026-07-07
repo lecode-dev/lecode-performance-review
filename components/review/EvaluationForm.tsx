@@ -237,7 +237,7 @@ export function EvaluationForm({
                   }}>
                     <div style={{ fontSize: 13.5, lineHeight: 1.45, maxWidth: '60ch' }}>
                       <span className="mono muted" style={{ fontSize: 11, marginRight: 8 }}>{d.n}.{qi + 1}</span>
-                      {q.text}
+                      {t(q.text)}
                     </div>
                     <RatingInput value={answers[q.id] ?? null} onChange={(v) => handleAnswer(q.id, v)} />
                   </div>
