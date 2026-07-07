@@ -14,6 +14,7 @@ export interface ConfirmOptions {
   cancelLabel?: string
   tone?: ConfirmTone
   icon?: string
+  challenge?: string  // se fornecido, usuário deve digitar esse texto para confirmar
 }
 
 type ConfirmFn = (opts: ConfirmOptions) => Promise<boolean>
@@ -51,17 +52,19 @@ interface ConfirmDialogProps extends ConfirmOptions {
   onCancel: () => void
 }
 
-function ConfirmDialog({ title, message, detail, confirmLabel, cancelLabel, tone = 'primary', icon, onConfirm, onCancel }: ConfirmDialogProps) {
+function ConfirmDialog({ title, message, detail, confirmLabel, cancelLabel, tone = 'primary', icon, challenge, onConfirm, onCancel }: ConfirmDialogProps) {
   const { t } = useLang()
+  const [input, setInput] = useState('')
+  const canConfirm = !challenge || input === challenge
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onCancel()
-      if (e.key === 'Enter') onConfirm()
+      if (e.key === 'Enter' && canConfirm) onConfirm()
     }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
-  }, [onConfirm, onCancel])
+  }, [onConfirm, onCancel, canConfirm])
 
   const ic = icon || (tone === 'danger' ? 'warning' : 'info')
 
@@ -75,10 +78,30 @@ function ConfirmDialog({ title, message, detail, confirmLabel, cancelLabel, tone
         <div className="confirm-body">
           <p>{message}</p>
           {detail && <div className="confirm-detail">{detail}</div>}
+          {challenge && (
+            <div className="field" style={{ marginTop: 14 }}>
+              <label style={{ fontSize: 12.5 }}>
+                {t('Digite')} <span style={{ fontFamily: 'var(--mono)', fontWeight: 600 }}>{challenge}</span> {t('para confirmar')}
+              </label>
+              <input
+                className="input"
+                autoFocus
+                autoComplete="off"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                style={{ marginTop: 6 }}
+              />
+            </div>
+          )}
         </div>
         <div className="modal-foot">
           <button className="btn" onClick={onCancel}>{cancelLabel || t('Cancelar')}</button>
-          <button className={'btn ' + (tone === 'danger' ? 'btn-danger-solid' : 'btn-primary')} onClick={onConfirm} autoFocus>
+          <button
+            className={'btn ' + (tone === 'danger' ? 'btn-danger-solid' : 'btn-primary')}
+            onClick={onConfirm}
+            disabled={!canConfirm}
+            autoFocus={!challenge}
+          >
             {confirmLabel || t('Confirmar')}
           </button>
         </div>

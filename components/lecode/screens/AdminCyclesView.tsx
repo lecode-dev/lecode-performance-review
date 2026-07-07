@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useLang } from '@/lib/i18n'
 import { useConfirm } from '@/components/lecode/ConfirmDialog'
 import { lastDayOfMonth } from '@/lib/domain'
@@ -14,9 +15,12 @@ import type { Database } from '@/lib/supabase/types'
 
 type Cycle = Database['public']['Tables']['cycles']['Row']
 
+type ContractorDetail = { id: string; name: string; selfDone: boolean; clientDone: boolean }
+
 interface AdminCyclesViewProps {
   cycles: Cycle[]
   progressMap: Record<string, { done: number; total: number; pct: number }>
+  detailMap: Record<string, ContractorDetail[]>
 }
 
 function fmtBR(iso: string): string {
@@ -24,21 +28,26 @@ function fmtBR(iso: string): string {
   return `${d}/${m}`
 }
 
-export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
+export function AdminCyclesView({ cycles, progressMap, detailMap }: AdminCyclesViewProps) {
   const { t } = useLang()
   const confirm = useConfirm()
   const [openModal, setOpenModal] = useState(false)
   const [closing, setClosing] = useState(false)
   const [closeError, setCloseError] = useState<string | null>(null)
+  const [expandedCycle, setExpandedCycle] = useState<string | null>(null)
   const hasActive = cycles.some((c) => c.status === 'open')
 
-  const askClose = async (cy: Cycle) => {
+  const askClose = async (cy: Cycle, prog: { done: number; total: number }) => {
+    const pending = prog.total - prog.done
     const ok = await confirm({
       icon: 'lock', tone: 'danger',
       title: `${t('Encerrar ciclo')} ${cy.name}?`,
-      message: t('Os scores finais serão consolidados e as avaliações cruzadas (autoavaliação ↔ cliente) ficarão visíveis para todas as partes. Nenhuma avaliação poderá ser alterada após o encerramento.'),
+      message: pending > 0
+        ? `${pending} ${t('avaliação(ões) ainda não concluída(s). Contratados sem par completo não terão score registrado neste ciclo.')} ${t('Os scores finais serão consolidados e as avaliações cruzadas ficarão visíveis para todas as partes.')}`
+        : t('Os scores finais serão consolidados e as avaliações cruzadas (autoavaliação ↔ cliente) ficarão visíveis para todas as partes. Nenhuma avaliação poderá ser alterada após o encerramento.'),
       detail: t('Esta ação é definitiva e não pode ser desfeita.'),
       confirmLabel: t('Encerrar ciclo'), cancelLabel: t('Cancelar'),
+      challenge: 'ENCERRAR',
     })
     if (!ok) return
     setClosing(true)
@@ -88,7 +97,7 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
       <div className="col" style={{ gap: 14 }}>
         {cycles.map((cy) => {
           const prog = progressMap[cy.id] ?? { done: 0, total: 0, pct: 0 }
-          const canClose = cy.status === 'open' && prog.total > 0 && prog.done === prog.total
+          const allDone = prog.total > 0 && prog.done === prog.total
           return (
             <div className="card card-pad" key={cy.id}>
               <div className="between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px 12px' }}>
@@ -106,8 +115,7 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
                   </div>
                 </div>
                 {cy.status === 'open' && (
-                  <button className="btn btn-primary btn-sm" disabled={!canClose || closing} onClick={() => askClose(cy)}
-                    title={canClose ? '' : t('Todas as avaliações precisam estar concluídas')}
+                  <button className="btn btn-danger btn-sm" disabled={closing} onClick={() => askClose(cy, prog)}
                     style={{ flexShrink: 0, marginLeft: 'auto' }}>
                     <Icon name="lock" size={15} />{t('Encerrar ciclo')}
                   </button>
@@ -125,13 +133,61 @@ export function AdminCyclesView({ cycles, progressMap }: AdminCyclesViewProps) {
                   </div>
                   <Progress pct={prog.pct} />
                 </div>
-                {cy.status === 'open' && !canClose && prog.total > 0 && (
+                {cy.status === 'open' && !allDone && prog.total > 0 && (
                   <Badge kind="pending"><Icon name="warning" size={13} />{prog.total - prog.done} {t('pendentes')}</Badge>
                 )}
-                {cy.status === 'open' && canClose && (
+                {cy.status === 'open' && allDone && (
                   <Badge kind="done"><Icon name="check" size={13} />{t('Pronto para encerrar')}</Badge>
                 )}
               </div>
+
+              {cy.status === 'open' && detailMap[cy.id] && (
+                <>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    style={{ marginTop: 10, alignSelf: 'flex-start', fontSize: 12 }}
+                    onClick={() => setExpandedCycle(expandedCycle === cy.id ? null : cy.id)}
+                  >
+                    <Icon name="chevron" size={12} style={{ transform: expandedCycle === cy.id ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.15s' }} />
+                    {t('Ver detalhes')}
+                  </button>
+
+                  {expandedCycle === cy.id && (
+                    <div style={{ marginTop: 10, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+                      <table style={{ width: '100%', fontSize: 12.5, borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr>
+                            <th style={{ textAlign: 'left', fontWeight: 500, color: 'var(--ink-3)', paddingBottom: 8, fontSize: 11.5 }}>{t('Contratado')}</th>
+                            <th style={{ textAlign: 'center', fontWeight: 500, color: 'var(--ink-3)', paddingBottom: 8, fontSize: 11.5, width: 110 }}>{t('Autoavaliação')}</th>
+                            <th style={{ textAlign: 'center', fontWeight: 500, color: 'var(--ink-3)', paddingBottom: 8, fontSize: 11.5, width: 90 }}>{t('Cliente')}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {detailMap[cy.id].map((c) => (
+                            <tr key={c.id} style={{ borderTop: '1px solid var(--border)' }}>
+                              <td style={{ padding: '7px 0' }}>
+                                <Link href={`/admin/contractors/${c.id}`} style={{ color: 'var(--ink-1)', textDecoration: 'none', fontWeight: 500 }}>
+                                  {c.name}
+                                </Link>
+                              </td>
+                              <td style={{ textAlign: 'center', padding: '7px 0' }}>
+                                {c.selfDone
+                                  ? <span style={{ color: 'var(--accent-ink)', fontWeight: 700 }}>✓</span>
+                                  : <span className="muted">—</span>}
+                              </td>
+                              <td style={{ textAlign: 'center', padding: '7px 0' }}>
+                                {c.clientDone
+                                  ? <span style={{ color: 'var(--accent-ink)', fontWeight: 700 }}>✓</span>
+                                  : <span className="muted">—</span>}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )
         })}

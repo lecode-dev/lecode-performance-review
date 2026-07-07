@@ -1,6 +1,7 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { createServerClient, createAdminClient } from '@/lib/supabase/server'
+import { DEFAULT_QUESTIONS } from '@/lib/form-defaults'
 
 export async function createCycle(formData: FormData) {
   const admin = createAdminClient()
@@ -19,7 +20,17 @@ export async function createCycle(formData: FormData) {
 
   if (cycleErr) throw new Error(cycleErr.message)
 
-  await admin.from('form_versions').insert({ cycle_id: cycle.id })
+  const { data: newFv } = await admin
+    .from('form_versions')
+    .insert({ cycle_id: cycle.id })
+    .select('id')
+    .single()
+
+  if (newFv) {
+    await admin.from('form_questions').insert(
+      DEFAULT_QUESTIONS.map((q) => ({ ...q, form_version_id: newFv.id }))
+    )
+  }
 
   revalidatePath('/admin/cycles')
   revalidatePath('/admin')
