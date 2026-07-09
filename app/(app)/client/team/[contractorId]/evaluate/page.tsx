@@ -65,7 +65,7 @@ export default async function EvaluatePage({ params }: Props) {
   if (!review) redirect('/client/team')
 
   const [questionsRes, existingAnswersRes] = await Promise.all([
-    supabase.from('form_questions').select('id, dimension, text, order_index')
+    supabase.from('form_questions').select('id, dimension, text, text_en, text_es, order_index')
       .eq('form_version_id', formVersionRes.data?.id ?? '')
       .eq('applies_to', 'client').order('dimension').order('order_index'),
     supabase.from('review_answers').select('question_id, score').eq('review_id', review.id),

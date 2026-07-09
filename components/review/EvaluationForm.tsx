@@ -17,6 +17,8 @@ interface Question {
   id: string
   dimension: DimensionKey
   text: string
+  text_en?: string | null
+  text_es?: string | null
   order_index: number
 }
 
@@ -42,7 +44,9 @@ export function EvaluationForm({
   contractorPerson, clientName, questions, initialAnswers, initialComments,
   isSubmitted, onSubmit, onCancel,
 }: EvaluationFormProps) {
-  const { t } = useLang()
+  const { lang, t } = useLang()
+  const qText = (q: Question) =>
+    (lang === 'en' ? q.text_en : lang === 'es' ? q.text_es : null) ?? q.text
   const confirm = useConfirm()
   const toast = useToast()
   const [submitting, setSubmitting] = useState(false)
@@ -237,7 +241,7 @@ export function EvaluationForm({
                   }}>
                     <div style={{ fontSize: 13.5, lineHeight: 1.45, maxWidth: '60ch' }}>
                       <span className="mono muted" style={{ fontSize: 11, marginRight: 8 }}>{d.n}.{qi + 1}</span>
-                      {t(q.text)}
+                      {qText(q)}
                     </div>
                     <RatingInput value={answers[q.id] ?? null} onChange={(v) => handleAnswer(q.id, v)} />
                   </div>

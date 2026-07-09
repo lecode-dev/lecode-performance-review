@@ -48,7 +48,7 @@ export default async function SelfReviewPage() {
   if (!review) redirect('/contractor')
 
   const [questionsRes, existingAnswersRes] = await Promise.all([
-    supabase.from('form_questions').select('id, dimension, text, order_index')
+    supabase.from('form_questions').select('id, dimension, text, text_en, text_es, order_index')
       .eq('form_version_id', formVersionRes.data?.id ?? '')
       .eq('applies_to', 'self').order('dimension').order('order_index'),
     supabase.from('review_answers').select('question_id, score').eq('review_id', review.id),
