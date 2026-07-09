@@ -5,7 +5,6 @@ import { useLang } from '@/lib/i18n'
 import { midMonth } from '@/lib/domain'
 import { Icon } from '@/components/lecode/Icon'
 import { ScoreChip } from '@/components/lecode/ScoreChip'
-import { DecisionTag } from '@/components/lecode/Decision'
 import { CycleBadge } from '@/components/lecode/Cycle'
 import { Sparkline } from '@/components/lecode/Sparkline'
 import { EmptyState } from '@/components/lecode/EmptyState'
@@ -101,7 +100,6 @@ export function ContractorHomeView({
           <div className="card stat">
             <div className="label"><Icon name="award" size={15} />{t('Último score')}{lastCycleName ? ` · ${lastCycleName}` : ''}</div>
             <div className="value"><ScoreChip value={lastScore} lg /></div>
-            {lastScore != null && <div style={{ marginTop: 10 }}><DecisionTag score={lastScore} /></div>}
           </div>
           <div className="card card-pad">
             <div className="muted" style={{ fontSize: 12, marginBottom: 8 }}>{t('Alocação atual')}</div>
