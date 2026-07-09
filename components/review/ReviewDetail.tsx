@@ -67,7 +67,7 @@ export function ReviewDetail({
         </div>
       </div>
 
-      {(perspective === 'admin' || cycleClosed) && finalScore != null && <DecisionBanner score={finalScore} />}
+      {perspective === 'admin' && finalScore != null && <DecisionBanner score={finalScore} />}
       {blindReason && <div className="callout"><Icon name="lock" />{blindReason}</div>}
 
       <div className={'l-split s320' + (bothVisible ? '' : ' l-split-single')}>
