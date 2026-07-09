@@ -75,10 +75,11 @@ export interface Database {
       form_questions: {
         Row: {
           id: string; form_version_id: string; dimension: DimensionKey
-          text: string; order_index: number; applies_to: ReviewType; created_at: string
+          text: string; text_en: string | null; text_es: string | null
+          order_index: number; applies_to: ReviewType; created_at: string
         }
-        Insert: { id?: string; form_version_id: string; dimension: DimensionKey; text: string; order_index: number; applies_to: ReviewType }
-        Update: { text?: string; order_index?: number }
+        Insert: { id?: string; form_version_id: string; dimension: DimensionKey; text: string; text_en?: string | null; text_es?: string | null; order_index: number; applies_to: ReviewType }
+        Update: { text?: string; text_en?: string | null; text_es?: string | null; order_index?: number }
         Relationships: [
           { foreignKeyName: 'form_questions_form_version_id_fkey'; columns: ['form_version_id']; isOneToOne: false; referencedRelation: 'form_versions'; referencedColumns: ['id'] }
         ]
