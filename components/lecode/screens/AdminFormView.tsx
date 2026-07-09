@@ -13,6 +13,8 @@ interface Question {
   id: string
   dimension: DimensionKey
   text: string
+  text_en?: string | null
+  text_es?: string | null
   order_index: number
   applies_to: string
 }
@@ -26,7 +28,9 @@ interface AdminFormViewProps {
 }
 
 export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeight, questions }: AdminFormViewProps) {
-  const { t } = useLang()
+  const { lang, t } = useLang()
+  const qText = (q: Question) =>
+    (lang === 'en' ? q.text_en : lang === 'es' ? q.text_es : null) ?? q.text
   const confirm = useConfirm()
   const [pendingDim, setPendingDim] = useState<string | null>(null)
   const [weightsSaved, setWeightsSaved] = useState(false)
@@ -150,7 +154,7 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
                 {dimQs.map((q, i) => (
                   <div key={q.id} className="row" style={{ gap: 10, alignItems: 'flex-start' }}>
                     <span className="mono muted" style={{ fontSize: 11, paddingTop: 11 }}>{d.n}.{i + 1}</span>
-                    <span className="input" style={{ flex: 1, display: 'block', padding: '8px 12px', fontSize: 13 }}>{q.text}</span>
+                    <span className="input" style={{ flex: 1, display: 'block', padding: '8px 12px', fontSize: 13 }}>{qText(q)}</span>
                     <button className="icon-btn" title={t('Remover')} onClick={async () => {
                       const ok = await confirm({
                         icon: 'warning', tone: 'danger',

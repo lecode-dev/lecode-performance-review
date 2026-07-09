@@ -22,7 +22,7 @@ export default async function FormPage() {
   let formVersionId: string | null = null
   let selfWeight = 0.3
   let clientWeight = 0.7
-  let questions: { id: string; dimension: DimensionKey; text: string; order_index: number; applies_to: string }[] = []
+  let questions: { id: string; dimension: DimensionKey; text: string; text_en: string | null; text_es: string | null; order_index: number; applies_to: string }[] = []
 
   if (cycle) {
     const { data: fv } = await supabase
@@ -38,7 +38,7 @@ export default async function FormPage() {
 
       const { data: qs } = await supabase
         .from('form_questions')
-        .select('id, dimension, text, order_index, applies_to')
+        .select('id, dimension, text, text_en, text_es, order_index, applies_to')
         .eq('form_version_id', fv.id)
         .eq('applies_to', 'self')
         .order('dimension')
