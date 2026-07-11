@@ -83,15 +83,15 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
             }}
           >
             <input type="hidden" name="form_version_id" value={formVersionId} />
-            <div className="row" style={{ gap: 12 }}>
-              <div className="field" style={{ flex: 1 }}>
+            <div className="grid grid-2" style={{ gap: 12 }}>
+              <div className="field">
                 <label>{t('Self review')}</label>
                 <div className="row" style={{ gap: 8 }}>
                   <input name="self_weight" className="input" defaultValue={Math.round(selfWeight * 100)} style={{ width: 70 }} type="number" min="0" max="100" />
                   <span className="muted">%</span>
                 </div>
               </div>
-              <div className="field" style={{ flex: 1 }}>
+              <div className="field">
                 <label>{t('Review cliente')}</label>
                 <div className="row" style={{ gap: 8 }}>
                   <input name="client_weight" className="input" defaultValue={Math.round(clientWeight * 100)} style={{ width: 70 }} type="number" min="0" max="100" />
@@ -171,7 +171,7 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
                   </div>
                 ))}
                 <form
-                  className="row" style={{ gap: 8, marginTop: 4 }}
+                  className="row" style={{ gap: 8, marginTop: 4, flexWrap: 'wrap' }}
                   onSubmit={(e) => {
                     e.preventDefault()
                     if (pendingDim) return
@@ -188,8 +188,8 @@ export function AdminFormView({ cycleName, formVersionId, selfWeight, clientWeig
                   <input type="hidden" name="form_version_id" value={formVersionId} />
                   <input type="hidden" name="dimension" value={d.key} />
                   <input type="hidden" name="order_index" value={dimQs.length + 1} />
-                  <input name="text" className="input" placeholder={t('Nova pergunta...')} style={{ flex: 1 }} required />
-                  <button type="submit" className="btn btn-ghost btn-sm" disabled={pendingDim === d.key}>
+                  <input name="text" className="input" placeholder={t('Nova pergunta...')} style={{ flex: '1 1 180px', minWidth: 0 }} required />
+                  <button type="submit" className="btn btn-ghost btn-sm" disabled={pendingDim === d.key} style={{ flexShrink: 0 }}>
                     <Icon name="plus" size={15} />{pendingDim === d.key ? t('Adicionando...') : t('Adicionar')}
                   </button>
                 </form>

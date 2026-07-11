@@ -48,17 +48,17 @@ export function ClientTeamView({ clientName, clientIndustry, cycle, submitEnd, t
 
       {cycle && (
         <div className="card card-pad" style={{ marginBottom: 16 }}>
-          <div className="between">
-            <div className="row" style={{ gap: 12 }}>
+          <div className="between" style={{ flexWrap: 'wrap', gap: 12 }}>
+            <div className="row" style={{ gap: 12, flex: '1 1 200px', minWidth: 0 }}>
               <span style={{
                 width: 42, height: 42, borderRadius: 11,
                 background: 'var(--accent-soft)', color: 'var(--accent-ink)',
-                display: 'grid', placeItems: 'center',
+                display: 'grid', placeItems: 'center', flexShrink: 0,
               }}>
                 <Icon name="cycle" size={20} />
               </span>
-              <div className="col">
-                <div className="row" style={{ gap: 10 }}>
+              <div className="col" style={{ minWidth: 0 }}>
+                <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 600 }}>{t('Ciclo')} {cycle.name}</span>
                   <CycleBadge status="open" />
                   <PhaseBadge cycle={cycle} />
@@ -68,7 +68,7 @@ export function ClientTeamView({ clientName, clientIndustry, cycle, submitEnd, t
                 </span>
               </div>
             </div>
-            <div className="col" style={{ alignItems: 'flex-end' }}>
+            <div className="col" style={{ alignItems: 'flex-end', flexShrink: 0 }}>
               <span className="mono" style={{ fontSize: 15, fontWeight: 600 }}>{myDoneCount}/{team.length}</span>
               <span className="muted" style={{ fontSize: 12 }}>{t('avaliações concluídas')}</span>
             </div>
@@ -84,9 +84,9 @@ export function ClientTeamView({ clientName, clientIndustry, cycle, submitEnd, t
             <thead>
               <tr>
                 <th>{t('Colaborador')}</th>
-                <th>{t('Senioridade')}</th>
+                <th className="col-secondary">{t('Senioridade')}</th>
                 <th>{t('Minha avaliação')}</th>
-                <th>{t('Auto-avaliação')}</th>
+                <th className="col-secondary">{t('Auto-avaliação')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -97,13 +97,13 @@ export function ClientTeamView({ clientName, clientIndustry, cycle, submitEnd, t
                 return (
                   <tr key={c.id}>
                     <td><PersonRow person={{ name: c.name, role: c.email }} /></td>
-                    <td><Badge>{c.seniority} · {c.track}</Badge></td>
+                    <td className="col-secondary"><Badge>{c.seniority} · {c.track}</Badge></td>
                     <td>
                       {!hasCycle ? <span className="muted" style={{ fontSize: 12 }}>—</span>
                         : myDone ? <Badge kind="done"><Icon name="check" size={12} />{t('Concluída')}{c.myScore ? ` · ${c.myScore}` : ''}</Badge>
                         : <Badge kind="pending">{t('pendente')}</Badge>}
                     </td>
-                    <td>
+                    <td className="col-secondary">
                       {!hasCycle ? <span className="muted" style={{ fontSize: 12 }}>—</span>
                         : c.selfStatus === 'submitted' ? <Badge><Icon name="lock" size={11} />{t('enviada')}</Badge>
                         : <Badge kind="pending">{t('pendente')}</Badge>}

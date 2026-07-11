@@ -164,8 +164,8 @@ export function EvaluationForm({
     <div className="anim-in">
       <div className="page-head">
         <div className="eyebrow">{cycleName} · {subject}</div>
-        <div className="between" style={{ alignItems: 'flex-start' }}>
-          <div>
+        <div className="between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ flex: '1 1 200px', minWidth: 0 }}>
             <h2>{isSelf ? t('Como você avalia seu desempenho?') : `${t('Avaliar')} ${contractorName}`}</h2>
             <p>{isSelf
               ? t('Reflita honestamente sobre o ciclo. Cada item usa a escala de 1 a 5. Sua nota tem peso de 30% no score final.')
@@ -272,7 +272,7 @@ export function EvaluationForm({
         </div>
       </div>
 
-      <div className="card submit-bar" style={{ position: 'sticky', bottom: 16, marginTop: 20, boxShadow: 'var(--shadow-lg)' }}>
+      <div className="card submit-bar" style={{ position: 'sticky', bottom: 'max(16px, env(safe-area-inset-bottom))', marginTop: 20, boxShadow: 'var(--shadow-lg)' }}>
         <div className="between" style={{ padding: '14px 20px' }}>
           <div className="row" style={{ gap: 16 }}>
             <div>

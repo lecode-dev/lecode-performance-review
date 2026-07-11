@@ -63,10 +63,10 @@ export function AdminContractorsView({ contractors, lastCycleLabel, clients }: A
           <thead>
             <tr>
               <th>{t('Contratado')}</th>
-              <th>{t('Senioridade')}</th>
+              <th className="col-secondary">{t('Senioridade')}</th>
               <th>{t('Cliente')}</th>
-              <th className="th-num">{t('Último score')}{lastCycleLabel ? ` (${lastCycleLabel})` : ''}</th>
-              <th>{t('Recomendação')}</th>
+              <th className="th-num col-secondary">{t('Último score')}{lastCycleLabel ? ` (${lastCycleLabel})` : ''}</th>
+              <th className="col-secondary">{t('Recomendação')}</th>
               <th></th>
             </tr>
           </thead>
@@ -78,7 +78,7 @@ export function AdminContractorsView({ contractors, lastCycleLabel, clients }: A
                     <PersonRow person={{ name: c.name, role: c.email }} />
                   </Link>
                 </td>
-                <td><Badge>{c.seniority} · {c.track}</Badge></td>
+                <td className="col-secondary"><Badge>{c.seniority} · {c.track}</Badge></td>
                 <td>
                   {c.clientName ? (
                     <div className="row" style={{ gap: 8 }}>
@@ -89,8 +89,8 @@ export function AdminContractorsView({ contractors, lastCycleLabel, clients }: A
                     <Badge kind="pending">{t('sem alocação')}</Badge>
                   )}
                 </td>
-                <td className="td-num"><ScoreChip value={c.score} /></td>
-                <td>{c.score != null ? <DecisionTag score={c.score} /> : <span className="muted" style={{ fontSize: 12 }}>—</span>}</td>
+                <td className="td-num col-secondary"><ScoreChip value={c.score} /></td>
+                <td className="col-secondary">{c.score != null ? <DecisionTag score={c.score} /> : <span className="muted" style={{ fontSize: 12 }}>—</span>}</td>
                 <td className="td-num">
                   <Link href={`/admin/contractors/${c.id}`}>
                     <Icon name="chevron" size={16} className="muted" />

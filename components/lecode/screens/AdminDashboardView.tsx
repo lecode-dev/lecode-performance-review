@@ -53,7 +53,7 @@ function ScoreBar({ score }: { score: number }) {
   const dec = decisionFor(score)
   const color = dec ? tierColor(dec.tier) : 'var(--ink-3)'
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 160 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
       <div style={{
         flex: 1, height: 6, borderRadius: 3,
         background: 'var(--surface-3)', overflow: 'hidden',
@@ -111,7 +111,7 @@ export function AdminDashboardView({
               <h3>{t('Ciclo')} {activeCycle.name}</h3>
               <span className="sub">{fmtBR(activeCycle.opens_at)} → {fmtBR(activeCycle.closes_at)}</span>
             </div>
-            <span style={{ marginLeft: 'auto' }} className="row">
+            <span style={{ marginLeft: 'auto' }} className="row wrap">
               <PhaseBadge cycle={activeCycle} />
               <CycleBadge status={activeCycle.status} />
             </span>
@@ -130,12 +130,12 @@ export function AdminDashboardView({
                   {clientProgress.map((cp) => {
                     const pct = cp.total > 0 ? Math.round((cp.done / cp.total) * 100) : 0
                     return (
-                      <div key={cp.clientId} className="between">
+                      <div key={cp.clientId} className="between" style={{ flexWrap: 'wrap', gap: '6px 12px' }}>
                         <div className="row" style={{ gap: 10 }}>
                           <span className="avatar sm" style={{ background: `oklch(0.55 0.13 ${cp.name.charCodeAt(0) % 360})` }}>{cp.name[0]}</span>
                           <span style={{ fontSize: 13, fontWeight: 500 }}>{cp.name}</span>
                         </div>
-                        <div className="row" style={{ gap: 12, width: 200 }}>
+                        <div className="row" style={{ gap: 12, flex: '0 0 160px', minWidth: 0 }}>
                           <div className="progress" style={{ flex: 1 }}><span style={{ width: pct + '%' }} /></div>
                           <span className="mono muted" style={{ fontSize: 12, width: 40, textAlign: 'right' }}>{cp.done}/{cp.total}</span>
                         </div>
@@ -209,14 +209,16 @@ export function AdminDashboardView({
                           key={d.contractorId}
                           href={`/admin/contractors/${d.contractorId}`}
                           style={{
-                            display: 'flex', alignItems: 'center', gap: 12,
+                            display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap',
                             padding: '10px 14px', borderRadius: 10, textDecoration: 'none', color: 'inherit',
                             background: 'var(--surface-2)',
                             transition: 'opacity 0.15s',
                           }}
                         >
-                          <PersonRow person={{ name: d.name, role: d.role }} sub={d.clientName} />
-                          <div style={{ marginLeft: 'auto' }}>
+                          <div style={{ flex: '1 1 140px', minWidth: 0 }}>
+                            <PersonRow person={{ name: d.name, role: d.role }} sub={d.clientName} />
+                          </div>
+                          <div style={{ flex: '0 0 160px', minWidth: 0 }}>
                             <ScoreBar score={d.score} />
                           </div>
                         </Link>

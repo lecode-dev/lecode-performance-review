@@ -123,8 +123,8 @@ export function AdminCyclesView({ cycles, progressMap, detailMap }: AdminCyclesV
               </div>
               <div className="divider" />
               <div style={{ marginBottom: 16 }}><CyclePhases cycle={cy} /></div>
-              <div className="row" style={{ gap: 20 }}>
-                <div style={{ flex: 1 }}>
+              <div className="row" style={{ gap: '8px 20px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 180px', minWidth: 0 }}>
                   <div className="between" style={{ marginBottom: 6 }}>
                     <span className="muted" style={{ fontSize: 12 }}>{t('Progresso das avaliações')}</span>
                     <span className="mono" style={{ fontSize: 12.5, fontWeight: 600 }}>
@@ -153,8 +153,8 @@ export function AdminCyclesView({ cycles, progressMap, detailMap }: AdminCyclesV
                   </button>
 
                   {expandedCycle === cy.id && (
-                    <div style={{ marginTop: 10, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
-                      <table style={{ width: '100%', fontSize: 12.5, borderCollapse: 'collapse' }}>
+                    <div style={{ marginTop: 10, borderTop: '1px solid var(--border)', paddingTop: 12, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                      <table className="tbl" style={{ fontSize: 12.5 }}>
                         <thead>
                           <tr>
                             <th style={{ textAlign: 'left', fontWeight: 500, color: 'var(--ink-3)', paddingBottom: 8, fontSize: 11.5 }}>{t('Contratado')}</th>

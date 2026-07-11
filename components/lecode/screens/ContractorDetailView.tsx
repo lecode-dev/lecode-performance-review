@@ -59,12 +59,12 @@ export function ContractorDetailView({
       </Link>
 
       <div className="card card-pad" style={{ marginBottom: 18 }}>
-        <div className="between" style={{ alignItems: 'flex-start' }}>
-          <div className="row" style={{ gap: 14 }}>
+        <div className="between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: 14 }}>
+          <div className="row" style={{ gap: 14, flex: '1 1 200px', minWidth: 0 }}>
             <Avatar person={{ name, role: email }} size="lg" />
-            <div className="col">
+            <div className="col" style={{ minWidth: 0 }}>
               <h2 style={{ margin: 0, fontSize: 21 }}>{name}</h2>
-              <span className="muted" style={{ fontSize: 13.5 }}>{email}</span>
+              <span className="muted" style={{ fontSize: 13.5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{email}</span>
               <div className="row wrap" style={{ gap: 8, marginTop: 8 }}>
                 <Badge>{seniority} · {track}</Badge>
                 <Badge dot>{currentClientName ?? t('Sem alocação')}</Badge>
@@ -72,7 +72,7 @@ export function ContractorDetailView({
               </div>
             </div>
           </div>
-          <div className="row wrap" style={{ gap: 8 }}>
+          <div className="row wrap" style={{ gap: 8, flexShrink: 0 }}>
             <button className="btn btn-sm" onClick={() => setEditOpen(true)}>
               <Icon name="edit" size={15} />{t('Editar dados')}
             </button>
@@ -85,8 +85,8 @@ export function ContractorDetailView({
 
       {cycles.length > 0 && (
         <>
-          <div className="between" style={{ marginBottom: 14 }}>
-            <div className="row wrap" style={{ gap: 6 }}>
+          <div className="between" style={{ marginBottom: 14, flexWrap: 'wrap', gap: 8, alignItems: 'flex-start' }}>
+            <div className="row wrap" style={{ gap: 6, flex: 1 }}>
               {cycles.map((cy) => (
                 <button key={cy.id} className={'btn btn-sm ' + (cy.id === cycleId ? 'btn-primary' : '')}
                   onClick={() => setCycleId(cy.id)}>

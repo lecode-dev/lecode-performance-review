@@ -652,7 +652,9 @@ button { font-family: inherit; }
     .l-form-rail > div[class] { flex: none; }
 
     .card:has(> .tbl) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .tbl { min-width: 580px; }
+    .tbl { min-width: 520px; }
+
+    .l-form { grid-template-columns: 160px 1fr; }
 
     .role-pill .col { display: none; }
     .role-pill { padding: 5px; }
@@ -675,6 +677,10 @@ button { font-family: inherit; }
     .submit-bar .between { flex-direction: column; align-items: stretch; gap: 12px; }
     .submit-bar .between > .row:last-child { justify-content: stretch; }
     .submit-bar .between > .row:last-child .btn { flex: 1; }
+    .submit-bar { padding-bottom: env(safe-area-inset-bottom); }
+
+    .tbl { min-width: 340px; }
+    .tbl .col-secondary { display: none; }
 
     .modal, .modal.wide { max-width: 100%; }
     .overlay { padding: 14px; }
