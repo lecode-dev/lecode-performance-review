@@ -218,8 +218,8 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
               key={a.id}
               className="card"
               style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '12px 18px',
+                display: 'flex', alignItems: 'flex-start', gap: 12,
+                padding: '12px 16px',
                 transition: 'background 0.1s',
               }}
             >
@@ -228,89 +228,90 @@ export function AdminAccountsView({ accounts, clients }: AdminAccountsViewProps)
                 display: 'grid', placeItems: 'center',
                 background: avatarColor(a.name), color: '#fff',
                 fontWeight: 700, fontSize: 13.5, fontFamily: 'var(--mono)',
-                letterSpacing: 0.5,
+                letterSpacing: 0.5, marginTop: 1,
               }}>
                 {initials(a.name)}
               </span>
 
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {/* name + badge */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 600, fontSize: 14 }}>{a.name}</span>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: 4,
                     fontSize: 10.5, fontWeight: 600, padding: '2px 8px', borderRadius: 5,
                     background: rc.bg, color: rc.fg, letterSpacing: 0.3,
-                    textTransform: 'uppercase',
+                    textTransform: 'uppercase', flexShrink: 0,
                   }}>
                     <Icon name={rc.icon} size={10} />
                     {t(rc.label)}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 2 }}>
+
+                {/* email + client */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 2, flexWrap: 'wrap' }}>
                   <span className="muted" style={{ fontSize: 12.5 }}>{a.email}</span>
                   {a.clientName && (
-                    <span style={{
-                      fontSize: 11.5, color: 'var(--ink-2)', display: 'flex', alignItems: 'center', gap: 4,
-                    }}>
+                    <span style={{ fontSize: 11.5, color: 'var(--ink-2)', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <Icon name="building" size={11} />
                       {a.clientName}
                     </span>
                   )}
                 </div>
-              </div>
 
-              <span className="muted" style={{ fontSize: 12, flexShrink: 0, fontFamily: 'var(--mono)' }}>
-                {timeAgo(a.createdAt)}
-              </span>
-
-              {a.role !== 'lecode_admin' ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, position: 'relative' }}>
-                  <button
-                    className="btn btn-sm btn-ghost"
-                    title={t('Reenviar convite')}
-                    disabled={resending === a.id}
-                    onClick={() => handleResend(a.id)}
-                    style={{ gap: 5, fontSize: 12 }}
-                  >
-                    <Icon name="mail" size={13} />
-                    {resending === a.id ? t('Enviando...') : t('Reenviar')}
-                  </button>
-                  <button
-                    className="btn btn-sm btn-ghost"
-                    title={t('Mais opções')}
-                    onClick={() => setActiveMenu(activeMenu === a.id ? null : a.id)}
-                    style={{ padding: '4px 6px' }}
-                  >
-                    <Icon name="moreVert" size={15} />
-                  </button>
-                  {activeMenu === a.id && (
-                    <>
-                      <div className="ui-menu-backdrop" onClick={() => setActiveMenu(null)} />
-                      <div className="ui-menu" style={{ padding: 6, minWidth: 190 }}>
-                        <button
-                          className="ui-menu-item"
-                          onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'revoke', account: a }) }}
-                          style={{ gap: 10 }}
-                        >
-                          <Icon name="ban" size={14} style={{ color: 'var(--s3)', flexShrink: 0 }} />
-                          {t('Revogar acesso')}
-                        </button>
-                        <div style={{ height: 1, background: 'var(--border)', margin: '2px 8px' }} />
-                        <button
-                          className="ui-menu-item"
-                          onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'remove', account: a }) }}
-                          style={{ gap: 10, color: 'var(--danger, oklch(0.65 0.22 25))' }}
-                        >
-                          <Icon name="trash" size={14} style={{ flexShrink: 0 }} />
-                          {t('Remover conta')}
-                        </button>
-                      </div>
-                    </>
+                {/* date + actions */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                  <span className="muted" style={{ fontSize: 11.5, fontFamily: 'var(--mono)', flex: 1 }}>
+                    {timeAgo(a.createdAt)}
+                  </span>
+                  {a.role !== 'lecode_admin' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'relative' }}>
+                      <button
+                        className="btn btn-sm btn-ghost"
+                        title={t('Reenviar convite')}
+                        disabled={resending === a.id}
+                        onClick={() => handleResend(a.id)}
+                        style={{ gap: 5, fontSize: 12 }}
+                      >
+                        <Icon name="mail" size={13} />
+                        {resending === a.id ? t('Enviando...') : t('Reenviar')}
+                      </button>
+                      <button
+                        className="btn btn-sm btn-ghost"
+                        title={t('Mais opções')}
+                        onClick={() => setActiveMenu(activeMenu === a.id ? null : a.id)}
+                        style={{ padding: '4px 6px' }}
+                      >
+                        <Icon name="moreVert" size={15} />
+                      </button>
+                      {activeMenu === a.id && (
+                        <>
+                          <div className="ui-menu-backdrop" onClick={() => setActiveMenu(null)} />
+                          <div className="ui-menu" style={{ padding: 6, minWidth: 190 }}>
+                            <button
+                              className="ui-menu-item"
+                              onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'revoke', account: a }) }}
+                              style={{ gap: 10 }}
+                            >
+                              <Icon name="ban" size={14} style={{ color: 'var(--s3)', flexShrink: 0 }} />
+                              {t('Revogar acesso')}
+                            </button>
+                            <div style={{ height: 1, background: 'var(--border)', margin: '2px 8px' }} />
+                            <button
+                              className="ui-menu-item"
+                              onClick={() => { setActiveMenu(null); setConfirmAction({ type: 'remove', account: a }) }}
+                              style={{ gap: 10, color: 'var(--danger, oklch(0.65 0.22 25))' }}
+                            >
+                              <Icon name="trash" size={14} style={{ flexShrink: 0 }} />
+                              {t('Remover conta')}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
-              ) : (
-                <div style={{ width: 90 }} />
-              )}
+              </div>
             </div>
           )
         })}

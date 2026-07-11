@@ -12,7 +12,7 @@ export default async function AdminDashboard() {
 
   const [cyclesRes, contractorsRes, clientsRes, allocationsRes] = await Promise.all([
     supabase.from('cycles').select('id, name, status, opens_at, closes_at, created_at, closed_at').order('created_at', { ascending: false }),
-    supabase.from('contractors').select('id'),
+    supabase.from('contractors').select('id, profiles!inner(role)').eq('profiles.role', 'contractor'),
     supabase.from('clients').select('id, name').order('name'),
     supabase.from('allocations').select('contractor_id, client_id').is('ended_on', null),
   ])
@@ -40,8 +40,8 @@ export default async function AdminDashboard() {
   const reviews = reviewsRes.data
 
   if (reviews) {
-    const contractorIds = [...new Set(reviews.map((r) => r.contractor_id))]
-    const total = contractorIds.length * 2
+    const allocatedIds = allocations.map((a) => a.contractor_id)
+    const total = allocatedIds.length * 2
     const done = reviews.filter((r) => r.status === 'submitted').length
     cycleProgress = { done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 }
 
