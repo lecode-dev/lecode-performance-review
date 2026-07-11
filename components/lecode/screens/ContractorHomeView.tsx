@@ -49,18 +49,18 @@ export function ContractorHomeView({
           marginBottom: 18,
           borderColor: selfDone ? 'var(--border)' : 'color-mix(in oklab, var(--accent) 35%, var(--border))',
         }}>
-          <div className="between" style={{ alignItems: 'center' }}>
-            <div className="row" style={{ gap: 14 }}>
+          <div className="between" style={{ alignItems: 'center', flexWrap: 'wrap', gap: 14 }}>
+            <div className="row" style={{ gap: 14, flex: '1 1 200px', minWidth: 0 }}>
               <span style={{
                 width: 46, height: 46, borderRadius: 12,
                 background: selfDone ? 'var(--s5-soft)' : 'var(--accent-soft)',
                 color: selfDone ? 'var(--s5)' : 'var(--accent-ink)',
-                display: 'grid', placeItems: 'center',
+                display: 'grid', placeItems: 'center', flexShrink: 0,
               }}>
                 <Icon name={selfDone ? 'check' : 'form'} size={22} />
               </span>
-              <div className="col">
-                <div className="row" style={{ gap: 10 }}>
+              <div className="col" style={{ minWidth: 0 }}>
+                <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 600, fontSize: 15 }}>{t('Auto-avaliação')} · {cycle.name}</span>
                   <CycleBadge status="open" />
                 </div>
@@ -71,7 +71,7 @@ export function ContractorHomeView({
                 </span>
               </div>
             </div>
-            <Link href="/contractor/self-review" className={'btn ' + (selfDone ? '' : 'btn-primary')}>
+            <Link href="/contractor/self-review" className={'btn ' + (selfDone ? '' : 'btn-primary')} style={{ flexShrink: 0 }}>
               {selfDone ? <><Icon name="edit" size={16} />{t('Revisar')}</> : <><Icon name="star" size={16} />{t('Fazer auto-avaliação')}</>}
             </Link>
           </div>

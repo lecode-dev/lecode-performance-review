@@ -37,7 +37,7 @@ export function cachedNavBadges(
 
       if (role === 'lecode_admin') {
         const [contractorsRes, cycleRes] = await Promise.all([
-          admin.from('contractors').select('id', { count: 'exact', head: true }),
+          admin.from('contractors').select('profiles!inner(role)', { count: 'exact', head: true }).eq('profiles.role', 'contractor'),
           admin.from('cycles').select('id').eq('status', 'open').limit(1),
         ])
         if (contractorsRes.count) badges['/admin/contractors'] = contractorsRes.count
